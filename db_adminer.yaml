@@ -1,0 +1,27 @@
+services:
+  adminer:
+    profiles: ["dev"]
+    image: adminer:4.8.1
+    container_name: song-manager-adminer
+    networks:
+      - song-manager
+    restart: always
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+    ports:
+      - ${ADMINER_PORT}:${ADMINER_PORT}
+  db:
+    profiles: ["dev"]
+    image: postgres:16.0
+    container_name: song-manager-db
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    networks:
+      - song-manager
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+networks:
+  song-manager:

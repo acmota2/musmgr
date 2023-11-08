@@ -19,7 +19,7 @@ func loadDb() {
 }
 
 func loadEnv() {
-	err := godotenv.Load(".env.local")
+	err := godotenv.Load("../.env.local")
 	if err != nil {
 		log.Fatal(err)
 	}
