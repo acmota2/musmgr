@@ -1,36 +1,32 @@
-package database
+package db
 
 import (
+	"context"
 	"fmt"
 	"os"
 
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var PsqlDB *gorm.DB
+var PsqlDB *pgxpool.Pool
 
-func Connect() {
-	var err error
-	host := os.Getenv("POSTGRES_HOST")
-	username := os.Getenv("POSTGRES_USER")
-	password := os.Getenv("POSTGRES_PASSWORD")
-	databaseName := os.Getenv("POSTGRES_DB")
-	port := os.Getenv("POSTGRES_PORT")
-
-	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Africa/Lagos",
-		host,
-		username,
-		password,
-		databaseName,
-		port,
+func Connect() *pgxpool.Pool {
+	url := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s",
+		os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PASSWORD"),
+		os.Getenv("POSTGRES_HOST"),
+		os.Getenv("POSTGRES_PORT"),
+		os.Getenv("POSTGRES_DB"),
 	)
-	PsqlDB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+
+	var err error
+	PsqlDB, err = pgxpool.New(context.Background(), url)
 
 	if err != nil {
 		panic(err)
-	} else {
-		fmt.Println("Successfully connected to the database")
 	}
+
+	fmt.Println("Successfully connected to the database")
+	return PsqlDB
 }

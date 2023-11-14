@@ -1,24 +1,34 @@
 package model
 
 import (
-	database "backend/db"
+	"context"
 
-	"gorm.io/gorm"
+	"backend/db"
 )
 
 type Category struct {
-	gorm.Model
-	Name          string        `json:"name"`
-	Description   string        `json:"description"`
-	SubCategories []SubCategory `json:"subcategories"`
+	ID          int64  `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
-func GetAllCategories() (*[]Category, error) {
-	var categories *[]Category
-	err := database.PsqlDB.Find(&categories).Error
-
+func GetAllCategories() (categories []Category, err error) {
+	rows, err := db.PsqlDB.Query(
+		context.Background(),
+		"select 'id', 'name', 'description' from categories",
+	)
 	if err != nil {
-		return &[]Category{}, err
+		return []Category{}, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var category Category
+		err := rows.Scan(&category.ID, &category.Name, &category.Description)
+		if err != nil {
+			return []Category{}, err
+		}
+		categories = append(categories, category)
 	}
 	return categories, nil
 }

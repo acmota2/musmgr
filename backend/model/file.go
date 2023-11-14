@@ -1,12 +1,12 @@
 package model
 
 import (
-	database "backend/db"
+	"context"
 
-	"gorm.io/gorm"
+	"backend/db"
 )
 
-type FileType uint8
+type FileType uint16
 
 const (
 	text  = iota
@@ -14,28 +14,67 @@ const (
 )
 
 type SongFile struct {
-	gorm.Model
-	Path string
-	Type FileType
+	Path string   `json:"-"`
+	Name string   `json:"name"`
+	Open bool     `json:"-"`
+	Type FileType `json:"type"`
 }
 
-func (f *SongFile) Save() (*SongFile, error) {
-	err := database.PsqlDB.Create(f).Error
-
+func (f *SongFile) Save() (SongFile, error) {
+	_, err := db.PsqlDB.Exec(
+		context.Background(),
+		`insert into files(path, name, open, type) values ($1, $2, $3, $4)`,
+		f.Path,
+		f.Name,
+		false,
+		f.Type,
+	)
 	if err != nil {
-		return &SongFile{}, err
+		return SongFile{}, err
 	}
-	return f, nil
+	return *f, nil
 }
 
-// vais ter que ser mais inteligente a lidar com a abertura que isto, definitivamente
-func (f *SongFile) RetrieveSongText(s *Song) (*SongFile, error) {
-	err := database.PsqlDB.
-		Where("song_id = ? and type = ?", s.ID, text).
-		First(f).Error
-
+func (f *SongFile) RetrieveSongText(songId int64) (_ SongFile, err error) {
+	rows, err := db.PsqlDB.Query(
+		context.Background(),
+		`select * from file
+		where song_id = $1 and file_type = $2
+		limit 1`,
+		songId,
+		text,
+	)
 	if err != nil {
-		return &SongFile{}, err
+		return SongFile{}, err
 	}
-	return f, err
+	defer rows.Close()
+
+	err = rows.Scan(&f.Name)
+	if err != nil {
+		return SongFile{}, err
+	}
+	return *f, err
+}
+
+func GetAllFilesFromSong(songId int64) (songFiles []SongFile, err error) {
+	rows, err := db.PsqlDB.Query(
+		context.Background(),
+		`select * from file
+		where song_id = $1`,
+		songId,
+	)
+	if err != nil {
+		return []SongFile{}, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var songFile SongFile
+		err = rows.Scan(&songFile.Path, &songFile.Name, &songFile.Open, &songFile.Type)
+		if err != nil {
+			return []SongFile{}, nil
+		}
+		songFiles = append(songFiles, songFile)
+	}
+	return songFiles, nil
 }

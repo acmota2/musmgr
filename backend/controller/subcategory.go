@@ -3,7 +3,6 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 
-	database "backend/db"
 	"backend/model"
 	"net/http"
 )
@@ -33,11 +32,9 @@ func GetAllSongsFromSubcategory(context *gin.Context) {
 		return
 	}
 
-	var songs []*model.Song
+	var songs []model.Song
 	// se isto estiver certo, é um milagre
-	err := database.PsqlDB.Select(&songs).
-		InnerJoins("subcategory").
-		Where("song_subcategory.subcategory_id = ?", subcategory.ID).Error
+	songs, err := model.GetAllSongsFromSubcategory()
 
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})

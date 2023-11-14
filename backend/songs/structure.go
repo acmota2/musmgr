@@ -1,5 +1,7 @@
 package songs
 
+import "fmt"
+
 const (
 	Chorus = 0
 )
@@ -37,6 +39,15 @@ type SlashChord struct {
 	Root    Note   `json:"root"`
 	Base    Note   `json:"base"`
 	Details string `json:"details"`
+}
+
+// Chord String
+func (c SimpleChord) String() string {
+	return fmt.Sprintf("%v%s", c.Root, c.Details)
+}
+
+func (c SlashChord) String() string {
+	return fmt.Sprintf("%v%s/%v", c.Root, c.Details, c.Base)
 }
 
 // Transposition chain

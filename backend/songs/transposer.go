@@ -1,6 +1,9 @@
 package songs
 
-type NoteName int
+import (
+	"fmt"
+	"strings"
+)
 
 const (
 	C = 0
@@ -17,6 +20,17 @@ var noteOrder = []int{C, D, E, F, G, A, B}
 type Note struct {
 	Index      int `json:"index"`      // index of noteOrder
 	Alteration int `json:"alteration"` // semitones after or bellow note
+}
+
+func (n Note) String() string {
+	alteration := ""
+	if n.Alteration < 0 {
+		alteration = strings.Repeat("♭", n.Alteration*-1)
+	} else {
+		alteration = strings.Repeat("#", n.Alteration)
+	}
+	notes := []string{"C", "D", "E", "F", "G", "A", "B"}
+	return fmt.Sprintf("%s%s", notes[n.Index], alteration)
 }
 
 func (n *Note) AbsoluteCount() int {
