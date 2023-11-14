@@ -8,15 +8,15 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
+var PsqlDB *gorm.DB
 
 func Connect() {
 	var err error
-	host := os.Getenv("DB_HOST")
-	username := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	databaseName := os.Getenv("DB_NAME")
-	port := os.Getenv("DB_PORT")
+	host := os.Getenv("POSTGRES_HOST")
+	username := os.Getenv("POSTGRES_USER")
+	password := os.Getenv("POSTGRES_PASSWORD")
+	databaseName := os.Getenv("POSTGRES_DB")
+	port := os.Getenv("POSTGRES_PORT")
 
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Africa/Lagos",
@@ -26,7 +26,7 @@ func Connect() {
 		databaseName,
 		port,
 	)
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	PsqlDB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		panic(err)

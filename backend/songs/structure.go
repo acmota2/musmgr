@@ -9,7 +9,7 @@ type Chord interface {
 	Transpose(Interval)
 }
 
-type Song[T Chord] struct {
+type SongText[T Chord] struct {
 	Tonality Tonality    `json:"tonality"`
 	Stances  []Stance[T] `json:"stances"`
 }
@@ -40,7 +40,7 @@ type SlashChord struct {
 }
 
 // Transposition chain
-func (s *Song[T]) TransposeAllStances(interval Interval) {
+func (s *SongText[T]) TransposeAllStances(interval Interval) {
 	for i := 0; i < len(s.Stances); i++ {
 		s.Stances[i].transposeAllWords(interval)
 	}

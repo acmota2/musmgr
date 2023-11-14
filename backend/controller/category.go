@@ -1,17 +1,18 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
-
 	"backend/model"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
-func CreateCategory(context *gin.Context) {
-	var category model.Category
+func GetAllCategories(context *gin.Context) {
+	categories, err := model.GetAllCategories()
 
-	if err := context.ShouldBindJSON(&category); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	if err != nil {
+		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	} else {
+		context.JSON(http.StatusOK, gin.H{"found": categories})
 	}
 }
