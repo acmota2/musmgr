@@ -1,10 +1,11 @@
 package main
 
 import (
-	"backend/controller"
-	db "backend/db"
 	"log"
 	"os"
+
+	"backend/controller"
+	"backend/db"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -12,15 +13,13 @@ import (
 
 func main() {
 	loadEnv()
-	loadDb()
+	conn := db.Connect()
+	defer conn.Close()
+
 	router := setRoutes()
 
 	port := os.Getenv("BACKEND_PORT")
 	router.Run("localhost:" + port)
-}
-
-func loadDb() {
-	db.Connect()
 }
 
 func loadEnv() {
@@ -36,7 +35,6 @@ func setRoutes() *gin.Engine {
 	router.GET("/events", controller.GetAllEvents)
 	router.GET("/songs", controller.SongCategories)
 	router.GET("/songs/event/:id", controller.GetAllSongsFromEvent)
-	router.GET("/songs/:id", controller.GetSongWithID)
 
 	router.POST("/subcategory", controller.CreateSubCategory)
 	router.POST("/event", controller.CreateEvent)

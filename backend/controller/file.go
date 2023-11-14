@@ -1,13 +1,12 @@
 package controller
 
 import (
-	database "backend/db"
+	"net/http"
+	"strconv"
+
 	"backend/model"
 	"backend/songs"
-
 	"github.com/gin-gonic/gin"
-
-	"net/http"
 )
 
 func CreateSongFile(context *gin.Context) {
@@ -31,15 +30,13 @@ func GetSongText[T songs.Chord](context *gin.Context) {
 }
 
 func GetAllFilesFromSong(context *gin.Context) {
-	var song model.Song
+	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
 
-	if err := context.BindJSON(&song); err != nil {
+	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
-	var files []*model.SongFile
-	err := database.PsqlDB.Where("song_id = ?", song.ID).Find(&files).Error
-
+	files, err := model.GetAllFilesFromSong(id)
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {

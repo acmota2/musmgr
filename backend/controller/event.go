@@ -1,16 +1,17 @@
 package controller
 
 import (
-	"backend/model"
 	"net/http"
 	"strconv"
+
+	"backend/model"
 
 	"github.com/gin-gonic/gin"
 )
 
 func CreateEvent(context *gin.Context) {
-	var event *model.Event
-	if err := context.BindJSON(event); err != nil {
+	var event model.Event
+	if err := context.BindJSON(&event); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -25,7 +26,7 @@ func CreateEvent(context *gin.Context) {
 }
 
 func GetAllSongsFromEvent(context *gin.Context) {
-	id, err := strconv.ParseUint(context.Param("id"), 10, 64)
+	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
 
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

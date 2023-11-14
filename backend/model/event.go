@@ -1,43 +1,72 @@
 package model
 
 import (
-	database "backend/db"
+	"context"
 	"time"
 
-	"gorm.io/gorm"
+	"backend/db"
 )
 
 type Event struct {
-	gorm.Model
-	Name  string
-	Date  *time.Time
-	Songs []*Song `json:"songs"`
+	ID   int64      `json:"id"`
+	Name string     `json:"name"`
+	Date *time.Time `json:"date"`
 }
 
-func (e *Event) Save() (*Event, error) {
-	err := database.PsqlDB.Create(e).Error
+func (e *Event) Save() (Event, error) {
+	_, err := db.PsqlDB.Exec(
+		context.Background(),
+		"insert event('name', 'date') values ($1, $2);",
+		e.Name,
+		e.Date,
+	)
 	if err != nil {
-		return &Event{}, err
+		return Event{}, err
 	}
-	return e, nil
+	return *e, nil
 }
 
-func GetAllEvents() (*[]Event, error) {
-	var events *[]Event
-	err := database.PsqlDB.Find(&events).Error
-
+func GetAllEvents() (events []Event, err error) {
+	rows, err := db.PsqlDB.Query(
+		context.Background(),
+		"select id, name, date from event",
+	)
 	if err != nil {
-		return &[]Event{}, err
+		return events, err
 	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var event Event
+		err := rows.Scan(&event.ID, &event.Name, &event.Date)
+		if err != nil {
+			return []Event{}, err
+		}
+		events = append(events, event)
+	}
+
 	return events, nil
 }
 
-func GetEventSongs(eventId uint64) ([]*Song, error) {
-	var event *Event
-	err := database.PsqlDB.Model(&Event{}).Preload("songs").First(&event, eventId).Error
-
+func GetEventSongs(eventId int64) (songs []Song, err error) {
+	rows, err := db.PsqlDB.Query(
+		context.Background(),
+		`select * from song
+		inner join song_event on song.id = song_event.id
+		where song.id = $1`,
+		eventId,
+	)
 	if err != nil {
-		return []*Song{}, err
+		return []Song{}, err
 	}
-	return event.Songs, nil
+
+	for rows.Next() {
+		var song Song
+		err := rows.Scan(&song.ID, &song.Name, &song.Description, &song.Tonality)
+		if err != nil {
+			return []Song{}, err
+		}
+		songs = append(songs, song)
+	}
+	return songs, nil
 }

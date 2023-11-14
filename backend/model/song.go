@@ -1,27 +1,42 @@
 package model
 
 import (
-	database "backend/db"
+	"context"
 
-	"gorm.io/gorm"
+	"backend/db"
 )
 
 type Song struct {
-	gorm.Model
-	Name        string
-	Description string
-	Tonality    string
-	Files       []*SongFile
-	Events      []*Event
-	SubCategory []*SubCategory
+	ID             int64   `json:"id"`
+	Name           string  `json:"name"`
+	Description    string  `json:"description"`
+	Tonality       string  `json:"tonality"`
+	SubCategoryIds []int64 `json:"subcategories"`
 }
 
-func (s *Song) Save() (*Song, error) {
-	err := database.PsqlDB.Select("name", "description", "tonality").Create(s).Error
-	// provavelmente tenho que pôr algo aqui para adicionar à song_subcategory
-	// mas depois vejo como fazer isso
+func (s *Song) Save() (Song, error) {
+	_, err := db.PsqlDB.Exec(
+		context.Background(),
+		`insert into song(id, name, description, tonality) values ($1,$2,$3,$4)`,
+		s.ID,
+		s.Name,
+		s.Description,
+		s.Tonality,
+	)
 	if err != nil {
-		return &Song{}, err
+		return Song{}, err
 	}
-	return s, nil
+
+	for _, id := range s.SubCategoryIds {
+		_, err = db.PsqlDB.Exec(
+			context.Background(),
+			`insert into song_subcategory(song_id, subcategory_id) values ($1, $2)`,
+			s.ID,
+			id,
+		)
+		if err != nil {
+			return Song{}, err
+		}
+	}
+	return *s, nil
 }
