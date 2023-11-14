@@ -2,7 +2,6 @@ package model
 
 import (
 	database "backend/db"
-	songs "backend/songs"
 
 	"gorm.io/gorm"
 )
@@ -11,13 +10,18 @@ type Song struct {
 	gorm.Model
 	Name        string
 	Description string
-	Tonality    songs.Tonality
+	Tonality    string
+	Files       []*SongFile
+	Events      []*Event
+	SubCategory []*SubCategory
 }
 
 func (s *Song) Save() (*Song, error) {
-	err := database.DB.Create(s).Error
+	err := database.PsqlDB.Select("name", "description", "tonality").Create(s).Error
+	// provavelmente tenho que pôr algo aqui para adicionar à song_subcategory
+	// mas depois vejo como fazer isso
 	if err != nil {
-		return nil, err
+		return &Song{}, err
 	}
 	return s, nil
 }

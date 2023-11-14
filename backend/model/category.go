@@ -8,14 +8,17 @@ import (
 
 type Category struct {
 	gorm.Model
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Name          string        `json:"name"`
+	Description   string        `json:"description"`
+	SubCategories []SubCategory `json:"subcategories"`
 }
 
-func (c *Category) Save() (*Category, error) {
-	err := database.DB.Create(c).Error
+func GetAllCategories() (*[]Category, error) {
+	var categories *[]Category
+	err := database.PsqlDB.Find(&categories).Error
+
 	if err != nil {
-		return nil, err
+		return &[]Category{}, err
 	}
-	return c, nil
+	return categories, nil
 }

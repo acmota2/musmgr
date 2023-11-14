@@ -1,0 +1,20 @@
+/* para músicas */
+select id, name, tonality from song
+inner join song_subcategory
+on song.id = song_subcategory.song_id
+where song_subcategory.subcategory_id = 1;
+
+/* para eventos */
+select id, date, description from event
+inner join event_type
+on event.event_type_name = event_type.name;
+
+/* para eventos por data */
+select id, date, description from event
+where extract('MONTH' from event.date) = 11;
+
+/* detalhes das músicas de um dado evento */
+select id, name, tonality from song
+inner join song_event
+on song.id = song_event.song_id
+where song_event.event_id = 1;
