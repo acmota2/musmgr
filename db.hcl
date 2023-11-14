@@ -83,14 +83,14 @@ table "file" {
     column "path" {
         type = varchar(255)
     }
-    column "type" {
-        type = smallint
-    }
     column "name" {
         type = varchar(255)
     }
     column "open" {
         type = boolean
+    }
+    column "type" {
+        type = smallint
     }
     column "song_id" {
         type = bigint
