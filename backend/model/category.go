@@ -15,7 +15,7 @@ type Category struct {
 func GetAllCategories() (categories []Category, err error) {
 	rows, err := db.PsqlDB.Query(
 		context.Background(),
-		"select 'id', 'name', 'description' from categories",
+		"select 'id', 'name', 'description' from category",
 	)
 	if err != nil {
 		return []Category{}, err
@@ -31,4 +31,27 @@ func GetAllCategories() (categories []Category, err error) {
 		categories = append(categories, category)
 	}
 	return categories, nil
+}
+
+func GetAllSubCategoriesFromCategory(categoryId int64) (subCats []SubCategory, err error) {
+	rows, err := db.PsqlDB.Query(
+		context.Background(),
+		`select '* from subcategory
+		where category_id = $1`,
+		categoryId,
+	)
+	if err != nil {
+		return []SubCategory{}, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var subCat SubCategory
+		err := rows.Scan(&subCat.ID, &subCat.Name, &subCat.CategoryId)
+		if err != nil {
+			return []SubCategory{}, err
+		}
+		subCats = append(subCats, subCat)
+	}
+	return subCats, nil
 }

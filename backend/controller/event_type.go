@@ -1,0 +1,40 @@
+package controller
+
+import (
+	"backend/model"
+	"errors"
+	"net/http"
+	"regexp"
+
+	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
+)
+
+func GetAllEventTypes(context *gin.Context) {
+	eventTypes, err := model.GetAllEventTypes()
+	if errors.Is(err, pgx.ErrNoRows) {
+		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	} else if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	} else {
+		context.JSON(http.StatusOK, gin.H{"event_types": eventTypes})
+	}
+}
+
+func GetAllEventsFromEventType(context *gin.Context) {
+	id := context.Param("name")
+	matched, err := regexp.MatchString(`^[\w_\-]+$`, id)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	} else if !matched {
+		context.JSON(http.StatusBadRequest, gin.H{"error": `the request was bad, you should feel bad`})
+		return
+	}
+	events, err := model.GetAllEventsFromEventType(id)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	} else {
+		context.JSON(http.StatusOK, gin.H{"events": events})
+	}
+}

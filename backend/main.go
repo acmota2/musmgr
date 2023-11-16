@@ -32,12 +32,20 @@ func loadEnv() {
 func setRoutes() *gin.Engine {
 	router := gin.Default()
 	router.GET("/categories", controller.GetAllCategories)
+	router.GET("/event_types", controller.GetAllEventTypes)
+	router.GET("/events/event_type/:name", controller.GetAllEventsFromEventType)
 	router.GET("/events", controller.GetAllEvents)
-	router.GET("/songs", controller.SongCategories)
+	router.GET("/files/song/:id", controller.GetAllFilesFromSong)
+	// TODO: router.GET("/files/song/text", )
 	router.GET("/songs/event/:id", controller.GetAllSongsFromEvent)
+	router.GET("/songs/subcategory/:id", controller.GetAllSongsFromSubcategory)
+	router.GET("/songs", controller.GetAllSongs)
+	router.GET("/subcategories/song/:id", controller.GetSongSubCategories)
+	router.GET("/subcategories", controller.GetAllSubcategories)
 
 	router.POST("/subcategory", controller.CreateSubCategory)
 	router.POST("/event", controller.CreateEvent)
 	router.POST("/song", controller.CreateSong)
+	// TODO: router.POST("/file", controller.CreateFile)
 	return router
 }

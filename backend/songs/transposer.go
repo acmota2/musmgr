@@ -43,14 +43,14 @@ type Tonality struct {
 }
 
 type Interval struct {
-	distanceToNoteIndex int
-	semitones           int
+	DistanceToNoteIndex int
+	SemitoneDistance    int
 }
 
-func (n *Note) transpose(interval Interval) {
-	semitones := noteOrder[n.Index] + noteOrder[n.Index+interval.distanceToNoteIndex]
-	n.Index = n.Index + interval.distanceToNoteIndex
-	n.Alteration = semitones - interval.semitones
+func (n *Note) Transpose(interval Interval) {
+	semitones := noteOrder[n.Index] + noteOrder[n.Index+interval.DistanceToNoteIndex]
+	n.Index = n.Index + interval.DistanceToNoteIndex
+	n.Alteration = semitones - interval.SemitoneDistance
 }
 
 const transpositionNumber = 12
