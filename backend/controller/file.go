@@ -11,7 +11,6 @@ import (
 
 func CreateSongFile(context *gin.Context) {
 	var file model.SongFile
-
 	if err := context.BindJSON(&file); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}

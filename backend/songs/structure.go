@@ -2,82 +2,67 @@ package songs
 
 import "fmt"
 
-const (
-	Chorus = 0
-)
+const Chorus = 0
 
-type Chord interface {
-	Note
-	Transpose(Interval)
-}
-
-type SongText[T Chord] struct {
-	Tonality Tonality    `json:"tonality"`
-	Stances  []Stance[T] `json:"stances"`
+type SongText struct {
+	Tonality Tonality `json:"tonality"`
+	Stances  []Stance `json:"stances"`
 }
 
 type StanceType int
 
-type Stance[T Chord] struct {
-	Text []Word[T]  `json:"verses"`
+type Stance struct {
+	Text []Word     `json:"verses"`
 	Type StanceType `json:"type"`
 }
 
-type Word[T Chord] []Syllable[T]
+type Word []Syllable
 
-type Syllable[T Chord] struct {
+type Syllable struct {
 	Text  string `json:"syllable"`
-	Chord T      `json:"chord"`
+	Chord *Chord `json:"chord"`
 }
 
-type SimpleChord struct {
+type Chord struct {
 	Root    Note   `json:"root"`
-	Details string `json:"details"`
-}
-
-type SlashChord struct {
-	Root    Note   `json:"root"`
-	Base    Note   `json:"base"`
+	Base    *Note  `json:"base"`
 	Details string `json:"details"`
 }
 
 // Chord String
-func (c SimpleChord) String() string {
-	return fmt.Sprintf("%v%s", c.Root, c.Details)
-}
-
-func (c SlashChord) String() string {
+func (c Chord) String() string {
+	if c.Base == nil {
+		return fmt.Sprintf("%v%s", c.Root, c.Details)
+	}
 	return fmt.Sprintf("%v%s/%v", c.Root, c.Details, c.Base)
 }
 
 // Transposition chain
-func (s *SongText[T]) TransposeAllStances(interval Interval) {
+func (s *SongText) TransposeAllStances(interval Interval) {
 	for i := 0; i < len(s.Stances); i++ {
 		s.Stances[i].transposeAllWords(interval)
 	}
 }
 
-func (s *Stance[T]) transposeAllWords(interval Interval) {
+func (s *Stance) transposeAllWords(interval Interval) {
 	for i := 0; i < len(s.Text); i++ {
 		s.Text[i].transposeAllChords(interval)
 	}
 }
 
-func (w *Word[T]) transposeAllChords(interval Interval) {
+func (w *Word) transposeAllChords(interval Interval) {
 	for i := 0; i < len(*w); i++ {
 		(*w)[i].transposeChord(interval)
 	}
 }
 
-func (s *Syllable[T]) transposeChord(i Interval) {
+func (s *Syllable) transposeChord(i Interval) {
 	s.Chord.Transpose(i)
 }
 
-func (c *SimpleChord) Transpose(i Interval) {
-	c.Root.transpose(i)
-}
-
-func (c *SlashChord) Transpose(i Interval) {
-	c.Base.transpose(i)
-	c.Root.transpose(i)
+func (c *Chord) Transpose(i Interval) {
+	if c.Base == nil {
+		c.Base.Transpose(i)
+	}
+	c.Root.Transpose(i)
 }

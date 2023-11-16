@@ -1,35 +1,39 @@
 package model
 
 import (
+	"backend/db"
 	"context"
 	"time"
 
-	"backend/db"
+	"github.com/jackc/pgx/v5"
 )
 
 type Event struct {
-	ID   int64      `json:"id"`
-	Name string     `json:"name"`
-	Date *time.Time `json:"date"`
+	ID            int64     `json:"id"`
+	Date          DayOfYear `json:"date"`
+	Description   string    `json:"description"`
+	EventTypeName string    `json:"event_type_name"`
 }
 
 func (e *Event) Save() (Event, error) {
-	_, err := db.PsqlDB.Exec(
+	err := db.PsqlDB.QueryRow(
 		context.Background(),
-		"insert event('name', 'date') values ($1, $2);",
-		e.Name,
-		e.Date,
-	)
+		`insert into event(id, date, description, event_type_name)
+		values (default, $1, $2, $3) returning id`,
+		time.Time(e.Date),
+		e.Description,
+		e.EventTypeName,
+	).Scan(&e.ID)
 	if err != nil {
 		return Event{}, err
 	}
 	return *e, nil
 }
 
-func GetAllEvents() (events []Event, err error) {
+func GetAllEvents() (events []Event, _ error) {
 	rows, err := db.PsqlDB.Query(
 		context.Background(),
-		"select id, name, date from event",
+		"select * from event",
 	)
 	if err != nil {
 		return events, err
@@ -38,7 +42,7 @@ func GetAllEvents() (events []Event, err error) {
 
 	for rows.Next() {
 		var event Event
-		err := rows.Scan(&event.ID, &event.Name, &event.Date)
+		err := rows.Scan(&event.ID, &event.Date, &event.Description, &event.EventTypeName)
 		if err != nil {
 			return []Event{}, err
 		}
@@ -48,11 +52,11 @@ func GetAllEvents() (events []Event, err error) {
 	return events, nil
 }
 
-func GetEventSongs(eventId int64) (songs []Song, err error) {
+func GetEventSongs(eventId int64) (songs []Song, _ error) {
 	rows, err := db.PsqlDB.Query(
 		context.Background(),
-		`select * from song
-		inner join song_event on song.id = song_event.id
+		`select id, name, tonality from song
+		inner join song_event on song.id = song_event.song_id
 		where song.id = $1`,
 		eventId,
 	)
@@ -62,11 +66,15 @@ func GetEventSongs(eventId int64) (songs []Song, err error) {
 
 	for rows.Next() {
 		var song Song
-		err := rows.Scan(&song.ID, &song.Name, &song.Description, &song.Tonality)
+		err := rows.Scan(&song.ID, &song.Name, &song.Tonality)
 		if err != nil {
 			return []Song{}, err
 		}
 		songs = append(songs, song)
+	}
+
+	if len(songs) == 0 {
+		return []Song{}, pgx.ErrNoRows
 	}
 	return songs, nil
 }
