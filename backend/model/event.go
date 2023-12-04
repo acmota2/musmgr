@@ -42,7 +42,9 @@ func GetAllEvents() (events []Event, _ error) {
 
 	for rows.Next() {
 		var event Event
-		err := rows.Scan(&event.ID, &event.Date, &event.Description, &event.EventTypeName)
+		var date time.Time
+		err := rows.Scan(&event.ID, &date, &event.Description, &event.EventTypeName)
+		event.Date = DayOfYear(date)
 		if err != nil {
 			return []Event{}, err
 		}

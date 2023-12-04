@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"fmt"
 
 	"backend/db"
 )
@@ -15,7 +16,7 @@ type Category struct {
 func GetAllCategories() (categories []Category, err error) {
 	rows, err := db.PsqlDB.Query(
 		context.Background(),
-		"select 'id', 'name', 'description' from category",
+		`select * from category`,
 	)
 	if err != nil {
 		return []Category{}, err
@@ -24,6 +25,7 @@ func GetAllCategories() (categories []Category, err error) {
 
 	for rows.Next() {
 		var category Category
+		fmt.Print("estoura aí, oh mano\n")
 		err := rows.Scan(&category.ID, &category.Name, &category.Description)
 		if err != nil {
 			return []Category{}, err
