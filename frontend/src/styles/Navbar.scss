@@ -1,0 +1,23 @@
+.Navbar {
+    padding: 0.75rem;
+    background-color: orange;
+    .links {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        .homeButton {
+            a:link {
+                text-decoration: none;
+            }
+            a {
+                font-weight: bold;
+                font-size: 20px;
+            }
+        }
+        .searchBar {
+            padding-right: 0.5rem;
+            padding-left: 0.5rem;
+            
+        }
+    }
+}
