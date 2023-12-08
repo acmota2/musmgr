@@ -14,8 +14,8 @@ type Chorus = 0;
 type StanceHelper = number;
 type StanceType = Chorus | StanceHelper;
 type Stance = {
-    text: Word[];
     type: StanceType;
+    text: Word[];
 };
 
 function transposeStance(s: Stance, i: Interval): Stance {

@@ -16,8 +16,8 @@ const Sidebar = () => {
   return (
     <div className="Sidebar">
       {organizationTiles.map((tile) => (
-        <Link to={tile.route}>
-          <div className="organization-tile">
+        <Link to={tile.route} key={tile.name}>
+          <div className={tile.name}>
             <p>{tile.name}</p>
           </div>
         </Link>

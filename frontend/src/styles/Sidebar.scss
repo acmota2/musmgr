@@ -3,6 +3,9 @@ $hovering: #F0DEBB;
 .Sidebar {
     display: flex;
     flex-direction: column;
+    padding-right: 1rem;
+    font-size: 30px;
+    font-weight: bold;
     a:link {
         text-decoration: none;
         color: black;
@@ -11,14 +14,12 @@ $hovering: #F0DEBB;
         text-decoration: none;
         color: black;
     }
-    .organization-tile {
+    div {
         padding: 1rem;
-        font-size: 14px;
-        font-weight: bold;
         height: 1.5rem;
         width: 8rem;
     }
-    .organization-tile:hover {
+    div:hover {
         transition: 100ms;
         background-color: $hovering;
     }

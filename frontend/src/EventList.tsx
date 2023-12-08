@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import TileList from "./multipurpose/tilelist";
 
 type Event = {
   id: number;
@@ -7,10 +7,12 @@ type Event = {
   eventTypeName: string;
 };
 
+const EventFormatter = ({ data: event }: { data: Event }) => (
+  <p>{event.date}</p>
+);
+
 const EventList = ({
   events,
-  title,
-  fromEvent,
 }: {
   events: Event[];
   title: string;
@@ -18,21 +20,11 @@ const EventList = ({
 }) => {
   return (
     <div className="Events">
-      <p>{title}</p>
-      {events.map((event) => {
-        const eventRef = `/events/${event.eventTypeName}-${event.date}`;
-
-        return (
-          <div>
-            <Link to={eventRef}>
-              {fromEvent
-                ? `${event.date}`
-                : `${event.eventTypeName}
-                ${event.date}`}
-            </Link>
-          </div>
-        );
-      })}
+      <TileList
+        dataList={events}
+        linkMaker={(event) => event.id.toString()}
+        linkFormatter={EventFormatter}
+      />
     </div>
   );
 };
