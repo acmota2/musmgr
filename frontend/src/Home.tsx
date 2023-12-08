@@ -3,7 +3,7 @@ const Home = () => {
     <div className="home">
       <div className="upperPadding" />
       <h2>SongMGR</h2>
-      <text>O editor de canções</text>
+      <div className="homeText">O editor de canções</div>
     </div>
   );
 };

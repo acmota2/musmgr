@@ -1,4 +1,4 @@
-import { ErrorInfo } from "./useGet";
+import { ErrorInfo } from "../hooks/useGet";
 
 const messageHandler = (status: number): string => {
   switch (status) {
