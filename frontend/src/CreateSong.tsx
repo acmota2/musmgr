@@ -1,7 +1,7 @@
 import { useState } from "react";
 import TitlePage from "./multipurpose/titlepage";
 import "./styles/CreateSong.scss";
-import AnyForm from "./multipurpose/AnyForm";
+import AnyPostForm, { FormState } from "./multipurpose/AnyPostForm";
 import SubCategory from "./Category";
 import SelectorButton from "./multipurpose/SelectorButton";
 import AnyList from "./multipurpose/anylist";
@@ -13,18 +13,15 @@ export type Song = {
   subcategories: number[];
 };
 
-type songState = {
-  stateName: [string, React.Dispatch<React.SetStateAction<string>>];
-  stateNote: [string, React.Dispatch<React.SetStateAction<string>>];
-  stateTColor: [string, React.Dispatch<React.SetStateAction<string>>];
-  stateSubCategories: [
-    Set<number>,
-    React.Dispatch<React.SetStateAction<Set<number>>>,
-  ];
+type SongState = {
+  stateName: string;
+  stateNote: string;
+  stateTColor: string;
+  stateSubCategories: Set<number>;
 };
 
 const CreateSong = () => {
-  const songState = {
+  const songState: FormState<SongState> = {
     stateName: useState<string>(""),
     stateNote: useState<string>("Dó"),
     stateTColor: useState<string>("Maior"),
@@ -36,10 +33,10 @@ const CreateSong = () => {
     stateNote: [note, setNote],
     stateTColor: [tColor, setTColor],
     stateSubCategories: [subCategories, setSubCategories],
-  } = songState;
+  }: FormState<SongState> = songState;
 
   return (
-    <AnyForm
+    <AnyPostForm
       path="/song"
       redirectTo={() => "/"}
       buttonText="Criar"
@@ -49,7 +46,7 @@ const CreateSong = () => {
         stateNote: [note],
         stateTColor: [tColor],
         stateSubCategories: [subcategories],
-      }: songState): Song => {
+      }: FormState<SongState>): Song => {
         return {
           id: 0,
           name: newSongName,
@@ -110,7 +107,7 @@ const CreateSong = () => {
           />
         </TitlePage>
       </div>
-    </AnyForm>
+    </AnyPostForm>
   );
 };
 

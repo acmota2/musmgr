@@ -5,9 +5,24 @@ import (
 	"strconv"
 
 	"backend/model"
-	"backend/songs"
+
 	"github.com/gin-gonic/gin"
 )
+
+func DownloadTextFile(context *gin.Context) {
+	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	songFile, err := model.GetTextFileFromSong(id)
+	if err != nil {
+		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	} else {
+		context.FileAttachment(songFile.Path, songFile.Name+".json")
+	}
+}
 
 func CreateSongFile(context *gin.Context) {
 	var file model.SongFile
@@ -20,25 +35,26 @@ func CreateSongFile(context *gin.Context) {
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusCreated, gin.H{"savedData": saved})
+		context.JSON(http.StatusCreated, gin.H{"data": saved})
 	}
 }
 
-func GetSongText[T songs.Chord](context *gin.Context) {
+func GetSongText(context *gin.Context) {
 	context.JSON(http.StatusNotImplemented, gin.H{"error": "Not implemented"})
 }
 
-func GetAllFilesFromSong(context *gin.Context) {
+func GetAllFilesInformationFromSong(context *gin.Context) {
 	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
 
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	files, err := model.GetAllFilesFromSong(id)
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusOK, gin.H{"found": files})
+		context.JSON(http.StatusOK, gin.H{"data": files})
 	}
 }

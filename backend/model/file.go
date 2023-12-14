@@ -2,12 +2,9 @@ package model
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"os"
 
 	"backend/db"
-	"backend/songs"
 )
 
 type FileType uint16
@@ -18,11 +15,11 @@ const (
 )
 
 type SongFile struct {
-	Path     string          `json:"-"`
-	Name     string          `json:"name"`
-	Open     bool            `json:"-"`
-	Type     FileType        `json:"type"`
-	TextFile *songs.SongText `json:"song_text"`
+	Path   string   `json:"-"`
+	Name   string   `json:"name"`
+	Open   bool     `json:"-"`
+	SongId int64    `json:"song_id"`
+	Type   FileType `json:"type"`
 }
 
 func (f *SongFile) Save() (SongFile, error) {
@@ -40,41 +37,22 @@ func (f *SongFile) Save() (SongFile, error) {
 		return SongFile{}, err
 	}
 
-	file, err := os.Open(path)
-	if err != nil {
-		return SongFile{}, err
-	}
-
-	fileJSON, err := json.MarshalIndent(f.TextFile, "", "    ")
-	if err != nil {
-		return SongFile{}, err
-	}
-
-	_, err = file.Write(fileJSON)
-	if err != nil {
-		return SongFile{}, err
-	}
-
 	return *f, nil
 }
 
-func (f *SongFile) RetrieveSongText(songId int64) (_ songs.SongText, err error) {
+func GetTextFileFromSong(songId int64) (SongFile, error) {
 	row := db.PsqlDB.QueryRow(
 		context.Background(),
 		`select * from file
-		where song_id = $1 and file_type = $2`,
+		where song_id = $1 and type = $2`,
 		songId,
 		text,
 	)
-	if err != nil {
-		return songs.SongText{}, err
+	var songFile SongFile
+	if err := row.Scan(&songFile.Path, &songFile.Name, &songFile.Open, &songFile.Type); err != nil {
+		return SongFile{}, err
 	}
-
-	err = row.Scan(&f.Name)
-	if err != nil {
-		return songs.SongText{}, err
-	}
-	return *f.TextFile, err
+	return songFile, nil
 }
 
 func GetAllFilesFromSong(songId int64) (songFiles []SongFile, _ error) {

@@ -15,7 +15,7 @@ func GetAllCategories(context *gin.Context) {
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusOK, gin.H{"found": categories})
+		context.JSON(http.StatusOK, gin.H{"data": categories})
 	}
 }
 
@@ -29,6 +29,6 @@ func GetAllSubCategoriesFromCategory(context *gin.Context) {
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusOK, gin.H{"subcategories": subCats})
+		context.JSON(http.StatusOK, gin.H{"data": subCats})
 	}
 }

@@ -3,26 +3,30 @@ import { ReactNode } from "react";
 import usePost from "../hooks/usePost";
 import { To } from "react-router-dom";
 
-export type DataCreator<S, T> = (state: S) => T;
-export type Redirector<T> = (data: T | void) => (To | null);
+export type DataCreator<S, T> = (state: FormState<S>) => T;
+export type Redirector<T> = (data: T | void) => To | null;
 
-export interface AnyFormProps<S, T> {
+export type FormState<T> = {
+  [P in keyof T]: [T[P], React.Dispatch<React.SetStateAction<T[P]>>];
+};
+
+export interface AnyPostFormProps<S, T> {
   path: string;
   redirectTo: Redirector<T>;
   buttonText: string;
-  state: S;
+  state: FormState<S>;
   dataCreator: DataCreator<S, T>;
   children: ReactNode;
 }
 
-const AnyForm = <S, T>({
+const AnyPostForm = <S, T>({
   path,
   redirectTo,
   buttonText,
   state,
   dataCreator,
   children,
-}: AnyFormProps<S, T>) => {
+}: AnyPostFormProps<S, T>) => {
   const { pending, err, poster } = usePost<T>(path, redirectTo());
 
   const submitHandler = (e: React.FormEvent) => {
@@ -40,4 +44,4 @@ const AnyForm = <S, T>({
   );
 };
 
-export default AnyForm;
+export default AnyPostForm;

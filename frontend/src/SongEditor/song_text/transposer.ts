@@ -1,4 +1,4 @@
-enum NoteName {
+export enum NoteName {
     C = 0,
     D = 2,
     E = 4,
@@ -8,12 +8,12 @@ enum NoteName {
     B = 11,
 }
 
-type Interval = {
+export type Interval = {
     readonly distanceToNoteIndex: number;
     readonly semitoneDistance: number;
 };
 
-type Note = {
+export type Note = {
     index: number;
     alteration: number;
     absoluteCount: (n: Note) => number;
@@ -99,7 +99,7 @@ const sensicalTranspose: Note[] = [
     newNote(NoteName.B, 0), // Si
 ];
 
-type Tonality = {
+export type Tonality = {
     readonly name: string;
     note: Note;
 };

@@ -17,7 +17,7 @@ func GetAllEventTypes(context *gin.Context) {
 	} else if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusOK, gin.H{"event_types": eventTypes})
+		context.JSON(http.StatusOK, gin.H{"data": eventTypes})
 	}
 }
 
@@ -35,6 +35,6 @@ func GetAllEventsFromEventType(context *gin.Context) {
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusOK, gin.H{"events": events})
+		context.JSON(http.StatusOK, gin.H{"data": events})
 	}
 }
