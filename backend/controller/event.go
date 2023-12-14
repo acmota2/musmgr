@@ -21,7 +21,7 @@ func CreateEvent(context *gin.Context) {
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusCreated, gin.H{"event": event})
+		context.JSON(http.StatusCreated, gin.H{"data": event})
 	}
 }
 
@@ -38,7 +38,7 @@ func GetAllSongsFromEvent(context *gin.Context) {
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusOK, gin.H{"songs": songs})
+		context.JSON(http.StatusOK, gin.H{"data": songs})
 	}
 }
 
@@ -48,6 +48,6 @@ func GetAllEvents(context *gin.Context) {
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusOK, gin.H{"events": events})
+		context.JSON(http.StatusOK, gin.H{"data": events})
 	}
 }

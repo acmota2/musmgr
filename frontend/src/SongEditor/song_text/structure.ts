@@ -1,61 +1,85 @@
+import { Note, Tonality, Interval } from "./transposer";
+
 type SongText = {
-    tonality: Tonality;
-    stances: Stance[];
+  tonality: Tonality;
+  stances: SongStance[];
 };
 
 function transposeSongText(st: SongText, i: Interval): SongText {
-    const n = st.tonality.note.transpose(st.tonality.note, i);
-    st.tonality.note = n;
-    st.stances = st.stances.map((s) => transposeStance(s, i));
-    return st;
+  const n = st.tonality.note.transpose(st.tonality.note, i);
+  st.tonality.note = n;
+  st.stances = st.stances.map((s) => transposeStance(s, i));
+  return st;
 }
 
-type Chorus = 0;
-type StanceHelper = number;
-type StanceType = Chorus | StanceHelper;
-type Stance = {
-    type: StanceType;
-    text: Word[];
+export type Chorus = 0;
+export type StanceType = Chorus | number;
+export type SongStance = {
+  type: StanceType;
+  text: Word[];
 };
 
-function transposeStance(s: Stance, i: Interval): Stance {
-    s.text = s.text.map((w) => transposeWords(w, i));
-    return s;
+function transposeStance(s: SongStance, i: Interval): SongStance {
+  s.text = s.text.map((w) => transposeWords(w, i));
+  return s;
 }
 
-type Word = Syllable[];
+export type Word = Syllable[];
 
 function transposeWords(w: Word, i: Interval): Word {
-    return w.map((s) => {
-        s.chord = s.chord.transpose(i);
-        return s;
-    });
+  return w.map((s) => {
+    s.chord = s.chord.transpose(s.chord, i);
+    return s;
+  });
 }
 
-type Syllable = {
-    text: string;
-    chord: Chord;
+export type Syllable = {
+  text: string;
+  chord: Chord;
 };
 
-interface Chord {
-    root: Note;
-    base?: Note;
-    details?: string;
-    toString(): string;
-    transpose(i: Interval): Chord;
+export interface Chord {
+  root: Note;
+  base?: Note;
+  details?: string;
+  toString(c: Chord): string;
+  transpose(c: Chord, i: Interval): Chord;
+}
+
+export default function makeChord(
+  root: Note,
+  base?: Note,
+  details?: string,
+): Chord {
+  return {
+    root,
+    base,
+    details,
+    toString: chordToString,
+    transpose: transposeChord,
+  };
+}
+
+function chordToString(c: Chord) {
+  const { root, base, details } = c;
+  return (
+    root.toString(root) +
+    (base ? "/" + base.toString(base) : "") +
+    (details ? details : "")
+  );
 }
 
 function transposeChord(c: Chord, i: Interval): Chord {
-    let { root, base } = c;
-    root = root.transpose(root, i);
-    if (base) {
-        base = base.transpose(base, i);
-    }
-    return {
-        root,
-        base,
-        details: c.details,
-        toString: c.toString,
-        transpose: c.transpose,
-    };
+  let { root, base } = c;
+  root = root.transpose(root, i);
+  if (base) {
+    base = base.transpose(base, i);
+  }
+  return {
+    root,
+    base,
+    details: c.details,
+    toString: c.toString,
+    transpose: c.transpose,
+  };
 }

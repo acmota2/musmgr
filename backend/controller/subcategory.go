@@ -20,7 +20,7 @@ func CreateSubCategory(context *gin.Context) {
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusCreated, gin.H{"subcategory": subCat})
+		context.JSON(http.StatusCreated, gin.H{"data": subCat})
 	}
 }
 
@@ -35,7 +35,7 @@ func GetAllSongsFromSubcategory(context *gin.Context) {
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusOK, gin.H{"found": songs})
+		context.JSON(http.StatusOK, gin.H{"data": songs})
 	}
 }
 
@@ -44,6 +44,6 @@ func GetAllSubcategories(context *gin.Context) {
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusOK, gin.H{"subcategories": subCats})
+		context.JSON(http.StatusOK, gin.H{"data": subCats})
 	}
 }
