@@ -7,9 +7,9 @@ import (
 )
 
 type SubCategory struct {
-	ID         int64  `json:"id"`
-	Name       string `json:"name"`
-	CategoryId int64  `json:"category_id"`
+	ID           int64  `json:"id"`
+	Name         string `json:"name"`
+	CategoryName string `json:"category_id"`
 }
 
 func (s *SubCategory) Save() (SubCategory, error) {
@@ -17,7 +17,7 @@ func (s *SubCategory) Save() (SubCategory, error) {
 		context.Background(),
 		`insert into subcategory(name, category_id) values($2, $3)`,
 		s.Name,
-		s.CategoryId,
+		s.CategoryName,
 	)
 	if err != nil {
 		return SubCategory{}, err
@@ -59,7 +59,7 @@ func GetAllSubCategories() (subCats []SubCategory, err error) {
 
 	for rows.Next() {
 		var subCat SubCategory
-		err = rows.Scan(&subCat.ID, &subCat.Name, &subCat.CategoryId)
+		err = rows.Scan(&subCat.ID, &subCat.Name, &subCat.CategoryName)
 		if err != nil {
 			return []SubCategory{}, nil
 		}

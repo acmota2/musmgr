@@ -14,8 +14,8 @@ export interface AnyPostFormProps<S, T> {
   path: string;
   redirectTo: Redirector<T>;
   buttonText: string;
-  state: FormState<S>;
-  dataCreator: DataCreator<S, T>;
+  state?: FormState<S>;
+  dataCreator?: DataCreator<S, T>;
   children: ReactNode;
 }
 
@@ -31,7 +31,9 @@ const AnyPostForm = <S, T>({
 
   const submitHandler = (e: React.FormEvent) => {
     e.preventDefault();
-    poster(dataCreator(state));
+    if (dataCreator && state) {
+      poster(dataCreator(state));
+    }
   };
 
   return (

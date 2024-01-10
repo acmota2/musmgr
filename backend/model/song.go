@@ -76,7 +76,7 @@ func GetSongSubcategories(songId int64) (subCats []SubCategory, err error) {
 
 	for rows.Next() {
 		var subCat SubCategory
-		err = rows.Scan(&subCat.ID, &subCat.Name, &subCat.CategoryId)
+		err = rows.Scan(&subCat.ID, &subCat.Name, &subCat.CategoryName)
 		if err != nil {
 			return []SubCategory{}, nil
 		}

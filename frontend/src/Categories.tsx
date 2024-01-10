@@ -3,7 +3,6 @@ import TileList from "./multipurpose/tilelist";
 import TitlePage from "./multipurpose/titlepage";
 
 export type Category = {
-  id: number;
   name: string;
   description: string;
 };
@@ -11,7 +10,7 @@ export type Category = {
 const CategoryFormatter = ({ data: category }: { data: Category }) => (
   <p>{category.name}</p>
 );
-const linkMaker = (c: Category) => `/category?name=${c.name}&id=${c.id}`;
+const linkMaker = (c: Category) => `/category?name=${c.name}`;
 
 export const Categories = () => {
   return (

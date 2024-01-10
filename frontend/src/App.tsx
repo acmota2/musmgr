@@ -8,7 +8,7 @@ import EventTypes from "./eventtypes";
 import Songs from "./songs";
 import Category from "./Category";
 import CreateSong from "./CreateSong";
-import MainEditor from "./SongEditor/mainpage";
+import MainEditor from "./SongEditor/SongEditor";
 
 export default function App() {
   return (

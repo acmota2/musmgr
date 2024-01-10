@@ -1,11 +1,11 @@
-import { Note, Tonality, Interval } from "./transposer";
+import { Note, Tonality, Interval, NoteName, newNote } from "./transposer";
 
-type SongText = {
+export type SongText = {
   tonality: Tonality;
   stances: SongStance[];
 };
 
-function transposeSongText(st: SongText, i: Interval): SongText {
+export function transposeSongText(st: SongText, i: Interval): SongText {
   const n = st.tonality.note.transpose(st.tonality.note, i);
   st.tonality.note = n;
   st.stances = st.stances.map((s) => transposeStance(s, i));
@@ -16,11 +16,28 @@ export type Chorus = 0;
 export type StanceType = Chorus | number;
 export type SongStance = {
   type: StanceType;
-  text: Word[];
+  text: Verse[];
 };
 
+export function emptySong(): SongText {
+  return {
+    tonality: {
+      details: "Maior",
+      note: newNote(NoteName.C, 0),
+    },
+    stances: [
+      {
+        type: 0,
+        text: [[[{ text: "", chord: makeChord(newNote(NoteName.C, 0)) }]]],
+      },
+    ],
+  };
+}
+
+export type Verse = Word[];
+
 function transposeStance(s: SongStance, i: Interval): SongStance {
-  s.text = s.text.map((w) => transposeWords(w, i));
+  s.text = s.text.map((v) => v.map((w) => transposeWords(w, i)));
   return s;
 }
 
@@ -28,15 +45,21 @@ export type Word = Syllable[];
 
 function transposeWords(w: Word, i: Interval): Word {
   return w.map((s) => {
-    s.chord = s.chord.transpose(s.chord, i);
+    s.chord = s.chord ? s.chord.transpose(s.chord, i) : undefined;
     return s;
   });
 }
 
 export type Syllable = {
   text: string;
-  chord: Chord;
+  chord?: Chord;
 };
+
+export function emptySyllable() {
+  return {
+    text: "",
+  };
+}
 
 export interface Chord {
   root: Note;

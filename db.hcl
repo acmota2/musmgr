@@ -8,7 +8,10 @@ table "song" {
     column "name" {
         type = varchar(255)
     }
-    column "tonality" {
+    column "tonality_root" {
+        type = smallint
+    }
+    column "tonality_details" {
         type = varchar(24)
     }
     primary_key {
@@ -26,23 +29,20 @@ table "song" {
 
 table "category" {
     schema = schema.public
-    column "id" {
-        type = bigserial
-    }
     column "name" {
-        type = varchar(255)
+        type = varchar(127)
     }
     column "description" {
-        type = varchar(255)
+        type = varchar(511)
     }
     primary_key {
         columns = [
-            column.id
+            column.name
         ]
     }
     index "idx_category" {
         columns = [
-            column.id
+            column.name
         ]
         unique = true
     }
@@ -54,14 +54,14 @@ table "subcategory" {
         type = bigserial
     }
     column "name" {
-        type = varchar(255)
+        type = varchar(127)
     }
-    column "category_id" {
-        type = bigint
+    column "category_name" {
+        type = varchar(127)
     }
-    foreign_key "category_id" {
-        columns     = [column.category_id]
-        ref_columns = [table.category.column.id]
+    foreign_key "category_name" {
+        columns     = [column.category_name]
+        ref_columns = [table.category.column.name]
         on_update   = NO_ACTION
         on_delete   = NO_ACTION
     }
@@ -120,7 +120,7 @@ table "event" {
         type = bigserial
     }
     column "description" {
-        type = varchar(255)
+        type = varchar(511)
     }
     column "date" {
         type = date

@@ -19,7 +19,7 @@ export const SubCategory = () => {
   return (
     <TitlePage title={`Subcategorias de ${params.get("name")}`}>
       <AnyList
-        path={`/subcategories/category/${params.get("id")}`}
+        path={`/subcategories/category/${params.get("name")}`}
         generator={(data: SubCategory[]) => (
           <TileList
             dataList={data}
