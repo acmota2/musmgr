@@ -38,7 +38,9 @@ const CreateSong = () => {
   return (
     <AnyPostForm
       path="/song"
-      redirectTo={() => "/"}
+      redirectTo={() =>
+        `/song-editor?create=true&name=${newSongName}&tonality=${note}`
+      }
       buttonText="Criar"
       state={songState}
       dataCreator={({
@@ -59,6 +61,7 @@ const CreateSong = () => {
         <TitlePage title="Nome:">
           <div className="newSongName">
             <input
+              autoFocus
               type="text"
               placeholder="Escrever aqui..."
               required

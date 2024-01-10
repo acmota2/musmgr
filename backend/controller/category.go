@@ -2,7 +2,7 @@ package controller
 
 import (
 	"net/http"
-	"strconv"
+	"regexp"
 
 	"backend/model"
 
@@ -20,9 +20,14 @@ func GetAllCategories(context *gin.Context) {
 }
 
 func GetAllSubCategoriesFromCategory(context *gin.Context) {
-	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	id := context.Param("name")
+	matched, err := regexp.MatchString(`^[\w_\-]+$`, id)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	} else if !matched {
+		context.JSON(http.StatusBadRequest, gin.H{"error": `the request was bad, you should feel bad`})
+		return
 	}
 
 	subCats, err := model.GetAllSubCategoriesFromCategory(id)
