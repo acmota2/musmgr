@@ -28,10 +28,20 @@ export function emptySong(): SongText {
     stances: [
       {
         type: 0,
-        text: [[[{ text: "", chord: makeChord(newNote(NoteName.C, 0)) }]]],
+        text: [[[{ text: "" }]]],
       },
     ],
   };
+}
+
+export function addStance(s: SongText, newStance: SongStance): SongText {
+  s.stances.push(newStance);
+  const stances = s.stances;
+  return { ...s, stances };
+}
+
+export function emptyStance(n?: StanceType): SongStance {
+  return { type: n ? n : 0, text: [[[{ text: "" }]]] };
 }
 
 export type Verse = Word[];
@@ -87,8 +97,8 @@ function chordToString(c: Chord) {
   const { root, base, details } = c;
   return (
     root.toString(root) +
-    (base ? "/" + base.toString(base) : "") +
-    (details ? details : "")
+    (details ? details : "") +
+    (base ? "/" + base.toString(base) : "")
   );
 }
 

@@ -1,10 +1,9 @@
 package controller
 
 import (
+	"backend/model"
 	"net/http"
 	"strconv"
-
-	"backend/model"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,7 +39,18 @@ func CreateSongFile(context *gin.Context) {
 }
 
 func GetSongText(context *gin.Context) {
-	context.JSON(http.StatusNotImplemented, gin.H{"error": "Not implemented"})
+	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
+
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+
+	sf, err := model.GetTextFileFromSong(id)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	} else {
+		context.FileAttachment(sf.Path, sf.Name+".json")
+	}
 }
 
 func GetAllFilesInformationFromSong(context *gin.Context) {

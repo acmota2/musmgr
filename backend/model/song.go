@@ -7,10 +7,11 @@ import (
 )
 
 type Song struct {
-	ID             int64   `json:"id"`
-	Name           string  `json:"name"`
-	Tonality       string  `json:"tonality"`
-	SubCategoryIds []int64 `json:"subcategories"`
+	ID              int64   `json:"id"`
+	Name            string  `json:"name"`
+	TonalityRoot    int64   `json:"tonality_root"`
+	TonalityDetails string  `json:"tonality_details"`
+	SubCategoryIds  []int64 `json:"subcategories"`
 }
 
 func (s *Song) Save() (Song, error) {
@@ -20,7 +21,8 @@ func (s *Song) Save() (Song, error) {
 		values ($1,$2)
 		returning id`,
 		s.Name,
-		s.Tonality,
+		s.TonalityDetails,
+		s.TonalityRoot,
 	).Scan(&s.ID)
 
 	if err != nil {
@@ -53,7 +55,7 @@ func GetAllSongs() (songs []Song, err error) {
 
 	for rows.Next() {
 		var song Song
-		err = rows.Scan(&song.ID, &song.Name, &song.Tonality)
+		err = rows.Scan(&song.ID, &song.Name, &song.TonalityRoot, &song.TonalityDetails)
 		if err != nil {
 			return []Song{}, nil
 		}

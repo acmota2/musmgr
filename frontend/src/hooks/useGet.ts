@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { DependencyFunction, ErrorStatusInfo, GetHook } from "../hooks/hooktypes";
+import {
+  DependencyFunction,
+  ErrorStatusInfo,
+  GetHook,
+} from "../hooks/hooktypes";
 
 function useGet<T>(
   path: string,

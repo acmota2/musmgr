@@ -15,11 +15,12 @@ const (
 )
 
 type SongFile struct {
-	Path   string   `json:"-"`
-	Name   string   `json:"name"`
-	Open   bool     `json:"-"`
-	SongId int64    `json:"song_id"`
-	Type   FileType `json:"type"`
+	Path     string   `json:"-"`
+	Name     string   `json:"name"`
+	Open     bool     `json:"open"`
+	SongId   int64    `json:"song_id"`
+	Type     FileType `json:"type"`
+	TextFile string   `json:"text_file"`
 }
 
 func (f *SongFile) Save() (SongFile, error) {
@@ -27,11 +28,13 @@ func (f *SongFile) Save() (SongFile, error) {
 	f.Path = path
 	_, err := db.PsqlDB.Exec(
 		context.Background(),
-		`insert into files(path, name, open, type) values ($1, $2, $3, $4)`,
+		`insert into files(path, name, open, type, song_id) 
+        values ($1, $2, $3, $4, $5)`,
 		f.Path,
 		f.Name,
 		false,
 		f.Type,
+		f.SongId,
 	)
 	if err != nil {
 		return SongFile{}, err

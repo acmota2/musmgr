@@ -2,6 +2,7 @@ package model
 
 import (
 	"backend/db"
+	"fmt"
 
 	"context"
 )
@@ -9,17 +10,18 @@ import (
 type SubCategory struct {
 	ID           int64  `json:"id"`
 	Name         string `json:"name"`
-	CategoryName string `json:"category_id"`
+	CategoryName string `json:"category_name"`
 }
 
 func (s *SubCategory) Save() (SubCategory, error) {
 	_, err := db.PsqlDB.Exec(
 		context.Background(),
-		`insert into subcategory(name, category_id) values($2, $3)`,
+		`insert into subcategory(name, category_name) values($1, $2)`,
 		s.Name,
 		s.CategoryName,
 	)
 	if err != nil {
+		fmt.Println("estourei")
 		return SubCategory{}, err
 	}
 	return *s, nil
@@ -38,7 +40,7 @@ func GetAllSongsFromSubcategory(subcategoryId int64) (songs []Song, err error) {
 
 	for rows.Next() {
 		var song Song
-		err = rows.Scan(&song.ID, &song.Name, &song.Tonality)
+		err = rows.Scan(&song.ID, &song.Name, &song.TonalityDetails, &song.TonalityRoot)
 		if err != nil {
 			return []Song{}, err
 		}

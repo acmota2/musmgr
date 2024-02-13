@@ -1,5 +1,5 @@
 import "./styles/App.scss";
-import Navbar from "./Navbar";
+import Navbar from "./Navbar/Navbar";
 import Sidebar from "./Sidebar";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./Home";
@@ -9,6 +9,7 @@ import Songs from "./songs";
 import Category from "./Category";
 import CreateSong from "./CreateSong";
 import MainEditor from "./SongEditor/SongEditor";
+import EventList from "./EventList";
 
 export default function App() {
   return (
@@ -23,8 +24,12 @@ export default function App() {
               <Route path="/song-wizard" element={<CreateSong />} />
               <Route path="/category" element={<Category />} />
               <Route path="/categories" element={<Categories />} />
+              <Route path="/event-type" element={<EventList />} />
               <Route path="/event-types" element={<EventTypes />} />
-              <Route path="/songs" element={<Songs />} />
+              <Route
+                path="/songs"
+                element={<Songs title="Músicas de A-Z" path="/songs" />}
+              />
               <Route path="/" element={<Home />} />
             </Routes>
           </div>

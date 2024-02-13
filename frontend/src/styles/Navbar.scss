@@ -1,23 +1,31 @@
 .Navbar {
-    padding: 0.75rem;
-    background-color: orange;
+
+    a:link,
+    a:visited {
+        text-decoration: none;
+        color: black;
+    }
+
+    background: radial-gradient(circle, rgba(22, 106, 0, 1) 0%, rgba(38, 121, 9, 1) 38%, rgba(31, 173, 0, 1) 71%, rgba(26, 187, 0, 1) 100%);
+
     .links {
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: space-between;
+
         .homeButton {
-            a:link {
-                text-decoration: none;
-            }
+            padding-right: 1rem;
+
             a {
                 font-weight: bold;
-                font-size: 20px;
+                font-size: 30px;
             }
         }
-        .searchBar {
-            padding-right: 0.5rem;
-            padding-left: 0.5rem;
-            
+
+        .songWizard {
+            a {
+                color: black;
+            }
         }
     }
 }

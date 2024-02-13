@@ -37,7 +37,7 @@ func GetAllCategories() (categories []Category, err error) {
 func GetAllSubCategoriesFromCategory(categoryName string) (subCats []SubCategory, err error) {
 	rows, err := db.PsqlDB.Query(
 		context.Background(),
-		`select '* from subcategory
+		`select * from subcategory
 		where category_name = $1`,
 		categoryName,
 	)
