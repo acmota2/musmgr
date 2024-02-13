@@ -1,3 +1,4 @@
+import "../styles/editor/noteselector.scss";
 import { useState } from "react";
 
 type NoteSelector = {
@@ -13,16 +14,43 @@ const NoteSelector = ({
   accidentValue,
   accidentOnChange,
 }: NoteSelector) => {
+  const fromAccident = (a: number) => {
+    if (a > 0) {
+      return "#".repeat(a);
+    } else if (a < 0) {
+      return "♭".repeat(-a);
+    } else {
+      return "";
+    }
+  };
+
   const [note, setNote] = useState<string>(noteValue);
   const [accident, setAccident] = useState<number>(accidentValue);
+  const [accidentText, setAccidentText] = useState<string>(
+    fromAccident(accident),
+  );
 
   return (
     <div className="note">
+      <input
+        max={2}
+        min={-2}
+        type="number"
+        value={accident}
+        onChange={(e) => {
+          const n = parseInt(e.target.value, 10);
+          setAccident(n);
+          setAccidentText(fromAccident(n));
+          accidentOnChange(n);
+        }}
+      />
       <select
         value={note}
         onChange={(e) => {
-          setNote(e.target.value);
-          noteOnChange(note);
+          const newNote = e.target.value;
+          setNote(newNote);
+          console.log("from NoteSelector", newNote);
+          noteOnChange(newNote);
         }}
       >
         <option value="Dó">Dó</option>
@@ -33,15 +61,7 @@ const NoteSelector = ({
         <option value="Lá">Lá</option>
         <option value="Si">Si</option>
       </select>
-      <input
-        type="number"
-        value={accident >= 0 ? "#".repeat(accident) : "♭".repeat(-accident)}
-        onChange={(e) => {
-          const v = e.target.value;
-          setAccident(v[0] === "#" ? v.length : -v.length);
-          accidentOnChange(accident);
-        }}
-      />
+      <p>{accidentText}</p>
     </div>
   );
 };

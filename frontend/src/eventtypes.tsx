@@ -6,23 +6,25 @@ export type EventType = {
   name: string;
 };
 
-const EventTypeFormatter = ({ data: event }: { data: EventType }) => (
+const eventTypeFormatter = ({ data: event }: { data: EventType }) => (
   <p>{event.name}</p>
 );
 
-export const EventTypes = () => (
-  <TitlePage title="Tipos de eventos">
-    <AnyList
-      path="/event_types"
-      generator={(data: EventType[]) => (
-        <TileList
-          dataList={data}
-          linkMaker={(et: EventType) => et.name}
-          linkFormatter={EventTypeFormatter}
-        />
-      )}
-    />
-  </TitlePage>
-);
+export const EventTypes = () => {
+  return (
+    <TitlePage title={"Tipos de eventos"}>
+      <AnyList
+        path="/event_types"
+        generator={(data: EventType[]) => (
+          <TileList
+            dataList={data}
+            linkMaker={(et: EventType) => `/event-type?name=${et.name}`}
+            linkFormatter={eventTypeFormatter}
+          />
+        )}
+      />
+    </TitlePage>
+  );
+};
 
 export default EventTypes;

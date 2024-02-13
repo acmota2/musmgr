@@ -1,26 +1,25 @@
-import { ReactNode } from "react";
+import { useState } from "react";
 
 type AddButton = {
   title?: string;
   className: string;
-  children: ReactNode;
 };
 
-const AddButton = ({ title, className, children }: AddButton) => {
-  let wasClicked = false;
+const AddButton = ({ title, className }: AddButton) => {
+  let [wasClicked, setWasClicked] = useState(false);
   return (
     <div className={className}>
       {!wasClicked && (
         <button
           onClick={(e) => {
             e.preventDefault();
-            wasClicked = true;
+            setWasClicked(true);
           }}
         >
           {title || "+"}
         </button>
       )}
-      {wasClicked && children}
+      {wasClicked && <input />}
     </div>
   );
 };

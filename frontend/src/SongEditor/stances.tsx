@@ -1,36 +1,46 @@
-import { useState } from "react";
 import { SongStance } from "./song_text/structure";
 import Verses from "./verses";
-import { SongState } from "./song_text/songState";
+import "../styles/editor/stances.scss";
+import {
+  CurrentStanceState,
+  SongState,
+  addVerseToSong,
+  removeVerseFromSong,
+} from "./song_text/songState";
+import Adder from "./atoms/adder";
 
 interface StanceProp {
   songState: SongState;
+  stanceState: CurrentStanceState;
   stance: SongStance;
   stanceIndex: number;
 }
 
-const Stances = ({ songState, stance, stanceIndex }: StanceProp) => {
-  const [type, setType] = useState<string>(stance.type.toString());
+const Stances = ({ songState, stanceState, stanceIndex }: StanceProp) => {
+  const [stance] = stanceState;
   return (
     <div className="stance" key={`stance:${stanceIndex}`}>
-      <input
-        type="text"
-        placeholder="Número da estrofe..."
-        value={type}
-        onChange={(e) => setType(e.target.value)}
-      />
-      <div className="stanceText">
-        {stance.text.map((v, i) => (
-          <div className="stances" key={`verse:${i}`}>
-            <Verses
-              songState={songState}
-              verse={v}
-              stanceIndex={stanceIndex}
-              verseIndex={i}
-            />
-          </div>
-        ))}
-      </div>
+      <p>{stance.type === 0 ? "Refrão" : "Estrofe"}</p>
+      {stance.text.map((v, i) => (
+        <div className="verses" key={`stance:${stanceIndex}:verse:${i}`}>
+          <Verses
+            songState={songState}
+            stanceState={stanceState}
+            verse={v}
+            stanceIndex={stanceIndex}
+            verseIndex={i}
+          />
+          <Adder
+            elemName="Verso"
+            onAdd={() =>
+              addVerseToSong({ songState, stanceState, stanceIndex })
+            }
+            onRemove={() =>
+              removeVerseFromSong({ songState, stanceState, stanceIndex })
+            }
+          />
+        </div>
+      ))}
     </div>
   );
 };

@@ -23,7 +23,7 @@ func GetAllEventTypes(context *gin.Context) {
 
 func GetAllEventsFromEventType(context *gin.Context) {
 	id := context.Param("name")
-	matched, err := regexp.MatchString(`^[\w_\-]+$`, id)
+	matched, err := regexp.MatchString(`^[\w_\-][\w_\-\s]*$`, id)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

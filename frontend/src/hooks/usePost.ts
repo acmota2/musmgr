@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ErrorStatusInfo, PostHook } from "./hooktypes";
 import { To, useNavigate } from "react-router-dom";
 
-function usePost<T>(path: string, redirectTo: To | null): PostHook<T> {
+function usePost<T>(path: string, redirectTo: To | undefined): PostHook<T> {
   const origin = import.meta.env.VITE_BACKEND_URL;
   const [pending, setPending] = useState<boolean>(false);
   const [err, setErr] = useState<ErrorStatusInfo>({} as ErrorStatusInfo);
@@ -22,20 +22,20 @@ function usePost<T>(path: string, redirectTo: To | null): PostHook<T> {
         navigate(redirectTo);
       }
     }, 1000);
-    // fetch(origin + path, requestOptions)
-    //   .then((res) => {
-    //     if (!res.ok) {
-    //       setPending(false);
-    //       const message = "POST error";
-    //       setErr({ code: res.status, message });
-    //     }
-    //     setPending(true);
-    //     return res.json;
-    //   })
-    //   .then(() => {
-    //     setPending(false);
-    //     setErr({} as ErrorStatusInfo);
-    //   });
+    fetch(origin + path, requestOptions)
+      .then((res) => {
+        if (!res.ok) {
+          setPending(false);
+          const message = "POST error";
+          setErr({ code: res.status, message });
+        }
+        setPending(true);
+        return res.json;
+      })
+      .then(() => {
+        setPending(false);
+        setErr({} as ErrorStatusInfo);
+      });
   };
 
   return { pending, err, poster };

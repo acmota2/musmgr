@@ -1,3 +1,5 @@
+import { NOTENAMES } from "./songState";
+
 export enum NoteName {
   C = 0,
   D = 2,
@@ -6,6 +8,25 @@ export enum NoteName {
   G = 7,
   A = 9,
   B = 11,
+}
+
+export function noteNameToString(note: NoteName) {
+  switch (note) {
+    case NoteName.C:
+      return "Dó";
+    case NoteName.D:
+      return "Ré";
+    case NoteName.E:
+      return "Mi";
+    case NoteName.F:
+      return "Fá";
+    case NoteName.G:
+      return "Sol";
+    case NoteName.A:
+      return "Lá";
+    case NoteName.B:
+      return "Si";
+  }
 }
 
 export type Interval = {
@@ -33,12 +54,12 @@ export const NOTESORDER: NoteName[] = [
 
 export function newNote(note: NoteName, alteration: number): Note {
   let i = 0;
-  while (NOTESORDER[i++] === note);
+  while (NOTESORDER[i] !== note) ++i;
   return {
     index: i,
-    alteration: alteration,
-    absoluteCount: absoluteCount,
-    transpose: transpose,
+    alteration,
+    absoluteCount,
+    transpose,
     toString: noteToString,
   };
 }
@@ -50,8 +71,7 @@ function noteToString(n: Note): string {
   } else {
     alteration += "#".repeat(n.alteration);
   }
-  const notes = ["C", "D", "E", "F", "G", "A", "B"];
-  return notes[n.index] + alteration;
+  return NOTENAMES[n.index] + alteration;
 }
 
 const absoluteCount = (n: Note) => {

@@ -67,6 +67,7 @@ func setRoutes(router *gin.Engine) {
 	router.POST("/subcategory", controller.CreateSubCategory)
 	router.POST("/event", controller.CreateEvent)
 	router.POST("/song", controller.CreateSong)
-	// TODO: router.POST("/file/text", controller.CreateTextFile)
-	// TODO: router.POST("/file/other", controller.CreateFile)
+	router.POST("/file", controller.CreateSongFile)
+	// maybe future: router.POST("/file/text", controller.CreateTextFile)
+	// maybe future: router.POST("/file/other", controller.CreateFile)
 }

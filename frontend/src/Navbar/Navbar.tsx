@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import "./styles/Navbar.scss";
+import "../styles/Navbar.scss";
+import "../styles/atoms/link.scss";
 
 const Navbar = () => {
   return (
@@ -8,9 +9,9 @@ const Navbar = () => {
         <div className="homeButton">
           <Link to="/">SongMGR</Link>
         </div>
-        <div className="searchBar">
+        {/*<div className="searchBar">
           <input type="text" placeholder="Procurar música..." />
-        </div>
+        </div>*/}
         <div className="songWizard">
           <Link to="/song-wizard">Criar música</Link>
         </div>

@@ -1,20 +1,20 @@
 import { Link } from "react-router-dom";
 import "../styles/SongList.scss";
 import { Song } from "../CreateSong";
+import { noteNameToString } from "../SongEditor/song_text/transposer";
 
 const SongList = ({ data: songList }: { data: Song[] }) => {
   return (
     <ul className="SongList">
-      {songList.map((song, index) => {
-        const songRef = `/songs?name=${song.name}&id=${song.id}`;
-
+      {songList.map((song: Song, index) => {
+        const songUrl = `/song-editor?name=${song.name}&tonality=${noteNameToString(song.tonality_root)}`;
+        const tonality = `${noteNameToString(song.tonality_root)} ${song.tonality_details}`;
         return (
           <li className="songEntry" key={`link_${song.id}`}>
-            <Link className="songLink" to={songRef} key={`link_${index}`}>
+            <Link className="songLink" to={songUrl} key={`link_${index}`}>
               <h2>{song.name}</h2>
-              <p>Tonalidade: {song.tonality}</p>
+              <p>Tonalidade: {tonality}</p>
             </Link>
-            <button>Editar</button>
           </li>
         );
       })}

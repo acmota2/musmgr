@@ -68,7 +68,7 @@ func GetEventSongs(eventId int64) (songs []Song, _ error) {
 
 	for rows.Next() {
 		var song Song
-		err := rows.Scan(&song.ID, &song.Name, &song.Tonality)
+		err := rows.Scan(&song.ID, &song.Name, &song.TonalityDetails, &song.TonalityRoot)
 		if err != nil {
 			return []Song{}, err
 		}

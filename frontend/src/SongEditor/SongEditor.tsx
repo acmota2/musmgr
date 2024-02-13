@@ -2,12 +2,18 @@ import "../styles/SongEditor.scss";
 import { useSearchParams } from "react-router-dom";
 import TitlePage from "../multipurpose/titlepage";
 import AnyPostForm from "../multipurpose/AnyPostForm";
-import { SongStance, SongText, emptySong } from "./song_text/structure";
+import {
+  SongStance,
+  SongText,
+  addStance,
+  emptySong,
+  emptyStance,
+} from "./song_text/structure";
 import useGet from "../hooks/useGet";
 import ErrorPage from "../multipurpose/errorpage";
 import Loading from "../multipurpose/loading";
 import Stances from "./stances";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { IntervalState, stringToNoteName } from "./song_text/songState";
 import NoteSelector from "./NoteSelector";
 
@@ -47,14 +53,18 @@ const MainEditor = () => {
     ? { data: emptySong(), err: null, pending: false }
     : useGet<SongText>(`/files/song/text/${params.get("song_id")}`);
 
-  const songState = useState<SongText>(JSON.parse(JSON.stringify(data)));
-  const [song] = songState;
+  const state = useState<SongText>(JSON.parse(JSON.stringify(data)));
+  const [songState, setSongState] = state;
 
   const tonality = params.get("tonality");
   const curInterval = {
     noteName: useState<string>(tonality ? tonality : "Dó"),
     semitones: useState<number>(0),
   };
+
+  let stanceNumberRef = useRef<number>(0);
+  const stanceState = useState<SongStance>(data.stances[0]);
+  const [currentStance, setCurrentStance] = stanceState;
 
   return (
     <TitlePage title={params.get("name") || ""}>
@@ -67,9 +77,38 @@ const MainEditor = () => {
         {pending && <Loading />}
         <div className="showSong">
           <Interval interval={curInterval} />
-          {song.stances.map((s: SongStance, i) => (
-            <Stances songState={songState} stance={s} stanceIndex={i} />
-          ))}
+          {stanceNumberRef.current === 0 ? (
+            <div className="placeHolder" />
+          ) : (
+            <button
+              className="stanceChangerTop"
+              onClick={() =>
+                setCurrentStance(songState.stances[--stanceNumberRef.current])
+              }
+            >
+              ^
+            </button>
+          )}
+          <Stances
+            songState={state}
+            stanceState={stanceState}
+            stance={currentStance}
+            stanceIndex={stanceNumberRef.current}
+          />
+          <button
+            className="stanceChangerBottom"
+            onClick={() => {
+              if (stanceNumberRef.current + 1 === songState.stances.length) {
+                const newStance = emptyStance(stanceNumberRef.current + 1);
+                setSongState(addStance(songState, newStance));
+              }
+              setCurrentStance(songState.stances[++stanceNumberRef.current]);
+            }}
+          >
+            {stanceNumberRef.current + 1 === songState.stances.length
+              ? "+"
+              : "v"}
+          </button>
         </div>
       </AnyPostForm>
     </TitlePage>

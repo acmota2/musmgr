@@ -1,19 +1,22 @@
-import { Syllable } from "./song_text/structure";
+import "../styles/editor/syllables.scss";
+import makeChord, { Syllable } from "./song_text/structure";
 import {
-  NOTENAMES,
+  CurrentStanceState,
   SongState,
-  addStanceToSong,
+  /* addStanceToSong, */
   addSyllableToSong,
   addVerseToSong,
   addWordToSong,
   setSongFromSyllable,
 } from "./song_text/songState";
-import { useState } from "react";
-import NoteSelector from "./NoteSelector";
-import AddButton from "./AddButton";
+import { useEffect, useRef, useState } from "react";
+import ChordElement from "./chord/chord";
+import { NoteName, newNote } from "./song_text/transposer";
+import Modal from "../multipurpose/Modal";
 
 export type SyllableProps = {
   songState: SongState;
+  stanceState: CurrentStanceState;
   syllable: Syllable;
   stanceIndex: number;
   verseIndex: number;
@@ -23,67 +26,101 @@ export type SyllableProps = {
 
 const Syllables = (s: SyllableProps) => {
   const { syllable } = s;
+  const chord = syllable.chord;
   console.log(syllable);
   const [text, setText] = useState<string>(syllable.text);
+  const [chordText, setChordText] = useState<string>(
+    chord ? chord.toString(chord) : "",
+  );
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const spanRef = useRef<HTMLSpanElement>(null);
+  const [spanWidth, setSpanWidth] = useState<number>(
+    chordText !== "" ? chordText.length : 0,
+  );
+  useEffect(
+    () =>
+      setSpanWidth(
+        spanRef.current ? spanRef.current.offsetWidth : "...".length,
+      ),
+    [text],
+  );
+
   return (
-    <div className="syllable">
-      <AddButton className="chord">
-        <NoteSelector
-          noteValue={
-            syllable.chord ? NOTENAMES[syllable.chord.root.index] : NOTENAMES[0]
-          }
-          noteOnChange={(n: string) => {
-            if (syllable.chord) {
-              syllable.chord.root = {
-                ...syllable.chord.root,
-                index: NOTENAMES.indexOf(n),
-              };
-              setSongFromSyllable({ ...s, syllable });
-            }
+    <>
+      {chordText === "" ? (
+        <button
+          className="chooser"
+          onClick={(e) => {
+            e.preventDefault();
+            setModalOpen(true);
+            const curChord = makeChord(newNote(NoteName.C, 0));
+            setSongFromSyllable({
+              ...s,
+              syllable: { ...syllable, chord: curChord },
+            });
+            setChordText(curChord.toString(curChord));
           }}
-          accidentValue={syllable.chord ? syllable.chord.root.alteration : 0}
-          accidentOnChange={(alteration: number) => {
-            if (syllable.chord) {
-              syllable.chord.root = {
-                ...syllable.chord.root,
-                alteration,
-              };
-              setSongFromSyllable({ ...s, syllable });
-            }
-          }}
-        />
-      </AddButton>
-      <AddButton className="chordBase">
-        {syllable.chord && syllable.chord.base && (
-          <NoteSelector
-            noteValue={NOTENAMES[syllable.chord.base.index]}
-            noteOnChange={(n) => {
-              if (syllable.chord && syllable.chord.base) {
-                syllable.chord.base = {
-                  ...syllable.chord.base,
-                  index: NOTENAMES.indexOf(n),
-                };
-                setSongFromSyllable({ ...s, syllable });
-              }
+          ref={buttonRef}
+        >
+          +
+        </button>
+      ) : (
+        <div className="chooserDefined">
+          <button
+            className="chooser"
+            onClick={(e) => {
+              e.preventDefault();
+              setModalOpen(true);
             }}
-            accidentValue={syllable.chord.base.alteration}
-            accidentOnChange={(alteration) => {
-              if (syllable.chord && syllable.chord.base) {
-                syllable.chord.base = {
-                  ...syllable.chord.base,
-                  alteration,
-                };
-                setSongFromSyllable({ ...s, syllable });
-              }
+            ref={buttonRef}
+          >
+            {chordText}
+          </button>
+          <button
+            className="chooser"
+            onClick={(e) => {
+              e.preventDefault();
+              setSongFromSyllable({
+                ...s,
+                syllable: { ...syllable, chord: undefined },
+              });
+              setChordText("");
+            }}
+          >
+            -
+          </button>
+        </div>
+      )}
+      {buttonRef.current && (
+        <Modal
+          isOpened={modalOpen}
+          onClose={() => setModalOpen(false)}
+          xPos={buttonRef.current.offsetLeft}
+          yPos={buttonRef.current.offsetTop + buttonRef.current.offsetHeight}
+        >
+          <ChordElement
+            chord={chord ? chord : makeChord(newNote(NoteName.C, 0))}
+            onChange={(c) => {
+              console.log("from Syllable", c);
+              setSongFromSyllable({
+                ...s,
+                syllable: { ...syllable, chord: c },
+              });
+              setChordText(c.toString(c));
             }}
           />
-        )}
-      </AddButton>
+        </Modal>
+      )}
+      <span className="input" ref={spanRef}></span>
       <input
         autoFocus
+        className="syllableText"
         type="text"
-        placeholder="Sílaba..."
+        placeholder="..."
         value={text}
+        style={{ width: spanWidth }}
         onChange={(e) => {
           switch (e.target.value[e.target.value.length - 1]) {
             case "+":
@@ -95,17 +132,18 @@ const Syllables = (s: SyllableProps) => {
             case "|":
               addVerseToSong(s);
               break;
-            case "\\":
+            /* case "\\":
               addStanceToSong(s);
-              break;
+              break; */
             default:
-              setText(e.target.value);
-              syllable.text = text;
+              const newText = e.target.value;
+              setText(newText);
+              syllable.text = newText;
               setSongFromSyllable({ ...s, syllable });
           }
         }}
       />
-    </div>
+    </>
   );
 };
 

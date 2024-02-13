@@ -1,15 +1,20 @@
 import { useState } from "react";
 import TitlePage from "./multipurpose/titlepage";
 import "./styles/CreateSong.scss";
+import "./styles/atoms/input.scss";
+import "./styles/atoms/select.scss";
+import "./styles/atoms/button.scss";
 import AnyPostForm, { FormState } from "./multipurpose/AnyPostForm";
 import SubCategory from "./Category";
 import SelectorButton from "./multipurpose/SelectorButton";
 import AnyList from "./multipurpose/anylist";
+import { NoteName } from "./SongEditor/song_text/transposer";
 
 export type Song = {
   id: number;
   name: string;
-  tonality: string;
+  tonality_root: NoteName;
+  tonality_details: string;
   subcategories: number[];
 };
 
@@ -52,7 +57,8 @@ const CreateSong = () => {
         return {
           id: 0,
           name: newSongName,
-          tonality: `${note} ${tColor}`,
+          tonality_root: parseInt(note, 10),
+          tonality_details: `${tColor}`,
           subcategories: Array.from(subcategories),
         };
       }}
@@ -103,7 +109,6 @@ const CreateSong = () => {
                   } else if (subCategories.delete(id)) {
                     setSubCategories(subCategories);
                   }
-                  console.log(subCategories);
                 }}
               />
             )}

@@ -1,10 +1,9 @@
-import "../styles/AnyForm.scss";
 import { ReactNode } from "react";
 import usePost from "../hooks/usePost";
 import { To } from "react-router-dom";
 
 export type DataCreator<S, T> = (state: FormState<S>) => T;
-export type Redirector<T> = (data: T | void) => To | null;
+export type Redirector<T> = (data: T | void) => To | undefined;
 
 export type FormState<T> = {
   [P in keyof T]: [T[P], React.Dispatch<React.SetStateAction<T[P]>>];
@@ -39,8 +38,11 @@ const AnyPostForm = <S, T>({
   return (
     <form onSubmit={submitHandler}>
       {children}
-      {!pending && <button>{buttonText}</button>}
-      {pending && <button disabled>A carregar...</button>}
+      {pending ? (
+        <button disabled>A carregar...</button>
+      ) : (
+        <button>{buttonText}</button>
+      )}
       {err && <p>{err.message}</p>}
     </form>
   );

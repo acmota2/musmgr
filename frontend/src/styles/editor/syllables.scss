@@ -1,0 +1,42 @@
+.syllable {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    gap: 0.3rem;
+
+    .chooser {
+        font-weight: bold;
+        font-size: 14px;
+        min-width: 1rem;
+        min-height: 1.5rem;
+    }
+
+    .chooserDefined {
+        flex-direction: row;
+        gap: 0.5rem;
+    }
+
+    .addSyllable {
+        width: fit-content;
+    }
+
+    dialog {
+        margin: none;
+        width: fit-content;
+        font-size: .75em;
+        background-color: white;
+        border-radius: 10px;
+    }
+
+    dialog[open] {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: inherit;
+        border-radius: 0;
+    }
+
+    .syllableText {
+        width: fit-content;
+    }
+}
