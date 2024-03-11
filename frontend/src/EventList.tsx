@@ -126,7 +126,7 @@ const EventList = () => {
           <TileList
             dataList={data}
             linkMaker={(event) =>
-              `songs?name=${params.get("name")}&date=${event.date}`
+              `/event-songs?name=${params.get("name")}&date=${event.date}&id=${event.id}`
             }
             linkFormatter={EventFormatter}
           />

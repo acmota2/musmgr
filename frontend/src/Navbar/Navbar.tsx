@@ -13,7 +13,7 @@ const Navbar = () => {
           <input type="text" placeholder="Procurar música..." />
         </div>*/}
         <div className="songWizard">
-          <Link to="/song-wizard">Criar música</Link>
+          <Link to="/song-wizard">Criar canção</Link>
         </div>
       </div>
     </nav>

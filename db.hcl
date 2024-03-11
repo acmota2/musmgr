@@ -210,7 +210,7 @@ table "song_event" {
     }
     foreign_key "event_id" {
         columns     = [column.event_id]
-        ref_columns = [table.subcategory.column.id]
+        ref_columns = [table.event.column.id]
         on_update   = NO_ACTION
         on_delete   = NO_ACTION
     }

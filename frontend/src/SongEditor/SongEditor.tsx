@@ -22,7 +22,10 @@ export type score = 1;
 export type FileType = text | score;
 export type SongFile = {
   Name: string;
-  Type: FileType;
+  Open: boolean;
+  song_id: number;
+  type: FileType;
+  text_file: SongText;
 };
 
 const Interval = ({ interval }: { interval: IntervalState }) => {
@@ -69,9 +72,17 @@ const MainEditor = () => {
   return (
     <TitlePage title={params.get("name") || ""}>
       <AnyPostForm
-        path="/file/text"
+        path="/file"
         redirectTo={() => "/songs"}
         buttonText="Concluir"
+        state={{ songState: state }}
+        dataCreator={({ songState: [text_file] }) => ({
+          name: params.get("name"),
+          type: 0,
+          open: false,
+          song_id: params.has("id") ? params.get("id") : 0,
+          text_file,
+        })}
       >
         {err && <ErrorPage err={err} />}
         {pending && <Loading />}

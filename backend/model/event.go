@@ -57,8 +57,9 @@ func GetAllEvents() (events []Event, _ error) {
 func GetEventSongs(eventId int64) (songs []Song, _ error) {
 	rows, err := db.PsqlDB.Query(
 		context.Background(),
-		`select id, name, tonality from song
-		inner join song_event on song.id = song_event.song_id
+		`select id, name, tonality_root, tonality_details from song
+		inner join song_event
+        on song.id = song_event.song_id
 		where song.id = $1`,
 		eventId,
 	)
@@ -68,7 +69,7 @@ func GetEventSongs(eventId int64) (songs []Song, _ error) {
 
 	for rows.Next() {
 		var song Song
-		err := rows.Scan(&song.ID, &song.Name, &song.TonalityDetails, &song.TonalityRoot)
+		err := rows.Scan(&song.ID, &song.Name, &song.TonalityRoot, &song.TonalityDetails)
 		if err != nil {
 			return []Song{}, err
 		}

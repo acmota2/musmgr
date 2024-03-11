@@ -49,7 +49,9 @@ export const SubCategory = () => {
         generator={(data: SubCategory[]) => (
           <TileList
             dataList={data}
-            linkMaker={(sc: SubCategory) => sc.name}
+            linkMaker={(sc: SubCategory) =>
+              `/songs?name=${sc.name}&id=${sc.id}&subcategory=true`
+            }
             linkFormatter={subCategoryFormatter}
           />
         )}
