@@ -10,6 +10,7 @@ import Category from "./Category";
 import CreateSong from "./CreateSong";
 import MainEditor from "./SongEditor/SongEditor";
 import EventList from "./EventList";
+import EventSongs from "./EventSongs";
 
 export default function App() {
   return (
@@ -24,12 +25,10 @@ export default function App() {
               <Route path="/song-wizard" element={<CreateSong />} />
               <Route path="/category" element={<Category />} />
               <Route path="/categories" element={<Categories />} />
-              <Route path="/event-type" element={<EventList />} />
               <Route path="/event-types" element={<EventTypes />} />
-              <Route
-                path="/songs"
-                element={<Songs title="Músicas de A-Z" path="/songs" />}
-              />
+              <Route path="/event-type" element={<EventList />} />
+              <Route path="/event-songs" element={<EventSongs />} />
+              <Route path="/songs" element={<Songs />} />
               <Route path="/" element={<Home />} />
             </Routes>
           </div>

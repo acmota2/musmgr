@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"backend/db"
 )
@@ -26,7 +27,13 @@ type SongFile struct {
 func (f *SongFile) Save() (SongFile, error) {
 	path := fmt.Sprintf("./song_files/%s.json", f.Name)
 	f.Path = path
-	_, err := db.PsqlDB.Exec(
+
+	err := os.WriteFile(f.Path, []byte(f.TextFile), 0666)
+	if err != nil {
+		return SongFile{}, err
+	}
+
+	_, err = db.PsqlDB.Exec(
 		context.Background(),
 		`insert into files(path, name, open, type, song_id) 
         values ($1, $2, $3, $4, $5)`,
@@ -55,6 +62,13 @@ func GetTextFileFromSong(songId int64) (SongFile, error) {
 	if err := row.Scan(&songFile.Path, &songFile.Name, &songFile.Open, &songFile.Type); err != nil {
 		return SongFile{}, err
 	}
+
+	content, err := os.ReadFile(songFile.Path)
+	if err != nil {
+		return SongFile{}, err
+	}
+
+	songFile.TextFile = string(content)
 	return songFile, nil
 }
 

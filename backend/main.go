@@ -59,15 +59,16 @@ func setRoutes(router *gin.Engine) {
 	router.GET("/songs/event/:id", controller.GetAllSongsFromEvent)
 	router.GET("/songs/subcategory/:id", controller.GetAllSongsFromSubcategory)
 	router.GET("/songs", controller.GetAllSongs)
-	router.GET("/subcategories/category/:name", controller.GetAllSubCategoriesFromCategory)
 
+	router.GET("/subcategories/category/:name", controller.GetAllSubCategoriesFromCategory)
 	router.GET("/subcategories/song/:id", controller.GetSongSubCategories)
 	router.GET("/subcategories", controller.GetAllSubcategories)
 
-	router.POST("/subcategory", controller.CreateSubCategory)
-	router.POST("/event", controller.CreateEvent)
-	router.POST("/song", controller.CreateSong)
 	router.POST("/file", controller.CreateSongFile)
+	router.POST("/event", controller.CreateEvent)
+	router.POST("/song_event", controller.AddSongToEvent)
+	router.POST("/song", controller.CreateSong)
+	router.POST("/subcategory", controller.CreateSubCategory)
 	// maybe future: router.POST("/file/text", controller.CreateTextFile)
 	// maybe future: router.POST("/file/other", controller.CreateFile)
 }

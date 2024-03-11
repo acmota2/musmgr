@@ -30,8 +30,9 @@ func (s *SubCategory) Save() (SubCategory, error) {
 func GetAllSongsFromSubcategory(subcategoryId int64) (songs []Song, err error) {
 	rows, err := db.PsqlDB.Query(
 		context.Background(),
-		`select id, name, tonality from song
-		inner join song_subcategory on song_subcategory.subcategory_id = $1`,
+		`select id, name, tonality_root, tonality_details from song
+		inner join song_subcategory
+        on song_subcategory.subcategory_id = $1`,
 		subcategoryId,
 	)
 	if err != nil {
@@ -40,7 +41,7 @@ func GetAllSongsFromSubcategory(subcategoryId int64) (songs []Song, err error) {
 
 	for rows.Next() {
 		var song Song
-		err = rows.Scan(&song.ID, &song.Name, &song.TonalityDetails, &song.TonalityRoot)
+		err = rows.Scan(&song.ID, &song.Name, &song.TonalityRoot, &song.TonalityDetails)
 		if err != nil {
 			return []Song{}, err
 		}

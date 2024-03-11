@@ -10,7 +10,7 @@ const Sidebar = () => {
   const organizationTiles: OrganizationTile[] = [
     { name: "Categorias", route: "/categories" },
     { name: "Eventos", route: "/event-types" },
-    { name: "Músicas", route: "/songs" },
+    { name: "Canções", route: "/songs" },
   ];
 
   return (
