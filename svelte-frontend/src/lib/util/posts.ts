@@ -1,3 +1,3 @@
 export interface Posts<T> {
-  posts: T;
+  data: T;
 }

@@ -3,7 +3,7 @@
   import type { CategoryType } from "$lib/util/category";
   import type { Posts } from "$lib/util/posts";
 
-  let { data }: { data: Posts<CategoryType[]> } = $props();
+  let { data }: Posts<CategoryType[]> = $props();
 </script>
 
 {#each data.posts as categoryType}

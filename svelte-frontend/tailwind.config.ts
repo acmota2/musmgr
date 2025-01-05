@@ -6,6 +6,9 @@ export default {
   theme: {
     extend: {},
   },
+  fontFamily: {
+    sans: ["DejaVu", "sans-serif"],
+  },
 
   plugins: [],
 } satisfies Config;

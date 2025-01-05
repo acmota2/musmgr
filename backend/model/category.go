@@ -1,10 +1,8 @@
 package model
 
 import (
-	"context"
-	"fmt"
-
 	"backend/db"
+	"context"
 )
 
 type Category struct {
@@ -24,7 +22,6 @@ func GetAllCategories() (categories []Category, err error) {
 
 	for rows.Next() {
 		var category Category
-		fmt.Print("estoura aí, oh mano\n")
 		err := rows.Scan(&category.Name, &category.Description)
 		if err != nil {
 			return []Category{}, err

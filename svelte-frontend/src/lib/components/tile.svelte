@@ -1,3 +1,5 @@
+<svelte:options customElement="menu-tile" />
+
 <script lang="ts">
   let {
     href,
