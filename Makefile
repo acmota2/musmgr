@@ -25,3 +25,4 @@ local-down:
 		--env-file .env.local \
 		-f ./db_adminer.yaml \
 		down
+
