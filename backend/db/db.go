@@ -20,9 +20,7 @@ func Connect() *pgxpool.Pool {
 		os.Getenv("POSTGRES_DB"),
 	)
 
-	var err error
-	PsqlDB, err = pgxpool.New(context.Background(), url)
-
+	PsqlDB, err := pgxpool.New(context.Background(), url)
 	if err != nil {
 		panic(err)
 	}
