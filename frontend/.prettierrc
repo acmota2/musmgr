@@ -1,24 +1,17 @@
 {
-    "arrowParens": "always",
-    "bracketSpacing": true,
-    "endOfLine": "lf",
-    "htmlWhitespaceSensitivity": "css",
-    "insertPragma": false,
-    "singleAttributePerLine": false,
-    "bracketSameLine": false,
-    "jsxBracketSameLine": false,
-    "jsxSingleQuote": false,
-    "printWidth": 80,
-    "proseWrap": "preserve",
-    "quoteProps": "as-needed",
-    "requirePragma": false,
-    "semi": true,
-    "singleQuote": false,
-    "tabWidth": 2,
-    "trailingComma": "all",
-    "useTabs": false,
-    "embeddedLanguageFormatting": "auto",
-    "vueIndentScriptAndStyle": false,
-    "filepath": "/home/acmota2/repos/song-manager/frontend/src/song_text/transposer.ts",
-    "parser": "typescript"
-  }
+  "useTabs": false,
+  "singleQuote": false,
+  "endOfLine": "lf",
+  "trailingComma": "es5",
+  "printWidth": 100,
+  "tabWidth": 2,
+  "plugins": ["prettier-plugin-svelte", "prettier-plugin-tailwindcss"],
+  "overrides": [
+    {
+      "files": "*.svelte",
+      "options": {
+        "parser": "svelte"
+      }
+    }
+  ]
+}
