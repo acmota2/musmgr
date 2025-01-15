@@ -3,19 +3,19 @@ package controller
 import (
 	"backend/model"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
-func GetSongSubCategories(context *gin.Context) {
-	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
+func (cc *ControllerContext) GetSongSubcategories(context *gin.Context) {
+	id, err := uuid.Parse(context.Param("id"))
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	songs, err := model.GetSongSubcategories(id)
+	songs, err := cc.Queries.GetSongSubcategories(cc.Context, id.String())
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
@@ -23,8 +23,8 @@ func GetSongSubCategories(context *gin.Context) {
 	}
 }
 
-func GetAllSongs(context *gin.Context) {
-	songs, err := model.GetAllSongs()
+func (cc *ControllerContext) GetSongs(context *gin.Context) {
+	songs, err := cc.Queries.GetSongs(cc.Context)
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
@@ -32,18 +32,18 @@ func GetAllSongs(context *gin.Context) {
 	}
 }
 
-func CreateSong(context *gin.Context) {
-	var song model.Song
+func (cc *ControllerContext) CreateSong(context *gin.Context) {
+	var song model.CreateSongParams
 	if err := context.ShouldBindJSON(&song); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	saved, err := song.Save()
+	err := cc.Queries.CreateSong(cc.Context, song)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusCreated, gin.H{"data": saved})
+		context.JSON(http.StatusCreated, gin.H{"data": song})
 	}
 }

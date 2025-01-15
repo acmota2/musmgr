@@ -1,49 +1,39 @@
 package controller
 
 import (
-	"strconv"
-
-	"github.com/gin-gonic/gin"
-
 	"backend/model"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
-func CreateSubCategory(context *gin.Context) {
-	var subcategory model.SubCategory
+func (cc *ControllerContext) CreateSubcategory(context *gin.Context) {
+	var subcategory model.CreateSubcategoryParams
 	if err := context.ShouldBindJSON(&subcategory); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	subCat, err := subcategory.Save()
+	err := cc.Queries.CreateSubcategory(cc.Context, subcategory)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusCreated, gin.H{"data": subCat})
+		context.JSON(http.StatusCreated, gin.H{"data": subcategory})
 	}
 }
 
-func GetAllSongsFromSubcategory(context *gin.Context) {
-	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
+func (cc *ControllerContext) GetSubcategorySongs(context *gin.Context) {
+	id, err := uuid.Parse(context.Param("id"))
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	songs, err := model.GetAllSongsFromSubcategory(id)
+	songs, err := cc.Queries.GetSubcategorySongs(cc.Context, id.String())
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {
 		context.JSON(http.StatusOK, gin.H{"data": songs})
-	}
-}
-
-func GetAllSubcategories(context *gin.Context) {
-	subCats, err := model.GetAllSubCategories()
-	if err != nil {
-		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-	} else {
-		context.JSON(http.StatusOK, gin.H{"data": subCats})
 	}
 }
