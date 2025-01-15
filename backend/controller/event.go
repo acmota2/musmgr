@@ -1,23 +1,21 @@
 package controller
 
 import (
-	"net/http"
-	"strconv"
-
 	"backend/model"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
-func CreateEvent(context *gin.Context) {
-	var event model.Event
+func (cc *ControllerContext) CreateEvent(context *gin.Context) {
+	var event model.CreateEventParams
 	if err := context.BindJSON(&event); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	event, err := event.Save()
-
+	err := cc.Queries.CreateEvent(cc.Context, event)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {
@@ -25,29 +23,18 @@ func CreateEvent(context *gin.Context) {
 	}
 }
 
-func GetAllSongsFromEvent(context *gin.Context) {
-	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
-
+func (cc *ControllerContext) GetEventSongs(context *gin.Context) {
+	id, err := uuid.Parse(context.Param("id"))
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	songs, err := model.GetEventSongs(id)
+	songs, err := cc.Queries.GetEventSongs(cc.Context, id.String())
 
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
 		context.JSON(http.StatusOK, gin.H{"data": songs})
-	}
-}
-
-func GetAllEvents(context *gin.Context) {
-	events, err := model.GetAllEvents()
-
-	if err != nil {
-		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-	} else {
-		context.JSON(http.StatusOK, gin.H{"data": events})
 	}
 }

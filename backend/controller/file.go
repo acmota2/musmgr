@@ -1,28 +1,28 @@
 package controller
 
 import (
-	"backend/model"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
-func DownloadTextFile(context *gin.Context) {
-	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
+func (cc *ControllerContext) GetTextFile(context *gin.Context) {
+	id, err := uuid.Parse(context.Param("id"))
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	songFile, err := model.GetTextFileFromSong(id)
+	songFile, err := cc.Queries.GetTextFile(cc.Context, id.String())
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
-		context.FileAttachment(songFile.Path, songFile.Name+".json")
+		context.FileAttachment(songFile.FilePath, songFile.Name)
 	}
 }
 
+/*
 func CreateSongFile(context *gin.Context) {
 	var file model.SongFile
 	if err := context.BindJSON(&file); err != nil {
@@ -40,7 +40,6 @@ func CreateSongFile(context *gin.Context) {
 
 func GetSongText(context *gin.Context) {
 	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
-
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
@@ -52,16 +51,16 @@ func GetSongText(context *gin.Context) {
 		context.FileAttachment(sf.Path, sf.Name+".json")
 	}
 }
+*/
 
-func GetAllFilesInformationFromSong(context *gin.Context) {
-	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
-
+func (cc *ControllerContext) GetSongFiles(context *gin.Context) {
+	id, err := uuid.Parse(context.Param("id"))
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	files, err := model.GetAllFilesFromSong(id)
+	files, err := cc.Queries.GetSongFiles(cc.Context, id.String())
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {

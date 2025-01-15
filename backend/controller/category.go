@@ -4,13 +4,11 @@ import (
 	"net/http"
 	"regexp"
 
-	"backend/model"
-
 	"github.com/gin-gonic/gin"
 )
 
-func GetAllCategories(context *gin.Context) {
-	categories, err := model.GetAllCategories()
+func (cc *ControllerContext) GetCategories(context *gin.Context) {
+	categories, err := cc.Queries.GetCategories(cc.Context)
 
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -19,7 +17,7 @@ func GetAllCategories(context *gin.Context) {
 	}
 }
 
-func GetAllSubCategoriesFromCategory(context *gin.Context) {
+func (cc *ControllerContext) GetCategorySubcategories(context *gin.Context) {
 	id := context.Param("name")
 	matched, err := regexp.MatchString(`^[\w_\-]+$`, id)
 	if err != nil {
@@ -30,7 +28,7 @@ func GetAllSubCategoriesFromCategory(context *gin.Context) {
 		return
 	}
 
-	subCats, err := model.GetAllSubCategoriesFromCategory(id)
+	subCats, err := cc.Queries.GetCategorySubcategories(cc.Context, id)
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {

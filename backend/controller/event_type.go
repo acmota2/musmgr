@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"backend/model"
 	"errors"
 	"net/http"
 	"regexp"
@@ -10,10 +9,10 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func GetAllEventTypes(context *gin.Context) {
-	eventTypes, err := model.GetAllEventTypes()
+func (cc *ControllerContext) GetEventTypes(context *gin.Context) {
+	eventTypes, err := cc.Queries.GetEventTypes(cc.Context)
 	if errors.Is(err, pgx.ErrNoRows) {
-		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {
@@ -21,7 +20,7 @@ func GetAllEventTypes(context *gin.Context) {
 	}
 }
 
-func GetAllEventsFromEventType(context *gin.Context) {
+func (cc *ControllerContext) GetEventTypeEvents(context *gin.Context) {
 	id := context.Param("name")
 	matched, err := regexp.MatchString(`^[\w_\-][\w_\-\s]*$`, id)
 	if err != nil {
@@ -31,7 +30,7 @@ func GetAllEventsFromEventType(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"error": `the request was bad, you should feel bad`})
 		return
 	}
-	events, err := model.GetAllEventsFromEventType(id)
+	events, err := cc.Queries.GetEventTypeEvents(cc.Context, id)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {
