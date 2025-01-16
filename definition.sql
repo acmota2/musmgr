@@ -18,7 +18,6 @@ CREATE TABLE IF NOT EXISTS songs (
   subcategory_id    varchar(255) REFERENCES subcategories(id) NOT NULL
 );
 
-
 CREATE TABLE IF NOT EXISTS event_types (
   id varchar(255) PRIMARY KEY,
   name text NOT NULL,
