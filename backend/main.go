@@ -15,7 +15,7 @@ import (
 )
 
 func loadEnv() {
-	err := godotenv.Load(".env")
+	err := godotenv.Load("./.env.local")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -52,11 +52,11 @@ func main() {
 
 	ctx := context.Background()
 	conn, err := pgx.Connect(ctx, url)
-	defer conn.Close(ctx)
-
 	if err != nil {
 		log.Panic(err)
 	}
+	defer conn.Close(ctx)
+	fmt.Println("Successfully connected to the database")
 
 	port := os.Getenv("BACKEND_PORT")
 	router := gin.Default()
@@ -75,11 +75,10 @@ func main() {
 		// AllowCredentials: true,
 	}
 
-	fmt.Println("Successfully connected to the database")
-
 	router.Use(cors.New(corsConfig))
 
 	cc := controller.New(model.New(conn), ctx)
 	setRoutes(router, cc)
-	router.Run("localhost:" + port)
+	backendHost := os.Getenv("BACKEND_HOST")
+	router.Run(backendHost + ":" + port)
 }
