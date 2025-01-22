@@ -1,18 +1,19 @@
 services:
   adminer:
-    profiles: ["dev"]
+    profiles: ["stage", "dev"]
     image: adminer:4.8.1
     container_name: song-manager-adminer
     networks:
       - song-manager
     restart: always
     environment:
-      ADMINER_DEFAULT_SERVER: db
+      ADMINER_DEFAULT_SERVER: postgres
     ports:
       - ${ADMINER_PORT}:${ADMINER_PORT}
-  db:
-    profiles: ["dev"]
-    build: .
+
+  postgres:
+    profiles: ["prod", "stage", "dev"]
+    build: database/.
     container_name: song-manager-db
     ports:
       - ${POSTGRES_PORT}:${POSTGRES_PORT}
@@ -23,5 +24,42 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  svelte:
+    profiles: ["prod", "stage"]
+    build: frontend/.
+    container_name: song-manager-frontend
+    ports:
+      - 5173:3000
+    networks:
+      - song-manager
+
+  go-gin:
+    profiles: ["prod", "stage", "dev"]
+    build: backend/.
+    container_name: song-manager-backend
+    ports:
+      - ${BACKEND_PORT}:${BACKEND_PORT}
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: postgres
+      BACKEND_HOST: go-gin
+      # GIN_MODE: release
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
+    networks:
+      - song-manager
+
 networks:
   song-manager:
+    driver: bridge
