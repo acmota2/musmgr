@@ -32,6 +32,11 @@ CREATE TABLE IF NOT EXISTS events (
   event_type_id varchar(255) REFERENCES event_types(id) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS songs_events (
+  song_id   varchar(255) REFERENCES songs(id) NOT NULL,
+  event_id  varchar(255) REFERENCES events(id) NOT NULL
+);
+
 CREATE TYPE file_type AS ENUM ('text', 'score', 'song');
 
 CREATE TABLE IF NOT EXISTS files (
@@ -40,10 +45,5 @@ CREATE TABLE IF NOT EXISTS files (
   file_path text NOT NULL,
   file_type file_type NOT NULL,
   song_id varchar(255) REFERENCES songs(id) NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS songs_events (
-  song_id   varchar(255) REFERENCES songs(id) NOT NULL,
-  event_id  varchar(255) REFERENCES events(id) NOT NULL
 );
 
