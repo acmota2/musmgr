@@ -74,11 +74,11 @@ type EventType struct {
 }
 
 type File struct {
-	ID       string   `json:"id"`
-	Name     string   `json:"name"`
-	FilePath string   `json:"file_path"`
-	FileType FileType `json:"file_type"`
-	SongID   string   `json:"song_id"`
+	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	FileType    FileType `json:"file_type"`
+	FileContent []byte   `json:"file_content"`
+	SongID      string   `json:"song_id"`
 }
 
 type Song struct {

@@ -225,7 +225,7 @@ func (q *Queries) GetEventTypes(ctx context.Context) ([]EventType, error) {
 }
 
 const getSongFiles = `-- name: GetSongFiles :many
-select id, name, file_path, file_type, song_id from files
+select id, name, file_type, file_content, song_id from files
 where song_id = $1
 `
 
@@ -241,8 +241,8 @@ func (q *Queries) GetSongFiles(ctx context.Context, songID string) ([]File, erro
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
-			&i.FilePath,
 			&i.FileType,
+			&i.FileContent,
 			&i.SongID,
 		); err != nil {
 			return nil, err
@@ -344,7 +344,7 @@ func (q *Queries) GetSubcategorySongs(ctx context.Context, subcategoryID string)
 }
 
 const getTextFile = `-- name: GetTextFile :one
-select id, name, file_path, file_type, song_id from files
+select id, name, file_type, file_content, song_id from files
 where file_type = 'text' and song_id = $1
 `
 
@@ -354,8 +354,8 @@ func (q *Queries) GetTextFile(ctx context.Context, songID string) (File, error) 
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
-		&i.FilePath,
 		&i.FileType,
+		&i.FileContent,
 		&i.SongID,
 	)
 	return i, err

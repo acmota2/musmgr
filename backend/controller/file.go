@@ -18,7 +18,7 @@ func (cc *ControllerContext) GetTextFile(context *gin.Context) {
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
-		context.FileAttachment(songFile.FilePath, songFile.Name)
+		context.Data(http.StatusOK, "application/octet-stream", songFile.FileContent)
 	}
 }
 
