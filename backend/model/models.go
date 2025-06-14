@@ -8,6 +8,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -55,47 +56,47 @@ func (ns NullFileType) Value() (driver.Value, error) {
 }
 
 type Category struct {
-	ID          string      `json:"id"`
+	ID          uuid.UUID   `json:"id"`
 	Name        string      `json:"name"`
 	Description pgtype.Text `json:"description"`
 }
 
 type Event struct {
-	ID          string      `json:"id"`
+	ID          uuid.UUID   `json:"id"`
 	EventDate   pgtype.Date `json:"event_date"`
 	Description pgtype.Text `json:"description"`
-	EventTypeID string      `json:"event_type_id"`
+	EventTypeID uuid.UUID   `json:"event_type_id"`
 }
 
 type EventType struct {
-	ID          string      `json:"id"`
+	ID          uuid.UUID   `json:"id"`
 	Name        string      `json:"name"`
 	Description pgtype.Text `json:"description"`
 }
 
 type File struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	FileType    FileType `json:"file_type"`
-	FileContent []byte   `json:"file_content"`
-	SongID      string   `json:"song_id"`
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	FileContent []byte    `json:"file_content"`
+	FileType    FileType  `json:"file_type"`
+	SongID      uuid.UUID `json:"song_id"`
 }
 
 type Song struct {
-	ID              string `json:"id"`
-	Name            string `json:"name"`
-	TonalityRoot    int32  `json:"tonality_root"`
-	TonalityDetails string `json:"tonality_details"`
-	SubcategoryID   string `json:"subcategory_id"`
+	ID              uuid.UUID `json:"id"`
+	Name            string    `json:"name"`
+	TonalityRoot    int32     `json:"tonality_root"`
+	TonalityDetails string    `json:"tonality_details"`
+	SubcategoryID   string    `json:"subcategory_id"`
 }
 
 type SongsEvent struct {
-	SongID  string `json:"song_id"`
-	EventID string `json:"event_id"`
+	SongID  uuid.UUID `json:"song_id"`
+	EventID uuid.UUID `json:"event_id"`
 }
 
 type Subcategory struct {
-	ID         string `json:"id"`
-	Name       string `json:"name"`
-	CategoryID string `json:"category_id"`
+	ID         uuid.UUID `json:"id"`
+	Name       string    `json:"name"`
+	CategoryID uuid.UUID `json:"category_id"`
 }

@@ -54,3 +54,7 @@ values ($1, $2);
 -- name: GetTextFile :one
 select * from files
 where file_type = 'text' and song_id = $1;
+
+-- name: CreateFile :exec
+insert into files (id, name, file_content, file_type, song_id)
+values ($1, $2, $3, $4, $5);

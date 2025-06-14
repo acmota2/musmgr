@@ -8,6 +8,7 @@ package model
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -17,10 +18,10 @@ values ($1, $2, $3, $4)
 `
 
 type CreateEventParams struct {
-	ID          string      `json:"id"`
+	ID          uuid.UUID   `json:"id"`
 	EventDate   pgtype.Date `json:"event_date"`
 	Description pgtype.Text `json:"description"`
-	EventTypeID string      `json:"event_type_id"`
+	EventTypeID uuid.UUID   `json:"event_type_id"`
 }
 
 func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error {
@@ -33,17 +34,41 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error 
 	return err
 }
 
+const createFile = `-- name: CreateFile :exec
+insert into files (id, name, file_content, file_type, song_id)
+values ($1, $2, $3, $4, $5)
+`
+
+type CreateFileParams struct {
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	FileContent []byte    `json:"file_content"`
+	FileType    FileType  `json:"file_type"`
+	SongID      uuid.UUID `json:"song_id"`
+}
+
+func (q *Queries) CreateFile(ctx context.Context, arg CreateFileParams) error {
+	_, err := q.db.Exec(ctx, createFile,
+		arg.ID,
+		arg.Name,
+		arg.FileContent,
+		arg.FileType,
+		arg.SongID,
+	)
+	return err
+}
+
 const createSong = `-- name: CreateSong :exec
 insert into songs (id, name, tonality_root, tonality_details, subcategory_id)
 values ($1, $2, $3, $4, $5)
 `
 
 type CreateSongParams struct {
-	ID              string `json:"id"`
-	Name            string `json:"name"`
-	TonalityRoot    int32  `json:"tonality_root"`
-	TonalityDetails string `json:"tonality_details"`
-	SubcategoryID   string `json:"subcategory_id"`
+	ID              uuid.UUID `json:"id"`
+	Name            string    `json:"name"`
+	TonalityRoot    int32     `json:"tonality_root"`
+	TonalityDetails string    `json:"tonality_details"`
+	SubcategoryID   string    `json:"subcategory_id"`
 }
 
 func (q *Queries) CreateSong(ctx context.Context, arg CreateSongParams) error {
@@ -63,8 +88,8 @@ values ($1, $2)
 `
 
 type CreateSongEventParams struct {
-	SongID  string `json:"song_id"`
-	EventID string `json:"event_id"`
+	SongID  uuid.UUID `json:"song_id"`
+	EventID uuid.UUID `json:"event_id"`
 }
 
 func (q *Queries) CreateSongEvent(ctx context.Context, arg CreateSongEventParams) error {
@@ -78,9 +103,9 @@ values ($1, $2, $3)
 `
 
 type CreateSubcategoryParams struct {
-	ID         string `json:"id"`
-	Name       string `json:"name"`
-	CategoryID string `json:"category_id"`
+	ID         uuid.UUID `json:"id"`
+	Name       string    `json:"name"`
+	CategoryID uuid.UUID `json:"category_id"`
 }
 
 func (q *Queries) CreateSubcategory(ctx context.Context, arg CreateSubcategoryParams) error {
@@ -117,7 +142,7 @@ select id, name, category_id from subcategories
 where category_id = $1
 `
 
-func (q *Queries) GetCategorySubcategories(ctx context.Context, categoryID string) ([]Subcategory, error) {
+func (q *Queries) GetCategorySubcategories(ctx context.Context, categoryID uuid.UUID) ([]Subcategory, error) {
 	rows, err := q.db.Query(ctx, getCategorySubcategories, categoryID)
 	if err != nil {
 		return nil, err
@@ -144,7 +169,7 @@ on songs.id = songs_events.song_id
 where songs.id = $1
 `
 
-func (q *Queries) GetEventSongs(ctx context.Context, id string) ([]Song, error) {
+func (q *Queries) GetEventSongs(ctx context.Context, id uuid.UUID) ([]Song, error) {
 	rows, err := q.db.Query(ctx, getEventSongs, id)
 	if err != nil {
 		return nil, err
@@ -175,7 +200,7 @@ select id, event_date, description, event_type_id from events
 where event_type_id = $1
 `
 
-func (q *Queries) GetEventTypeEvents(ctx context.Context, eventTypeID string) ([]Event, error) {
+func (q *Queries) GetEventTypeEvents(ctx context.Context, eventTypeID uuid.UUID) ([]Event, error) {
 	rows, err := q.db.Query(ctx, getEventTypeEvents, eventTypeID)
 	if err != nil {
 		return nil, err
@@ -225,11 +250,11 @@ func (q *Queries) GetEventTypes(ctx context.Context) ([]EventType, error) {
 }
 
 const getSongFiles = `-- name: GetSongFiles :many
-select id, name, file_type, file_content, song_id from files
+select id, name, file_content, file_type, song_id from files
 where song_id = $1
 `
 
-func (q *Queries) GetSongFiles(ctx context.Context, songID string) ([]File, error) {
+func (q *Queries) GetSongFiles(ctx context.Context, songID uuid.UUID) ([]File, error) {
 	rows, err := q.db.Query(ctx, getSongFiles, songID)
 	if err != nil {
 		return nil, err
@@ -241,8 +266,8 @@ func (q *Queries) GetSongFiles(ctx context.Context, songID string) ([]File, erro
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
-			&i.FileType,
 			&i.FileContent,
+			&i.FileType,
 			&i.SongID,
 		); err != nil {
 			return nil, err
@@ -262,7 +287,7 @@ on subcategories.id = songs.subcategory_id
 where songs.id = $1
 `
 
-func (q *Queries) GetSongSubcategories(ctx context.Context, id string) ([]Subcategory, error) {
+func (q *Queries) GetSongSubcategories(ctx context.Context, id uuid.UUID) ([]Subcategory, error) {
 	rows, err := q.db.Query(ctx, getSongSubcategories, id)
 	if err != nil {
 		return nil, err
@@ -344,18 +369,18 @@ func (q *Queries) GetSubcategorySongs(ctx context.Context, subcategoryID string)
 }
 
 const getTextFile = `-- name: GetTextFile :one
-select id, name, file_type, file_content, song_id from files
+select id, name, file_content, file_type, song_id from files
 where file_type = 'text' and song_id = $1
 `
 
-func (q *Queries) GetTextFile(ctx context.Context, songID string) (File, error) {
+func (q *Queries) GetTextFile(ctx context.Context, songID uuid.UUID) (File, error) {
 	row := q.db.QueryRow(ctx, getTextFile, songID)
 	var i File
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
-		&i.FileType,
 		&i.FileContent,
+		&i.FileType,
 		&i.SongID,
 	)
 	return i, err
