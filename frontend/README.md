@@ -1,38 +1,17 @@
-# sv
+# Frontend: React -> SvelteKit
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+The project was initially prototyped in React. I made the deliberate decision to migrate to **SvelteKit**, finding its approach to reactivity and routing logic much simpler and more integrated.
 
-## Creating a project
+## Why SvelteKit?
 
-If you're seeing this, you've probably already done this step. Congrats!
+The decision to completely rewrite the frontend in SvelteKit was one of the best technical decisions made for this project, and it's a technology I now fully support.
 
-```bash
-# create a new project in the current directory
-npx sv create
+The migration process itself was a revelation. A rewrite that I expected to take weeks was completed in less than one week. The resulting application faster and less jittery, while the codebase was dramatically smaller, more readable, and easier to maintain.
 
-# create a new project in my-app
-npx sv create my-app
-```
+Key Advantages That Drove This Decision:
 
-## Developing
+- First-Class Developer Experience: SvelteKit's documentation is clear and concise. This made the transition from React almost frictionless.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+- Simplicity and Power: SvelteKit's approach almost removes entire categories of problems (like complex state management) that are common in other frameworks.
 
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+- True Performance: Svelte is a compiler that generates highly optimized, minimal JavaScript. It doesn't ship a large virtual DOM, resulting in exceptional performance that is noticeable immediately.
