@@ -3,8 +3,7 @@
   import Tile from "$lib/components/tile.svelte";
 </script>
 
-<Header>Welcome to SongMGR, your song search engine</Header>
+<Header>Welcome to MusMGR, your work catalog</Header>
 
-<Tile href="/event-type" text="By event"></Tile>
-<Tile href="/category-type" text="By category"></Tile>
-<Tile href="/songs" text="All songs"></Tile>
+<Tile href="/by-event" text="By event"></Tile>
+<Tile href="/works" text="All works"></Tile>

@@ -19,7 +19,7 @@ export interface Event {
   date: string;
 }
 
-export interface Song {
+export interface Work {
   id: string;
   title: string;
   key: string;

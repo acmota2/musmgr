@@ -13,5 +13,5 @@
 </div>
 
 <footer class="flex justify-center pt-5">
-  <p><b>SongMGR</b> 2025</p>
+  <p><b>MusMGR</b> 2025</p>
 </footer>
