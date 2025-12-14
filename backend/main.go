@@ -26,7 +26,7 @@ func setRoutes(router *gin.Engine, cc *controller.ControllerContext) {
 	router.GET("/events/:id/works", cc.GetEventWorks)
 	router.GET("/works", cc.GetWorks)
 
-	// router.POST("/files/song", controller.CreateWorkFile)  TODO: Create me, on version 2.0
+	// router.POST("/files/work", controller.CreateWorkFile)  TODO: Create me, on version 2.0
 	router.POST("/events/:event_id/works/:work_id", cc.CreateWorkEvent)
 	router.POST("/event_types/:id/events", cc.CreateEvent)
 	router.POST("/works", cc.CreateEvent)

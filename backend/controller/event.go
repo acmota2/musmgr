@@ -23,18 +23,18 @@ func (cc *ControllerContext) CreateEvent(context *gin.Context) {
 	}
 }
 
-func (cc *ControllerContext) GetEventSongs(context *gin.Context) {
+func (cc *ControllerContext) GetEventWorks(context *gin.Context) {
 	id, err := uuid.Parse(context.Param("id"))
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	songs, err := cc.Queries.GetEventWorks(cc.Context, id.String())
+	works, err := cc.Queries.GetEventWorks(cc.Context, id.String())
 
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusOK, gin.H{"data": songs})
+		context.JSON(http.StatusOK, gin.H{"data": works})
 	}
 }

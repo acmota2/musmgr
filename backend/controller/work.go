@@ -8,26 +8,26 @@ import (
 )
 
 func (cc *ControllerContext) GetWorks(context *gin.Context) {
-	songs, err := cc.Queries.GetWorks(cc.Context)
+	works, err := cc.Queries.GetWorks(cc.Context)
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusOK, gin.H{"data": songs})
+		context.JSON(http.StatusOK, gin.H{"data": works})
 	}
 }
 
 func (cc *ControllerContext) CreateWork(context *gin.Context) {
-	var song model.CreateWorkParams
-	if err := context.ShouldBindJSON(&song); err != nil {
+	var work model.CreateWorkParams
+	if err := context.ShouldBindJSON(&work); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err := cc.Queries.CreateWork(cc.Context, song)
+	err := cc.Queries.CreateWork(cc.Context, work)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusCreated, gin.H{"data": song})
+		context.JSON(http.StatusCreated, gin.H{"data": work})
 	}
 }

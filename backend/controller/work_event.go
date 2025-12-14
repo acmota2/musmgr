@@ -8,15 +8,15 @@ import (
 )
 
 func (cc *ControllerContext) CreateWorkEvent(context *gin.Context) {
-	var songEvent model.CreateWorkEventParams
-	if err := context.ShouldBindJSON(&songEvent); err != nil {
+	var workEvent model.CreateWorkEventParams
+	if err := context.ShouldBindJSON(&workEvent); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
-	err := cc.Queries.CreateWorkEvent(cc.Context, songEvent)
+	err := cc.Queries.CreateWorkEvent(cc.Context, workEvent)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusCreated, gin.H{"data": songEvent})
+		context.JSON(http.StatusCreated, gin.H{"data": workEvent})
 	}
 }
