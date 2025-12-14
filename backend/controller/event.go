@@ -30,7 +30,7 @@ func (cc *ControllerContext) GetEventSongs(context *gin.Context) {
 		return
 	}
 
-	songs, err := cc.Queries.GetEventSongs(cc.Context, id.String())
+	songs, err := cc.Queries.GetEventWorks(cc.Context, id.String())
 
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})

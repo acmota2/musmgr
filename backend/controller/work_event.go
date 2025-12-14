@@ -7,13 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (cc *ControllerContext) CreateSongEvent(context *gin.Context) {
-	var songEvent model.CreateSongEventParams
+func (cc *ControllerContext) CreateWorkEvent(context *gin.Context) {
+	var songEvent model.CreateWorkEventParams
 	if err := context.ShouldBindJSON(&songEvent); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
-	err := cc.Queries.CreateSongEvent(cc.Context, songEvent)
+	err := cc.Queries.CreateWorkEvent(cc.Context, songEvent)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {

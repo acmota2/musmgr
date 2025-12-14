@@ -22,20 +22,14 @@ func loadEnv() {
 }
 
 func setRoutes(router *gin.Engine, cc *controller.ControllerContext) {
-	router.GET("/categories", cc.GetCategories)
-	router.GET("/categories/:id/subcategories", cc.GetCategorySubcategories)
-	router.GET("/event_types", cc.GetEventTypes)
-	router.GET("/songs/:id/files", cc.GetSongFiles)
-	router.GET("/songs/:id/files/text", cc.GetTextFile)
-	router.GET("/events/:id/songs", cc.GetEventSongs)
-	router.GET("/songs", cc.GetSongs)
-	router.GET("/songs/:id/subcategories", cc.GetSongSubcategories)
+	router.GET("/works/:id/files", cc.GetWorkFiles)
+	router.GET("/events/:id/works", cc.GetEventWorks)
+	router.GET("/works", cc.GetWorks)
 
-	// router.POST("/files/song", controller.CreateSongFile)  TODO: Create me, on version 2.0
-	router.POST("/events/:event_id/songs/:song_id", cc.CreateSongEvent)
+	// router.POST("/files/song", controller.CreateWorkFile)  TODO: Create me, on version 2.0
+	router.POST("/events/:event_id/works/:work_id", cc.CreateWorkEvent)
 	router.POST("/event_types/:id/events", cc.CreateEvent)
-	router.POST("/songs", cc.CreateEvent)
-	router.POST("/categories/:id/subcategories", cc.CreateSubcategory)
+	router.POST("/works", cc.CreateEvent)
 }
 
 func main() {
@@ -62,7 +56,7 @@ func main() {
 	router := gin.Default()
 
 	corsConfig := cors.Config{
-		AllowOrigins: []string{"http://localhost:5173"},
+		AllowOrigins: []string{"http://localhost:5173"}, // TODO: Change to env variable
 		AllowMethods: []string{"PUT", "PATCH", "GET", "POST"},
 		AllowHeaders: []string{
 			"Access-Control-Allow-Origin",

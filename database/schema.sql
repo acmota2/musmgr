@@ -1,49 +1,29 @@
-CREATE TABLE IF NOT EXISTS categories (
-  id varchar(255) PRIMARY KEY,
-  name text NOT NULL,
-  description text
+CREATE type instrumentation_name AS ENUM ('choir', 'solo', 'chamber', 'orchestra', 'opera', 'musical', 'acusmatic');
+
+CREATE TABLE IF NOT EXISTS works (
+  id                varchar(255)         PRIMARY KEY,
+  composed_at       date                 NOT NULL,
+  instrumentation   instrumentation_name NOT NULL,
+  title             varchar(255)         NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS subcategories (
-  id varchar(255) PRIMARY KEY,
-  name text NOT NULL,
-  category_id varchar(255) REFERENCES categories(id) NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS songs (
-  id                varchar(255) PRIMARY KEY,
-  name              varchar(255)    NOT NULL,
-  tonality_root     int             NOT NULL,
-  tonality_details  varchar(63)     NOT NULL,
-  subcategory_id    varchar(255) REFERENCES subcategories(id) NOT NULL
-);
-
-
-CREATE TABLE IF NOT EXISTS event_types (
-  id varchar(255) PRIMARY KEY,
-  name text NOT NULL,
-  description text
-);
+CREATE type event_type_name AS ENUM ('concert', 'exibition', 'competition', 'festival', 'other');
 
 CREATE TABLE IF NOT EXISTS events (
   id varchar(255) PRIMARY KEY,
-  event_date date NOT NULL,
+  date date NOT NULL,
   description text,
-  event_type_id varchar(255) REFERENCES event_types(id) NOT NULL
+  event_type event_type NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS songs_events (
-  song_id   varchar(255) REFERENCES songs(id) NOT NULL,
+CREATE TABLE IF NOT EXISTS works_events (
+  work_id   varchar(255) REFERENCES works(id) NOT NULL,
   event_id  varchar(255) REFERENCES events(id) NOT NULL
 );
-
-CREATE TYPE file_type AS ENUM ('text', 'score', 'song');
 
 CREATE TABLE IF NOT EXISTS files (
   id varchar(255) PRIMARY KEY,
   name text NOT NULL,
   file_path text NOT NULL,
-  file_type file_type NOT NULL,
-  song_id varchar(255) REFERENCES songs(id) NOT NULL
+  work_id varchar(255) REFERENCES works(id) NOT NULL
 );
-
