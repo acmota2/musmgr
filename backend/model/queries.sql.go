@@ -12,15 +12,15 @@ import (
 )
 
 const createEvent = `-- name: CreateEvent :exec
-insert into events (id, date, description, event_type)
+insert into musmgr.events (id, date, description, event_type)
 values ($1, $2, $3, $4)
 `
 
 type CreateEventParams struct {
-	ID          string      `json:"id"`
-	Date        pgtype.Date `json:"date"`
-	Description pgtype.Text `json:"description"`
-	EventType   interface{} `json:"event_type"`
+	ID          string          `json:"id"`
+	Date        pgtype.Date     `json:"date"`
+	Description pgtype.Text     `json:"description"`
+	EventType   MusmgrEventType `json:"event_type"`
 }
 
 func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error {
@@ -34,15 +34,15 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error 
 }
 
 const createWork = `-- name: CreateWork :exec
-insert into works (id, composed_at, instrumentation, title)
+insert into musmgr.works (id, composed_at, instrumentation, title)
 values ($1, $2, $3, $4)
 `
 
 type CreateWorkParams struct {
-	ID              string              `json:"id"`
-	ComposedAt      pgtype.Date         `json:"composed_at"`
-	Instrumentation InstrumentationName `json:"instrumentation"`
-	Title           string              `json:"title"`
+	ID              string                    `json:"id"`
+	ComposedAt      pgtype.Date               `json:"composed_at"`
+	Instrumentation MusmgrInstrumentationName `json:"instrumentation"`
+	Title           string                    `json:"title"`
 }
 
 func (q *Queries) CreateWork(ctx context.Context, arg CreateWorkParams) error {
@@ -56,7 +56,7 @@ func (q *Queries) CreateWork(ctx context.Context, arg CreateWorkParams) error {
 }
 
 const createWorkEvent = `-- name: CreateWorkEvent :exec
-insert into works_events (work_id, event_id)
+insert into musmgr.works_events (work_id, event_id)
 values ($1, $2)
 `
 
@@ -71,19 +71,19 @@ func (q *Queries) CreateWorkEvent(ctx context.Context, arg CreateWorkEventParams
 }
 
 const getEventTypeEvents = `-- name: GetEventTypeEvents :many
-select id, date, description, event_type from events
+select id, date, description, event_type from musmgr.events
 where event_type = $1
 `
 
-func (q *Queries) GetEventTypeEvents(ctx context.Context, eventType interface{}) ([]Event, error) {
+func (q *Queries) GetEventTypeEvents(ctx context.Context, eventType MusmgrEventType) ([]MusmgrEvent, error) {
 	rows, err := q.db.Query(ctx, getEventTypeEvents, eventType)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Event
+	var items []MusmgrEvent
 	for rows.Next() {
-		var i Event
+		var i MusmgrEvent
 		if err := rows.Scan(
 			&i.ID,
 			&i.Date,
@@ -101,21 +101,21 @@ func (q *Queries) GetEventTypeEvents(ctx context.Context, eventType interface{})
 }
 
 const getEventWorks = `-- name: GetEventWorks :many
-select id, composed_at, instrumentation, title from works
-inner join works_events
-on works.id = works_events.work_id
-where works.id = $1
+select id, composed_at, instrumentation, title from musmgr.works
+inner join musmgr.works_events
+on musmgr.works.id = musmgr.works_events.work_id
+where musmgr.works.id = $1
 `
 
-func (q *Queries) GetEventWorks(ctx context.Context, id string) ([]Work, error) {
+func (q *Queries) GetEventWorks(ctx context.Context, id string) ([]MusmgrWork, error) {
 	rows, err := q.db.Query(ctx, getEventWorks, id)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Work
+	var items []MusmgrWork
 	for rows.Next() {
-		var i Work
+		var i MusmgrWork
 		if err := rows.Scan(
 			&i.ID,
 			&i.ComposedAt,
@@ -133,19 +133,19 @@ func (q *Queries) GetEventWorks(ctx context.Context, id string) ([]Work, error) 
 }
 
 const getSubcategoryWorks = `-- name: GetSubcategoryWorks :many
-select id, composed_at, instrumentation, title from works
+select id, composed_at, instrumentation, title from musmgr.works
 where instrumentation = $1
 `
 
-func (q *Queries) GetSubcategoryWorks(ctx context.Context, instrumentation InstrumentationName) ([]Work, error) {
+func (q *Queries) GetSubcategoryWorks(ctx context.Context, instrumentation MusmgrInstrumentationName) ([]MusmgrWork, error) {
 	rows, err := q.db.Query(ctx, getSubcategoryWorks, instrumentation)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Work
+	var items []MusmgrWork
 	for rows.Next() {
-		var i Work
+		var i MusmgrWork
 		if err := rows.Scan(
 			&i.ID,
 			&i.ComposedAt,
@@ -163,19 +163,19 @@ func (q *Queries) GetSubcategoryWorks(ctx context.Context, instrumentation Instr
 }
 
 const getWorkFiles = `-- name: GetWorkFiles :many
-select id, name, file_path, work_id from files
+select id, name, file_path, work_id from musmgr.files
 where work_id = $1
 `
 
-func (q *Queries) GetWorkFiles(ctx context.Context, workID string) ([]File, error) {
+func (q *Queries) GetWorkFiles(ctx context.Context, workID string) ([]MusmgrFile, error) {
 	rows, err := q.db.Query(ctx, getWorkFiles, workID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []File
+	var items []MusmgrFile
 	for rows.Next() {
-		var i File
+		var i MusmgrFile
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
@@ -193,18 +193,18 @@ func (q *Queries) GetWorkFiles(ctx context.Context, workID string) ([]File, erro
 }
 
 const getWorks = `-- name: GetWorks :many
-select id, composed_at, instrumentation, title from works
+select id, composed_at, instrumentation, title from musmgr.works
 `
 
-func (q *Queries) GetWorks(ctx context.Context) ([]Work, error) {
+func (q *Queries) GetWorks(ctx context.Context) ([]MusmgrWork, error) {
 	rows, err := q.db.Query(ctx, getWorks)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Work
+	var items []MusmgrWork
 	for rows.Next() {
-		var i Work
+		var i MusmgrWork
 		if err := rows.Scan(
 			&i.ID,
 			&i.ComposedAt,
