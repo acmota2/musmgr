@@ -11,120 +11,120 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type EventTypeName string
+type MusmgrEventType string
 
 const (
-	EventTypeNameConcert     EventTypeName = "concert"
-	EventTypeNameExibition   EventTypeName = "exibition"
-	EventTypeNameCompetition EventTypeName = "competition"
-	EventTypeNameFestival    EventTypeName = "festival"
-	EventTypeNameOther       EventTypeName = "other"
+	MusmgrEventTypeConcert     MusmgrEventType = "concert"
+	MusmgrEventTypeExibition   MusmgrEventType = "exibition"
+	MusmgrEventTypeCompetition MusmgrEventType = "competition"
+	MusmgrEventTypeFestival    MusmgrEventType = "festival"
+	MusmgrEventTypeOther       MusmgrEventType = "other"
 )
 
-func (e *EventTypeName) Scan(src interface{}) error {
+func (e *MusmgrEventType) Scan(src interface{}) error {
 	switch s := src.(type) {
 	case []byte:
-		*e = EventTypeName(s)
+		*e = MusmgrEventType(s)
 	case string:
-		*e = EventTypeName(s)
+		*e = MusmgrEventType(s)
 	default:
-		return fmt.Errorf("unsupported scan type for EventTypeName: %T", src)
+		return fmt.Errorf("unsupported scan type for MusmgrEventType: %T", src)
 	}
 	return nil
 }
 
-type NullEventTypeName struct {
-	EventTypeName EventTypeName `json:"event_type_name"`
-	Valid         bool          `json:"valid"` // Valid is true if EventTypeName is not NULL
+type NullMusmgrEventType struct {
+	MusmgrEventType MusmgrEventType `json:"musmgr_event_type"`
+	Valid           bool            `json:"valid"` // Valid is true if MusmgrEventType is not NULL
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullEventTypeName) Scan(value interface{}) error {
+func (ns *NullMusmgrEventType) Scan(value interface{}) error {
 	if value == nil {
-		ns.EventTypeName, ns.Valid = "", false
+		ns.MusmgrEventType, ns.Valid = "", false
 		return nil
 	}
 	ns.Valid = true
-	return ns.EventTypeName.Scan(value)
+	return ns.MusmgrEventType.Scan(value)
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullEventTypeName) Value() (driver.Value, error) {
+func (ns NullMusmgrEventType) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
-	return string(ns.EventTypeName), nil
+	return string(ns.MusmgrEventType), nil
 }
 
-type InstrumentationName string
+type MusmgrInstrumentationName string
 
 const (
-	InstrumentationNameChoir     InstrumentationName = "choir"
-	InstrumentationNameSolo      InstrumentationName = "solo"
-	InstrumentationNameChamber   InstrumentationName = "chamber"
-	InstrumentationNameOrchestra InstrumentationName = "orchestra"
-	InstrumentationNameOpera     InstrumentationName = "opera"
-	InstrumentationNameMusical   InstrumentationName = "musical"
-	InstrumentationNameAcusmatic InstrumentationName = "acusmatic"
+	MusmgrInstrumentationNameChoir     MusmgrInstrumentationName = "choir"
+	MusmgrInstrumentationNameSolo      MusmgrInstrumentationName = "solo"
+	MusmgrInstrumentationNameChamber   MusmgrInstrumentationName = "chamber"
+	MusmgrInstrumentationNameOrchestra MusmgrInstrumentationName = "orchestra"
+	MusmgrInstrumentationNameOpera     MusmgrInstrumentationName = "opera"
+	MusmgrInstrumentationNameMusical   MusmgrInstrumentationName = "musical"
+	MusmgrInstrumentationNameAcusmatic MusmgrInstrumentationName = "acusmatic"
 )
 
-func (e *InstrumentationName) Scan(src interface{}) error {
+func (e *MusmgrInstrumentationName) Scan(src interface{}) error {
 	switch s := src.(type) {
 	case []byte:
-		*e = InstrumentationName(s)
+		*e = MusmgrInstrumentationName(s)
 	case string:
-		*e = InstrumentationName(s)
+		*e = MusmgrInstrumentationName(s)
 	default:
-		return fmt.Errorf("unsupported scan type for InstrumentationName: %T", src)
+		return fmt.Errorf("unsupported scan type for MusmgrInstrumentationName: %T", src)
 	}
 	return nil
 }
 
-type NullInstrumentationName struct {
-	InstrumentationName InstrumentationName `json:"instrumentation_name"`
-	Valid               bool                `json:"valid"` // Valid is true if InstrumentationName is not NULL
+type NullMusmgrInstrumentationName struct {
+	MusmgrInstrumentationName MusmgrInstrumentationName `json:"musmgr_instrumentation_name"`
+	Valid                     bool                      `json:"valid"` // Valid is true if MusmgrInstrumentationName is not NULL
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullInstrumentationName) Scan(value interface{}) error {
+func (ns *NullMusmgrInstrumentationName) Scan(value interface{}) error {
 	if value == nil {
-		ns.InstrumentationName, ns.Valid = "", false
+		ns.MusmgrInstrumentationName, ns.Valid = "", false
 		return nil
 	}
 	ns.Valid = true
-	return ns.InstrumentationName.Scan(value)
+	return ns.MusmgrInstrumentationName.Scan(value)
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullInstrumentationName) Value() (driver.Value, error) {
+func (ns NullMusmgrInstrumentationName) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
-	return string(ns.InstrumentationName), nil
+	return string(ns.MusmgrInstrumentationName), nil
 }
 
-type Event struct {
-	ID          string      `json:"id"`
-	Date        pgtype.Date `json:"date"`
-	Description pgtype.Text `json:"description"`
-	EventType   interface{} `json:"event_type"`
+type MusmgrEvent struct {
+	ID          string          `json:"id"`
+	Date        pgtype.Date     `json:"date"`
+	Description pgtype.Text     `json:"description"`
+	EventType   MusmgrEventType `json:"event_type"`
 }
 
-type File struct {
+type MusmgrFile struct {
 	ID       string `json:"id"`
 	Name     string `json:"name"`
 	FilePath string `json:"file_path"`
 	WorkID   string `json:"work_id"`
 }
 
-type Work struct {
-	ID              string              `json:"id"`
-	ComposedAt      pgtype.Date         `json:"composed_at"`
-	Instrumentation InstrumentationName `json:"instrumentation"`
-	Title           string              `json:"title"`
+type MusmgrWork struct {
+	ID              string                    `json:"id"`
+	ComposedAt      pgtype.Date               `json:"composed_at"`
+	Instrumentation MusmgrInstrumentationName `json:"instrumentation"`
+	Title           string                    `json:"title"`
 }
 
-type WorksEvent struct {
+type MusmgrWorksEvent struct {
 	WorkID  string `json:"work_id"`
 	EventID string `json:"event_id"`
 }

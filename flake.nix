@@ -39,11 +39,15 @@
             packages = with pkgs; [
               biome
               curl
+              docker-compose
               git
               go
+              goose
               jq
+              just
               nixpkgs-fmt
               pnpm
+              postgresql
               sqlc
             ];
           };

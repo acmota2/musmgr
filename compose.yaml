@@ -2,23 +2,23 @@ services:
   adminer:
     profiles: ["stage", "dev"]
     image: adminer:4.8.1
-    container_name: song-manager-adminer
+    container_name: musmgr-adminer
     networks:
-      - song-manager
+      - musmgr
     restart: always
     environment:
       ADMINER_DEFAULT_SERVER: postgres
     ports:
-      - ${ADMINER_PORT}:${ADMINER_PORT}
+      - ${ADMINER_PORT:-8080}:8080
 
   postgres:
-    profiles: ["prod", "stage", "dev"]
-    build: database/.
-    container_name: song-manager-db
+    profiles: ["stage", "dev"]
+    build: backend/db/.
+    container_name: musmgr-db
     ports:
-      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+      - ${POSTGRES_PORT}:5432
     networks:
-      - song-manager
+      - musmgr
     restart: always
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -32,18 +32,21 @@ services:
       timeout: 10s
 
   svelte:
-    profiles: ["prod", "stage"]
+    profiles: ["stage"]
     build: frontend/.
-    container_name: song-manager-frontend
+    container_name: musmgr-frontend
+    environment:
+      VITE_BACKEND_HOST: ${BACKEND_HOST:-go-gin}
+      VITE_BACKEND_PORT: ${BACKEND_PORT:-8000}
     ports:
       - 5173:3000
     networks:
-      - song-manager
+      - musmgr
 
   go-gin:
-    profiles: ["prod", "stage", "dev"]
+    profiles: ["stage", "dev"]
     build: backend/.
-    container_name: song-manager-backend
+    container_name: musmgr-backend
     ports:
       - ${BACKEND_PORT}:${BACKEND_PORT}
     environment:
@@ -51,15 +54,16 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_HOST: postgres
-      BACKEND_HOST: go-gin
+      BACKEND_HOST: ${BACKEND_HOST:-go-gin}
+      BACKEND_PORT: ${BACKEND_PORT:-8000}
       # GIN_MODE: release
     depends_on:
       postgres:
         condition: service_healthy
         restart: true
     networks:
-      - song-manager
+      - musmgr
 
 networks:
-  song-manager:
+  musmgr:
     driver: bridge
