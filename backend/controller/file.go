@@ -7,24 +7,10 @@ import (
 	"github.com/google/uuid"
 )
 
-func (cc *ControllerContext) GetTextFile(context *gin.Context) {
-	id, err := uuid.Parse(context.Param("id"))
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	songFile, err := cc.Queries.GetTextFile(cc.Context, id.String())
-	if err != nil {
-		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-	} else {
-		context.FileAttachment(songFile.FilePath, songFile.Name)
-	}
-}
 
 /*
-func CreateSongFile(context *gin.Context) {
-	var file model.SongFile
+func CreateWorkFile(context *gin.Context) {
+	var file model.WorkFile
 	if err := context.BindJSON(&file); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
@@ -38,13 +24,13 @@ func CreateSongFile(context *gin.Context) {
 	}
 }
 
-func GetSongText(context *gin.Context) {
+func GetWorkText(context *gin.Context) {
 	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
-	sf, err := model.GetTextFileFromSong(id)
+	sf, err := model.GetTextFileFromWork(id)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {
@@ -53,17 +39,18 @@ func GetSongText(context *gin.Context) {
 }
 */
 
-func (cc *ControllerContext) GetSongFiles(context *gin.Context) {
+func (cc *ControllerContext) GetWorkFiles(context *gin.Context) {
 	id, err := uuid.Parse(context.Param("id"))
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	files, err := cc.Queries.GetSongFiles(cc.Context, id.String())
+	files, err := cc.Queries.GetWorkFiles(cc.Context, id.String())
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
+		// TODO: Decide between MinIO or serving directly from server
 		context.JSON(http.StatusOK, gin.H{"data": files})
 	}
 }

@@ -15,14 +15,10 @@
       text-xl \
       w-full \
       font-bold",
-  } = $props() satisfies { 
-    href: string,
-    text: string,
-    class: string,
-  };
+  } = $props();
 </script>
 
-<a {href} class="flex flex-row max-w-96 md:w-full">
+<a {href} class="flex max-w-96 flex-row md:w-full">
   <div class={className}>
     <p class="square-text">{text}</p>
   </div>
