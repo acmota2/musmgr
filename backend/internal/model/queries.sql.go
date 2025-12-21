@@ -33,6 +33,22 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error 
 	return err
 }
 
+const createFile = `-- name: CreateFile :exec
+insert into musmgr.files (id, name, work_id)
+values ($1, $2, $3)
+`
+
+type CreateFileParams struct {
+	ID     string `json:"id"`
+	Name   string `json:"name"`
+	WorkID string `json:"work_id"`
+}
+
+func (q *Queries) CreateFile(ctx context.Context, arg CreateFileParams) error {
+	_, err := q.db.Exec(ctx, createFile, arg.ID, arg.Name, arg.WorkID)
+	return err
+}
+
 const createWork = `-- name: CreateWork :exec
 insert into musmgr.works (id, composed_at, instrumentation, title)
 values ($1, $2, $3, $4)
@@ -163,7 +179,7 @@ func (q *Queries) GetSubcategoryWorks(ctx context.Context, instrumentation Musmg
 }
 
 const getWorkFiles = `-- name: GetWorkFiles :many
-select id, name, file_path, work_id from musmgr.files
+select id, name, work_id from musmgr.files
 where work_id = $1
 `
 
@@ -176,12 +192,7 @@ func (q *Queries) GetWorkFiles(ctx context.Context, workID string) ([]MusmgrFile
 	var items []MusmgrFile
 	for rows.Next() {
 		var i MusmgrFile
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.FilePath,
-			&i.WorkID,
-		); err != nil {
+		if err := rows.Scan(&i.ID, &i.Name, &i.WorkID); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

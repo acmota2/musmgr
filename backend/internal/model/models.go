@@ -111,10 +111,9 @@ type MusmgrEvent struct {
 }
 
 type MusmgrFile struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	FilePath string `json:"file_path"`
-	WorkID   string `json:"work_id"`
+	ID     string `json:"id"`
+	Name   string `json:"name"`
+	WorkID string `json:"work_id"`
 }
 
 type MusmgrWork struct {

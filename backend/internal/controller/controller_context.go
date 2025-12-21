@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"backend/model"
+	"backend/internal/model"
 	"context"
 )
 

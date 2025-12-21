@@ -22,7 +22,7 @@ dump_db_schema:
 
 create_models:
     @echo "Creating controllers from schema..."
-    cd backend && sqlc generate
+    cd backend/db && sqlc generate
 
 start_frontend:
     @echo "Starting frontend server..."
