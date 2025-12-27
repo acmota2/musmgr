@@ -75,7 +75,6 @@ CREATE TABLE musmgr.events (
 CREATE TABLE musmgr.files (
     id character varying(255) NOT NULL,
     name text NOT NULL,
-    file_path text NOT NULL,
     work_id character varying(255) NOT NULL
 );
 

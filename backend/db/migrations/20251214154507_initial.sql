@@ -27,6 +27,6 @@ CREATE TABLE IF NOT EXISTS musmgr.works_events (
 CREATE TABLE IF NOT EXISTS musmgr.files (
   id varchar(255) PRIMARY KEY,
   name text NOT NULL,
-  file_path text NOT NULL,
+  file_url text NOT NULL,
   work_id varchar(255) REFERENCES musmgr.works(id) NOT NULL
 );

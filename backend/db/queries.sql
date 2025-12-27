@@ -30,3 +30,7 @@ where musmgr.works.id = $1;
 -- name: CreateWorkEvent :exec
 insert into musmgr.works_events (work_id, event_id)
 values ($1, $2);
+
+-- name: CreateFile :exec
+insert into musmgr.files (id, name, work_id)
+values ($1, $2, $3);
