@@ -2,14 +2,8 @@ package controller
 
 import (
 	"backend/internal/model"
-	"context"
 )
 
-type ControllerContext struct {
+type Handler struct {
 	Queries *model.Queries
-	Context context.Context
-}
-
-func New(queries *model.Queries, ctx context.Context) *ControllerContext {
-	return &ControllerContext{queries, ctx}
 }

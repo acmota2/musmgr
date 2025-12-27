@@ -7,34 +7,45 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func setRoutes(router *gin.Engine, cc *controller.ControllerContext) {
-	router.GET("/works/:id/files", cc.GetWorkFiles)
-	router.GET("/events/:id/works", cc.GetEventWorks)
-	router.GET("/works", cc.GetWorks)
+func setRoutes(router *gin.Engine, h *controller.Handler) {
+	router.GET("/works/:id/files", h.GetWorkFiles)
+	router.GET("/events/:id/works", h.GetEventWorks)
+	router.GET("/works", h.GetWorks)
 
-	router.POST("/events/:event_id/works/:work_id", cc.CreateWorkEvent)
-	router.POST("/event_types/:type/events", cc.CreateEvent)
-	router.POST("/works", cc.CreateEvent)
+	router.POST("/events/:event_id/works/:work_id", h.CreateWorkEvent)
+	router.POST("/event_types/:type/events", h.CreateEvent)
+	router.POST("/works", h.CreateEvent)
 }
 
 func main() {
-	initConfig, err := config.CreateConfig()
+	initConfig, err := config.New()
 	if err != nil {
 		log.Panic(err)
 	}
 
-	ctx := context.Background()
-	conn, err := pgx.Connect(ctx, initConfig.DatabaseUrl)
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		os.Interrupt,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+	)
+	defer stop()
+
+	conn, err := pgxpool.New(ctx, initConfig.DatabaseUrl)
 	if err != nil {
 		log.Panic(err)
 	}
-	defer conn.Close(ctx)
+	defer conn.Close()
+
 	fmt.Println("Successfully connected to the database")
 
 	router := gin.Default()
@@ -55,7 +66,11 @@ func main() {
 
 	router.Use(cors.New(corsConfig))
 
-	cc := controller.New(model.New(conn), ctx)
-	setRoutes(router, cc)
-	router.Run(initConfig.PortHost)
+	handler := &controller.Handler{
+		Queries: model.New(conn),
+	}
+	setRoutes(router, handler)
+	go router.Run(initConfig.PortHost)
+	<-ctx.Done()
+	log.Println("Shutting down gracefully, press Ctrl+C again to force")
 }

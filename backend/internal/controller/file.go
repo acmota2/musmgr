@@ -7,17 +7,18 @@ import (
 	"github.com/google/uuid"
 )
 
-func (cc *ControllerContext) GetWorkFiles(context *gin.Context) {
-	id, err := uuid.Parse(context.Param("id"))
+func (h *Handler) GetWorkFiles(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	
+	ctx := c.Request.Context()
 
-	files, err := cc.Queries.GetWorkFiles(cc.Context, id.String())
-	if err != nil {
-		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	if files, err := h.Queries.GetWorkFiles(ctx, id.String()); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusOK, gin.H{"data": files})
+		c.JSON(http.StatusOK, gin.H{"data": files})
 	}
 }

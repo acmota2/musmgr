@@ -6,7 +6,7 @@ type Config struct {
 	PortHost	  string
 }
 
-func CreateConfig() (Config, error) {
+func New() (Config, error) {
 	parsedArgs := loadFromArgs()
 	environmentVariables, err := loadFromEnv(parsedArgs.EnvFilePath)
 	if err != nil {

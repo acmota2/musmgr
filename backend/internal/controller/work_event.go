@@ -7,16 +7,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (cc *ControllerContext) CreateWorkEvent(context *gin.Context) {
+func (h *Handler) CreateWorkEvent(c *gin.Context) {
 	var workEvent model.CreateWorkEventParams
-	if err := context.ShouldBindJSON(&workEvent); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := c.ShouldBindJSON(&workEvent); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
-	err := cc.Queries.CreateWorkEvent(cc.Context, workEvent)
-	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	ctx := c.Request.Context()
+
+	if err := h.Queries.CreateWorkEvent(ctx, workEvent); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusCreated, gin.H{"data": workEvent})
+		c.JSON(http.StatusCreated, gin.H{"data": workEvent})
 	}
 }

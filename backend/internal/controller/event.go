@@ -8,33 +8,34 @@ import (
 	"github.com/google/uuid"
 )
 
-func (cc *ControllerContext) CreateEvent(context *gin.Context) {
+func (h *Handler) CreateEvent(c *gin.Context) {
 	var event model.CreateEventParams
-	if err := context.BindJSON(&event); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := c.BindJSON(&event); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err := cc.Queries.CreateEvent(cc.Context, event)
-	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	ctx := c.Request.Context()
+	
+	if err := h.Queries.CreateEvent(ctx, event); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusCreated, gin.H{"data": event})
+		c.JSON(http.StatusCreated, gin.H{"data": event})
 	}
 }
 
-func (cc *ControllerContext) GetEventWorks(context *gin.Context) {
-	id, err := uuid.Parse(context.Param("id"))
+func (h *Handler) GetEventWorks(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	works, err := cc.Queries.GetEventWorks(cc.Context, id.String())
+	ctx := c.Request.Context()
 
-	if err != nil {
-		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	if works, err := h.Queries.GetEventWorks(ctx, id.String()); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
-		context.JSON(http.StatusOK, gin.H{"data": works})
+		c.JSON(http.StatusOK, gin.H{"data": works})
 	}
 }
