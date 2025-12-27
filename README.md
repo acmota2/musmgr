@@ -27,5 +27,5 @@ This has been a long-term passion project, paused and iterated on over ~2 years,
 
 ### Future plans
 
-* Complete the refactor from SongMGR to MusMGR.
-* 
+* Add both MinIO and local storage support for files.
+* Implement public and private routes.
