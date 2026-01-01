@@ -1,31 +1,33 @@
-# MusMGR: a repertoire manager and tracker
+# MusMGR: a repertoire manager and performance event tracker
 
-***This repository was formerly **SongMGR**. While its original specific intent has been lost to time, the project is now being refactored and reimagined into a similar, but different domain. It currently finds itself under active (re)development.***
+MusMGR is a webapp built with a SvelteKit frontend, a Go backend (Gin), and PostgreSQL for persistence. SQL queries are handled via sqlc with goose for migrations, and local development is containerized with Docker Compose.
 
-MusMGR is an in-progress, full-stack application focusing on a composer's (or any musician) event and repertoire management. This project is an exploration in building a modern, containerized web application from scratch.
-
-This has been a long-term passion project, paused and iterated on over ~2 years, evolving through major life changes and through my own technical growth. It is not ready yet due to the unseen changes in its original scope, but also because its deployment needs have shifted.
-
-## Project goals
-
-* Build a performant and lightweight full-stack application to manage pieces and events related to them.
-* Explore Go as a backend language.
-* Originally to explore React, but the current project presents itself with a SvelteKit frontend.
-* Master container-based local development workflows.
-* (recently) Implement type-safe database access in Go.
+MusMGR focuses on tracking repertoire and performance events. It is not a music streaming or playback platform.
 
 ## Tech stack
 
-* **Frontend:** [SvelteKit](https://kit.svelte.dev/)
-* **Backend:** [Go](https://go.dev/) with the [Gin](https://github.com/gin-gonic/gin) framework
-* **Database:** [PostgreSQL](https://www.postgresql.org/)
-* **Database management:** [sqlc](https://sqlc.dev/) for type-safe, compile-time query generation.
-* **Database migrations:** [goose](https://pressly.github.io/goose)
-* **Development Environment:** [Docker](https://www.docker.com/) (with Docker Compose)
+* [SvelteKit](https://kit.svelte.dev/) with [Tailwind CSS](https://tailwindcss.com/) (frontend)
+* [Go](https://go.dev/) with [Gin](https://github.com/gin-gonic/gin) (backend)
+* [PostgreSQL](https://www.postgresql.org/) (database)
+* [sqlc](https://sqlc.dev/) (type-safe query generation)
+* [goose](https://pressly.github.io/goose)  (database migrations)
+* [Docker Compose](https://docs.docker.com/compose) (local development environment)
+
+## Project status
+
+MusMGR is under active development. APIs, data models, and deployment details may change as the project evolves.
 
 ---
 
-### Future plans
+## Future plans
 
 * Add both MinIO and local storage support for files.
 * Implement public and private routes.
+
+---
+
+## Contributors
+
+- **acmota2** - original author and maintainer
+
+Additional contributions may be listed here in the future.
