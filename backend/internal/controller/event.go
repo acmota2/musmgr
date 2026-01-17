@@ -24,6 +24,31 @@ func (h *Handler) CreateEvent(c *gin.Context) {
 	}
 }
 
+func (h *Handler) DeleteEvent(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx := c.Request.Context()
+
+	if err := h.Queries.DeleteEvent(ctx, id.String()); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"data": "event deleted"})
+	}
+}
+
+func (h *Handler) GetEvents(c *gin.Context) {
+	ctx := c.Request.Context()
+	if events, err := h.Queries.GetEvents(ctx); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"data": events})
+	}
+}
+
 func (h *Handler) GetEventWorks(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
