@@ -88,17 +88,21 @@ func validateStorageConfig(storageType platform.StorageType) (*platform.StorageC
 			"MINIO_ENDPOINT",
 			"MINIO_ACCESS_KEY",
 			"MINIO_SECRET_KEY",
-			"MINIO_BUCKET",
+			"MINIO_BUCKET_NAME",
+			"MINIO_BUCKET_REGION",
+			"MINIO_SSL",
 		)
 		if err != nil {
 			return nil, err
 		}
 
 		return &platform.StorageConfig{
-			MinioEndpoint:  minioSettings["MINIO_ENDPOINT"],
-			MinioAccessKey: minioSettings["MINIO_ACCESS_KEY"],
-			MinioSecretKey: minioSettings["MINIO_SECRET_KEY"],
-			MinioBucket:    minioSettings["MINIO_BUCKET"],
+			MinioEndpoint:        minioSettings["MINIO_ENDPOINT"],
+			MinioAccessKeyId:     minioSettings["MINIO_ACCESS_KEY"],
+			MinioSecretAccessKey: minioSettings["MINIO_SECRET_KEY"],
+			MinioBucketName:      minioSettings["MINIO_BUCKET_NAME"],
+			MinioBucketRegion:    minioSettings["MINIO_BUCKET_REGION"],
+			MinioSSL:             minioSettings["MINIO_SSL"] == "true",
 		}, nil
 	default:
 		return nil, fmt.Errorf("Invalid storage type")

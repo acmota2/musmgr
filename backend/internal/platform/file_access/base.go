@@ -16,15 +16,17 @@ const (
 type StorageType string
 
 type StorageConfig struct {
-	LocalPath      string
-	MinioEndpoint  string
-	MinioAccessKey string
-	MinioSecretKey string
-	MinioBucket    string
+	LocalPath            string
+	MinioEndpoint        string
+	MinioAccessKeyId     string
+	MinioSecretAccessKey string
+	MinioBucketName      string
+	MinioBucketRegion    string
+	MinioSSL             bool
 }
 
 type StorageManager interface {
-	Create(ctx context.Context, id uuid.UUID, r io.Reader, size int64) error // unknown size is -1
+	Create(ctx context.Context, id uuid.UUID, r io.Reader, size int64, contentType string) error // unknown size is -1
 	Read(ctx context.Context, id uuid.UUID) (io.ReadCloser, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 }
@@ -34,6 +36,7 @@ func NewStorage(kind StorageType, cfg StorageConfig) (StorageManager, error) {
 	case LOCAL:
 		return newLocalStorage(cfg.LocalPath)
 	case MINIO:
+		return newMinioStorage(cfg)
 	default:
 	}
 	return nil, fmt.Errorf("Wrong storage type: %s", kind)

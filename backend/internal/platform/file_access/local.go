@@ -33,7 +33,7 @@ func (ls *localStorage) makePath(name string) string {
 	return filepath.Join(ls.path, name)
 }
 
-func (ls *localStorage) Create(ctx context.Context, id uuid.UUID, r io.Reader, size int64) error {
+func (ls *localStorage) Create(ctx context.Context, id uuid.UUID, r io.Reader, size int64, contentType string) error {
 	if err := earlyCancel(ctx); err != nil {
 		return err
 	}
