@@ -1,15 +1,26 @@
 package config
 
 import (
-	"github.com/joho/godotenv"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
+const (
+	Development DeploymentType = "DEVELOPMENT"
+	Production  DeploymentType = "PRODUCTION"
+)
+
+type DeploymentType string
+
 type fromEnvConfig struct {
-	DatabaseUrl string
-	HostPort string
+	AdminRoutes    []string
+	DatabaseUrl    string
+	DeploymentMode string
+	PublicRoutes   []string
 }
 
 type EnvironmentError struct {
@@ -29,46 +40,60 @@ func loadEnvFile(envFilePath string) {
 	}
 }
 
-func loadFromEnv(envFilePath string) (fromEnvConfig, error) {
+func parseDeploymentMode(mode string) string {
+	switch mode {
+	case "DEVELOPMENT", "PRODUCTION":
+		return mode
+	default:
+		log.Println("Invalid or empty DEPLOYMENT_TYPE. Defaulting to DEVELOPMENT")
+	}
+	return "DEVELOPMENT"
+}
+
+func parseAllowedOrigins(list string) ([]string, error) {
+	var origins []string
+	if err := json.Unmarshal([]byte(list), &origins); err != nil {
+		return nil, err
+	}
+	return origins, nil
+}
+
+func loadFromEnv(envFilePath string) (*fromEnvConfig, error) {
 	loadEnvFile(envFilePath)
 
-	dbPort := os.Getenv("POSTGRES_PORT")
-	if dbPort == "" {
-		dbPort = "5432"
-	}
 	postgresEnv := map[string]string{
-		"POSTGRES_USER": os.Getenv("POSTGRES_USER"),
+		"POSTGRES_USER":     os.Getenv("POSTGRES_USER"),
 		"POSTGRES_PASSWORD": os.Getenv("POSTGRES_PASSWORD"),
-		"POSTGRES_HOST": os.Getenv("POSTGRES_HOST"),
-		"POSTGRES_DB": os.Getenv("POSTGRES_DB"),
-	};
+		"POSTGRES_HOST":     os.Getenv("POSTGRES_HOST"),
+		"POSTGRES_DB":       os.Getenv("POSTGRES_DB"),
+	}
 
 	for env, value := range postgresEnv {
 		if value == "" {
-			return fromEnvConfig{}, &EnvironmentError{Message: fmt.Sprintf("Environment variable %s is not set", env)}
-		}
-	}
-	
-	port := os.Getenv("BACKEND_PORT")
-	if port == "" {
-		return fromEnvConfig{}, &EnvironmentError{
-			Message: "Environment variable BACKEND_PORT is not set. You must set at least the port for the backend to run",
+			return &fromEnvConfig{}, &EnvironmentError{Message: fmt.Sprintf("Environment variable %s is not set", env)}
 		}
 	}
 
-	return fromEnvConfig{ 
+	mode := parseDeploymentMode(os.Getenv("DEPLOYMENT_TYPE"))
+	allowedPublicRoutes, err := parseAllowedOrigins(os.Getenv("ALLOWED_PUBLIC_DOMAINS"))
+	if err != nil {
+		return nil, err
+	}
+	allowedAdminRoutes, err := parseAllowedOrigins(os.Getenv("ALLOWED_ADMIN_DOMAINS"))
+	if err != nil {
+		return nil, err
+	}
+
+	return &fromEnvConfig{
+		AdminRoutes: allowedAdminRoutes,
 		DatabaseUrl: fmt.Sprintf(
-			"postgres://%s:%s@%s:%s/%s",
+			"postgres://%s:%s@%s/%s",
 			postgresEnv["POSTGRES_USER"],
 			postgresEnv["POSTGRES_PASSWORD"],
 			postgresEnv["POSTGRES_HOST"],
-			dbPort,
 			postgresEnv["POSTGRES_DB"],
 		),
-		HostPort: fmt.Sprintf(
-			"%s:%s",
-			os.Getenv("BACKEND_HOST"),
-			port,
-		),
+		DeploymentMode: mode,
+		PublicRoutes:   allowedPublicRoutes,
 	}, nil
 }

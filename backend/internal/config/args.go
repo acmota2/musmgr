@@ -1,37 +1,38 @@
 package config
 
 import (
+	platform "backend/internal/platform/file_access"
 	"flag"
+	"log"
 )
 
-type StorageType string
-const (
-	Minio StorageType = "MINIO"
-	Local StorageType = "LOCAL"
-)
-
-type DeploymentType string
-const (
-	Development DeploymentType = "DEVELOPMENT"
-	Production  DeploymentType = "PRODUCTION"
-)
-
-type fromArgsConfig struct {
-	DeploymentType	DeploymentType
-	EnvFilePath string
-	StorageType StorageType
+type ArgsError struct {
+	Message string
 }
 
-func loadFromArgs() fromArgsConfig {
+type fromArgsConfig struct {
+	EnvFilePath string
+	StorageType platform.StorageType
+	AdminPort   string
+	PublicPort  string
+}
+
+func loadFromArgs() (fromArgsConfig, error) {
 	var argsConfig fromArgsConfig
-	var storageType, deploymentType string
+	var storageType string
 	flag.StringVar(&argsConfig.EnvFilePath, "env-file", "", "Path to the .env file")
-	flag.StringVar(&storageType, "storage-type", "LOCAL", "Type of storage to use: MINIO | LOCAL")
-	flag.StringVar(&deploymentType, "storage", "DEVELOPMENT", "Deployment type: DEVELOPMENT | PRODUCTION")
+	flag.StringVar(&storageType, "storage-type", "MINIO", "Type of storage to use: MINIO | LOCAL")
+	flag.StringVar(&argsConfig.AdminPort, "admin-port", "4700", "The port where the admin backend should run")
+	flag.StringVar(&argsConfig.PublicPort, "public-port", "4701", "The port where the public backend should run")
 	flag.Parse()
 
-	argsConfig.DeploymentType = DeploymentType(deploymentType)
-  argsConfig.StorageType = StorageType(storageType)
+	newStorageType, err := platform.ParseStorageType(storageType)
+	if err != nil {
+		newStorageType = platform.MINIO
+		log.Println("Invalid storage type, will use MinIO")
+	}
 
-	return argsConfig
+	argsConfig.StorageType = newStorageType
+
+	return argsConfig, nil
 }
