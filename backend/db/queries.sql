@@ -1,25 +1,25 @@
--- name: CreateWork :exec
-insert into musmgr.works (id, composed_at, instrumentation, title, create_at, updated_at)
+-- name: CreatePiece :exec
+insert into musmgr.pieces (id, composed_at, instrumentation, title, create_at, updated_at)
 values ($1, $2, $3, $4, now(), now());
 
 -- name: CreateEvent :exec
-insert into musmgr.events (id, date, description, event_type, create_at, updated_at)
+insert into musmgr.events (id, happened_at, description, event_type, create_at, updated_at)
 values ($1, $2, $3, $4, now(), now());
 
--- name: CreateWorkEvent :exec
-insert into musmgr.works_events (work_id, event_id)
+-- name: CreatePieceEvent :exec
+insert into musmgr.pieces_events (piece_id, event_id)
 values ($1, $2);
 
 -- name: CreateFile :exec
-insert into musmgr.files (id, name, work_id, create_at, updated_at)
+insert into musmgr.files (id, name, piece_id, create_at, updated_at)
 values ($1, $2, $3, now(), now());
 
--- name: DeleteWorkEvent :exec
-delete from musmgr.works_events
-where work_id = $1 and event_id = $2;
+-- name: DeletePieceEvent :exec
+delete from musmgr.pieces_events
+where piece_id = $1 and event_id = $2;
 
--- name: DeleteWork :exec
-delete from musmgr.works
+-- name: DeletePiece :exec
+delete from musmgr.pieces
 where id = $1;
 
 -- name: DeleteEvent :exec
@@ -30,8 +30,8 @@ where id = $1;
 delete from musmgr.files
 where id = $1;
 
--- name: UpdateWork :exec
-update musmgr.works
+-- name: UpdatePiece :exec
+update musmgr.pieces
 set composed_at = coalesce(sqlc.narg(composed_at), composed_at),
     instrumentation = coalesce(sqlc.narg(instrumentation), instrumentation),
     title = coalesce(sqlc.narg(title), title),
@@ -40,7 +40,7 @@ where id = $1;
 
 -- name: UpdateEvent :exec
 update musmgr.events
-set date = coalesce(sqlc.narg(date), date),
+set happened_at = coalesce(sqlc.narg(happened_at), happened_at),
     description = coalesce(sqlc.narg(description), description),
     event_type = coalesce(sqlc.narg(event_type), event_type),
     updated_at = now()
@@ -55,29 +55,29 @@ where id = $1;
 -- name: GetEvents :many
 select * from musmgr.events;
 
--- name: GetWorks :many
-select * from musmgr.works;
+-- name: GetPieces :many
+select * from musmgr.pieces;
 
--- name: GetInstrumentationWorks :many
-select * from musmgr.works
+-- name: GetInstrumentationPieces :many
+select * from musmgr.pieces
 where instrumentation = $1;
 
 -- name: GetEventTypeEvents :many
 select * from musmgr.events
 where event_type = $1;
 
--- name: GetWorkFiles :many
+-- name: GetPieceFiles :many
 select * from musmgr.files
-where work_id = $1;
+where piece_id = $1;
 
--- name: GetEventWorks :many
-select id, composed_at, instrumentation, title from musmgr.works
-inner join musmgr.works_events
-on musmgr.works.id = musmgr.works_events.work_id
-where musmgr.works.id = $1;
+-- name: GetEventPieces :many
+select id, composed_at, instrumentation, title from musmgr.pieces
+inner join musmgr.pieces_events
+on musmgr.pieces.id = musmgr.pieces_events.piece_id
+where musmgr.pieces.id = $1;
 
--- name: GetWorkEvents :many
-select id, date, description, event_type from musmgr.events
-inner join musmgr.works_events
-on musmgr.events.id = musmgr.works_events.event_id
-where musmgr.works_events.work_id = $1;
+-- name: GetPieceEvents :many
+select id, happened_at, description, event_type from musmgr.events
+inner join musmgr.pieces_events
+on musmgr.events.id = musmgr.pieces_events.event_id
+where musmgr.pieces_events.piece_id = $1;

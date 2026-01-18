@@ -16,11 +16,11 @@ AS $$
     (p = 'year' AND d = date_trunc('year', d)::date) OR
     (p = 'month' AND d = date_trunc('month', d)::date) OR
     (p = 'day');
-$$
+$$;
 
 CREATE type musmgr.instrumentation_name AS ENUM ('choir', 'solo', 'chamber', 'orchestra', 'opera', 'musical', 'acousmatic');
 
-CREATE TABLE IF NOT EXISTS musmgr.works (
+CREATE TABLE IF NOT EXISTS musmgr.pieces (
   id UUID PRIMARY KEY,
   composed_at date NOT NULL,
   composed_at_precision musmgr.date_precision NOT NULL DEFAULT 'month',
@@ -54,17 +54,16 @@ CREATE TABLE IF NOT EXISTS musmgr.events (
   )
 );
 
-CREATE TABLE IF NOT EXISTS musmgr.works_events (
-  work_id UUID NOT NULL REFERENCES musmgr.works(id) ON DELETE CASCADE,
+CREATE TABLE IF NOT EXISTS musmgr.pieces_events (
+  piece_id UUID NOT NULL REFERENCES musmgr.pieces(id) ON DELETE CASCADE,
   event_id UUID NOT NULL REFERENCES musmgr.events(id) ON DELETE CASCADE,
-  PRIMARY KEY (work_id, event_id)
+  PRIMARY KEY (piece_id, event_id)
 );
 
 CREATE TABLE IF NOT EXISTS musmgr.files (
   id UUID PRIMARY KEY,
   name text NOT NULL,
-  file_url text NOT NULL,
-  work_id UUID NOT NULL REFERENCES musmgr.works(id) ON DELETE CASCADE,
+  piece_id UUID NOT NULL REFERENCES musmgr.pieces(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
