@@ -1,8 +1,8 @@
 package config
 
 import (
-	platform "backend/internal/platform/file_access"
 	"flag"
+	platform "github.com/acmota2/musmgr/backend/internal/platform/file_access"
 	"log"
 )
 

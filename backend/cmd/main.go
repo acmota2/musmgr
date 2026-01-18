@@ -1,12 +1,12 @@
 package main
 
 import (
-	"backend/internal/config"
-	"backend/internal/controller"
-	"backend/internal/model"
-	"backend/internal/server"
 	"context"
 	"fmt"
+	"github.com/acmota2/musmgr/backend/internal/config"
+	"github.com/acmota2/musmgr/backend/internal/controller"
+	"github.com/acmota2/musmgr/backend/internal/model"
+	"github.com/acmota2/musmgr/backend/internal/server"
 	"log"
 	"os"
 	"os/signal"

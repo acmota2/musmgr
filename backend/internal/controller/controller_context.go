@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"backend/internal/model"
+	"github.com/acmota2/musmgr/backend/internal/model"
 )
 
 type Handler struct {

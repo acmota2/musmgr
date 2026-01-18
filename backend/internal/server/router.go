@@ -1,8 +1,8 @@
 package server
 
 import (
-	"backend/internal/config"
-	"backend/internal/controller"
+	"github.com/acmota2/musmgr/backend/internal/config"
+	"github.com/acmota2/musmgr/backend/internal/controller"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"

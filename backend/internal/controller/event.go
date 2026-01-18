@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"backend/internal/model"
+	"github.com/acmota2/musmgr/backend/internal/model"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -16,7 +16,7 @@ func (h *Handler) CreateEvent(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	
+
 	if err := h.Queries.CreateEvent(ctx, event); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {

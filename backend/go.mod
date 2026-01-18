@@ -1,4 +1,4 @@
-module backend
+module github.com/acmota2/musmgr/backend
 
 go 1.25.5
 
