@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	platform "github.com/acmota2/musmgr/backend/internal/platform/file_access"
 	"github.com/joho/godotenv"
 )
 
@@ -21,6 +22,7 @@ type fromEnvConfig struct {
 	DatabaseUrl    string
 	DeploymentMode string
 	PublicRoutes   []string
+	StorageConfig  *platform.StorageConfig
 }
 
 type EnvironmentError struct {
@@ -38,6 +40,18 @@ func loadEnvFile(envFilePath string) {
 			log.Printf("%s file found. This might've been a mistake. Continuing without it.", envFilePath)
 		}
 	}
+}
+
+func requireEnvs(scope string, keys ...string) (map[string]string, error) {
+	envMap := make(map[string]string, len(keys))
+	for _, k := range keys {
+		env := os.Getenv(k)
+		if env == "" {
+			return nil, fmt.Errorf("%s: %s must be defined", scope, k)
+		}
+	}
+
+	return envMap, nil
 }
 
 func parseDeploymentMode(mode string) string {
@@ -58,20 +72,56 @@ func parseAllowedOrigins(list string) ([]string, error) {
 	return origins, nil
 }
 
-func loadFromEnv(envFilePath string) (*fromEnvConfig, error) {
-	loadEnvFile(envFilePath)
+func validateStorageConfig(storageType platform.StorageType) (*platform.StorageConfig, error) {
+	switch storageType {
+	case platform.LOCAL:
+		if path := os.Getenv("LOCAL_PATH"); path != "" {
+			return &platform.StorageConfig{
+				LocalPath: path,
+			}, nil
+		} else {
+			return nil, fmt.Errorf("LOCAL_PATH must be defined for storage type LOCAL")
+		}
+	case platform.MINIO:
+		minioSettings, err := requireEnvs(
+			"MinIO",
+			"MINIO_ENDPOINT",
+			"MINIO_ACCESS_KEY",
+			"MINIO_SECRET_KEY",
+			"MINIO_BUCKET",
+		)
+		if err != nil {
+			return nil, err
+		}
 
-	postgresEnv := map[string]string{
-		"POSTGRES_USER":     os.Getenv("POSTGRES_USER"),
-		"POSTGRES_PASSWORD": os.Getenv("POSTGRES_PASSWORD"),
-		"POSTGRES_HOST":     os.Getenv("POSTGRES_HOST"),
-		"POSTGRES_DB":       os.Getenv("POSTGRES_DB"),
+		return &platform.StorageConfig{
+			MinioEndpoint:  minioSettings["MINIO_ENDPOINT"],
+			MinioAccessKey: minioSettings["MINIO_ACCESS_KEY"],
+			MinioSecretKey: minioSettings["MINIO_SECRET_KEY"],
+			MinioBucket:    minioSettings["MINIO_BUCKET"],
+		}, nil
+	default:
+		return nil, fmt.Errorf("Invalid storage type")
+	}
+}
+
+func loadFromEnv(argsConfig configFromArgs) (*fromEnvConfig, error) {
+	loadEnvFile(argsConfig.EnvFilePath)
+
+	postgresEnv, err := requireEnvs(
+		"Database",
+		"POSTGRES_USER",
+		"POSTGRES_PASSWORD",
+		"POSTGRES_HOST",
+		"POSTGRES_DB",
+	)
+	if err != nil {
+		return nil, err
 	}
 
-	for env, value := range postgresEnv {
-		if value == "" {
-			return &fromEnvConfig{}, &EnvironmentError{Message: fmt.Sprintf("Environment variable %s is not set", env)}
-		}
+	storageConfig, err := validateStorageConfig(argsConfig.StorageType)
+	if err != nil {
+		return nil, err
 	}
 
 	mode := parseDeploymentMode(os.Getenv("DEPLOYMENT_TYPE"))
@@ -95,5 +145,6 @@ func loadFromEnv(envFilePath string) (*fromEnvConfig, error) {
 		),
 		DeploymentMode: mode,
 		PublicRoutes:   allowedPublicRoutes,
+		StorageConfig:  storageConfig,
 	}, nil
 }

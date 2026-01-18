@@ -7,8 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *Handler) CreateWorkEvent(c *gin.Context) {
-	var workEvent model.CreateWorkEventParams
+func (h *Handler) CreatePieceEvent(c *gin.Context) {
+	var workEvent model.CreatePieceEventParams
 	if err := c.ShouldBindJSON(&workEvent); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -16,7 +16,7 @@ func (h *Handler) CreateWorkEvent(c *gin.Context) {
 
 	ctx := c.Request.Context()
 
-	if err := h.Queries.CreateWorkEvent(ctx, workEvent); err != nil {
+	if err := h.Queries.CreatePieceEvent(ctx, workEvent); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {
 		c.JSON(http.StatusCreated, gin.H{"data": workEvent})

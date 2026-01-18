@@ -15,7 +15,7 @@ func New() (Config, error) {
 		return Config{}, err
 	}
 
-	environmentVariables, err := loadFromEnv(parsedArgs.EnvFilePath)
+	environmentVariables, err := loadFromEnv(parsedArgs)
 	if err != nil {
 		return Config{}, err
 	}

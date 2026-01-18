@@ -15,10 +15,10 @@ func baseRouter() *gin.Engine {
 
 func setPublicRoutes(router *gin.Engine, handler *controller.Handler) {
 	router.GET("/events", handler.GetEvents)
-	router.GET("/events/:event_id/works", handler.GetEventWorks)
-	router.GET("/works", handler.GetWorks)
-	router.GET("/works/:work_id/files", handler.GetWorkFiles)
-	router.GET("/works/:work_id/events", handler.GetWorkEvents)
+	router.GET("/events/:event_id/works", handler.GetEventPieces)
+	router.GET("/works", handler.GetPieces)
+	router.GET("/works/:work_id/files", handler.GetPieceFiles)
+	router.GET("/works/:work_id/events", handler.GetPieceEvents)
 }
 
 func NewPublicRouter(cfg *config.Config, handler *controller.Handler) *gin.Engine {
@@ -37,7 +37,7 @@ func NewPublicRouter(cfg *config.Config, handler *controller.Handler) *gin.Engin
 
 func setAdminOnlyRoutes(router *gin.Engine, handler *controller.Handler) {
 	router.POST("/events", handler.CreateEvent)
-	router.POST("/work_event", handler.CreateWorkEvent)
+	router.POST("/work_event", handler.CreatePieceEvent)
 	router.POST("/works", handler.CreateEvent)
 }
 

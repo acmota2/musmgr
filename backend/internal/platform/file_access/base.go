@@ -1,6 +1,12 @@
 package platform
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+	"io"
+
+	"github.com/google/uuid"
+)
 
 const (
 	MINIO = "MINIO"
@@ -9,29 +15,25 @@ const (
 
 type StorageType string
 
-type StorageManager interface {
-	New(string)
-	Update(string)
-	Delete(string)
+type StorageConfig struct {
+	LocalPath      string
+	MinioEndpoint  string
+	MinioAccessKey string
+	MinioSecretKey string
+	MinioBucket    string
 }
 
-func NewStorage(kind StorageType) {
+type StorageManager interface {
+	Create(ctx context.Context, id uuid.UUID, r io.Reader, size int64) error // unknown size is -1
+	Read(ctx context.Context, id uuid.UUID) (io.ReadCloser, error)
+	Delete(ctx context.Context, id uuid.UUID) error
+}
+
+func NewStorage(kind StorageType, cfg StorageConfig) (StorageManager, error) {
 	switch kind {
 	case LOCAL:
 	case MINIO:
 	default:
 	}
-}
-
-func ParseStorageType(s string) (StorageType, error) {
-	if s == "" {
-		s = "MINIO"
-	}
-
-	switch s {
-	case "MINIO", "LOCAL":
-		return StorageType(s), nil
-	default:
-		return "", fmt.Errorf("Invalid storage type: %q", s)
-	}
+	return nil, fmt.Errorf("Wrong storage type: %s", kind)
 }

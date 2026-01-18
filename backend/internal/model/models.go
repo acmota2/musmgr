@@ -8,14 +8,58 @@ import (
 	"database/sql/driver"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type MusmgrDatePrecision string
+
+const (
+	MusmgrDatePrecisionDay   MusmgrDatePrecision = "day"
+	MusmgrDatePrecisionMonth MusmgrDatePrecision = "month"
+	MusmgrDatePrecisionYear  MusmgrDatePrecision = "year"
+)
+
+func (e *MusmgrDatePrecision) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = MusmgrDatePrecision(s)
+	case string:
+		*e = MusmgrDatePrecision(s)
+	default:
+		return fmt.Errorf("unsupported scan type for MusmgrDatePrecision: %T", src)
+	}
+	return nil
+}
+
+type NullMusmgrDatePrecision struct {
+	MusmgrDatePrecision MusmgrDatePrecision `json:"musmgr_date_precision"`
+	Valid               bool                `json:"valid"` // Valid is true if MusmgrDatePrecision is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullMusmgrDatePrecision) Scan(value interface{}) error {
+	if value == nil {
+		ns.MusmgrDatePrecision, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.MusmgrDatePrecision.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullMusmgrDatePrecision) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.MusmgrDatePrecision), nil
+}
 
 type MusmgrEventType string
 
 const (
 	MusmgrEventTypeConcert     MusmgrEventType = "concert"
-	MusmgrEventTypeExibition   MusmgrEventType = "exibition"
+	MusmgrEventTypeExhibition  MusmgrEventType = "exhibition"
 	MusmgrEventTypeCompetition MusmgrEventType = "competition"
 	MusmgrEventTypeFestival    MusmgrEventType = "festival"
 	MusmgrEventTypeOther       MusmgrEventType = "other"
@@ -59,13 +103,13 @@ func (ns NullMusmgrEventType) Value() (driver.Value, error) {
 type MusmgrInstrumentationName string
 
 const (
-	MusmgrInstrumentationNameChoir     MusmgrInstrumentationName = "choir"
-	MusmgrInstrumentationNameSolo      MusmgrInstrumentationName = "solo"
-	MusmgrInstrumentationNameChamber   MusmgrInstrumentationName = "chamber"
-	MusmgrInstrumentationNameOrchestra MusmgrInstrumentationName = "orchestra"
-	MusmgrInstrumentationNameOpera     MusmgrInstrumentationName = "opera"
-	MusmgrInstrumentationNameMusical   MusmgrInstrumentationName = "musical"
-	MusmgrInstrumentationNameAcusmatic MusmgrInstrumentationName = "acusmatic"
+	MusmgrInstrumentationNameChoir      MusmgrInstrumentationName = "choir"
+	MusmgrInstrumentationNameSolo       MusmgrInstrumentationName = "solo"
+	MusmgrInstrumentationNameChamber    MusmgrInstrumentationName = "chamber"
+	MusmgrInstrumentationNameOrchestra  MusmgrInstrumentationName = "orchestra"
+	MusmgrInstrumentationNameOpera      MusmgrInstrumentationName = "opera"
+	MusmgrInstrumentationNameMusical    MusmgrInstrumentationName = "musical"
+	MusmgrInstrumentationNameAcousmatic MusmgrInstrumentationName = "acousmatic"
 )
 
 func (e *MusmgrInstrumentationName) Scan(src interface{}) error {
@@ -104,26 +148,34 @@ func (ns NullMusmgrInstrumentationName) Value() (driver.Value, error) {
 }
 
 type MusmgrEvent struct {
-	ID          string          `json:"id"`
-	Date        pgtype.Date     `json:"date"`
-	Description pgtype.Text     `json:"description"`
-	EventType   MusmgrEventType `json:"event_type"`
+	ID                  uuid.UUID           `json:"id"`
+	HappenedAt          pgtype.Date         `json:"happened_at"`
+	HappenedAtPrecision MusmgrDatePrecision `json:"happened_at_precision"`
+	Description         pgtype.Text         `json:"description"`
+	EventType           MusmgrEventType     `json:"event_type"`
+	CreatedAt           pgtype.Timestamptz  `json:"created_at"`
+	UphappenedAtdAt     pgtype.Timestamptz  `json:"uphappened_atd_at"`
 }
 
 type MusmgrFile struct {
-	ID     string `json:"id"`
-	Name   string `json:"name"`
-	WorkID string `json:"work_id"`
+	ID        uuid.UUID          `json:"id"`
+	Name      string             `json:"name"`
+	PieceID   uuid.UUID          `json:"piece_id"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
 }
 
-type MusmgrWork struct {
-	ID              string                    `json:"id"`
-	ComposedAt      pgtype.Date               `json:"composed_at"`
-	Instrumentation MusmgrInstrumentationName `json:"instrumentation"`
-	Title           string                    `json:"title"`
+type MusmgrPiece struct {
+	ID                  uuid.UUID                 `json:"id"`
+	ComposedAt          pgtype.Date               `json:"composed_at"`
+	ComposedAtPrecision MusmgrDatePrecision       `json:"composed_at_precision"`
+	Instrumentation     MusmgrInstrumentationName `json:"instrumentation"`
+	Title               string                    `json:"title"`
+	CreatedAt           pgtype.Timestamptz        `json:"created_at"`
+	UpdatedAt           pgtype.Timestamptz        `json:"updated_at"`
 }
 
-type MusmgrWorksEvent struct {
-	WorkID  string `json:"work_id"`
-	EventID string `json:"event_id"`
+type MusmgrPiecesEvent struct {
+	PieceID uuid.UUID `json:"piece_id"`
+	EventID uuid.UUID `json:"event_id"`
 }

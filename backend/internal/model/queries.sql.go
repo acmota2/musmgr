@@ -8,17 +8,18 @@ package model
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createEvent = `-- name: CreateEvent :exec
-insert into musmgr.events (id, date, description, event_type, create_at, updated_at)
+insert into musmgr.events (id, happened_at, description, event_type, create_at, updated_at)
 values ($1, $2, $3, $4, now(), now())
 `
 
 type CreateEventParams struct {
-	ID          string          `json:"id"`
-	Date        pgtype.Date     `json:"date"`
+	ID          uuid.UUID       `json:"id"`
+	HappenedAt  pgtype.Date     `json:"happened_at"`
 	Description pgtype.Text     `json:"description"`
 	EventType   MusmgrEventType `json:"event_type"`
 }
@@ -26,7 +27,7 @@ type CreateEventParams struct {
 func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error {
 	_, err := q.db.Exec(ctx, createEvent,
 		arg.ID,
-		arg.Date,
+		arg.HappenedAt,
 		arg.Description,
 		arg.EventType,
 	)
@@ -34,35 +35,35 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error 
 }
 
 const createFile = `-- name: CreateFile :exec
-insert into musmgr.files (id, name, work_id, create_at, updated_at)
+insert into musmgr.files (id, name, piece_id, create_at, updated_at)
 values ($1, $2, $3, now(), now())
 `
 
 type CreateFileParams struct {
-	ID     string `json:"id"`
-	Name   string `json:"name"`
-	WorkID string `json:"work_id"`
+	ID      uuid.UUID `json:"id"`
+	Name    string    `json:"name"`
+	PieceID uuid.UUID `json:"piece_id"`
 }
 
 func (q *Queries) CreateFile(ctx context.Context, arg CreateFileParams) error {
-	_, err := q.db.Exec(ctx, createFile, arg.ID, arg.Name, arg.WorkID)
+	_, err := q.db.Exec(ctx, createFile, arg.ID, arg.Name, arg.PieceID)
 	return err
 }
 
-const createWork = `-- name: CreateWork :exec
-insert into musmgr.works (id, composed_at, instrumentation, title, create_at, updated_at)
+const createPiece = `-- name: CreatePiece :exec
+insert into musmgr.pieces (id, composed_at, instrumentation, title, create_at, updated_at)
 values ($1, $2, $3, $4, now(), now())
 `
 
-type CreateWorkParams struct {
-	ID              string                    `json:"id"`
+type CreatePieceParams struct {
+	ID              uuid.UUID                 `json:"id"`
 	ComposedAt      pgtype.Date               `json:"composed_at"`
 	Instrumentation MusmgrInstrumentationName `json:"instrumentation"`
 	Title           string                    `json:"title"`
 }
 
-func (q *Queries) CreateWork(ctx context.Context, arg CreateWorkParams) error {
-	_, err := q.db.Exec(ctx, createWork,
+func (q *Queries) CreatePiece(ctx context.Context, arg CreatePieceParams) error {
+	_, err := q.db.Exec(ctx, createPiece,
 		arg.ID,
 		arg.ComposedAt,
 		arg.Instrumentation,
@@ -71,18 +72,18 @@ func (q *Queries) CreateWork(ctx context.Context, arg CreateWorkParams) error {
 	return err
 }
 
-const createWorkEvent = `-- name: CreateWorkEvent :exec
-insert into musmgr.works_events (work_id, event_id)
+const createPieceEvent = `-- name: CreatePieceEvent :exec
+insert into musmgr.pieces_events (piece_id, event_id)
 values ($1, $2)
 `
 
-type CreateWorkEventParams struct {
-	WorkID  string `json:"work_id"`
-	EventID string `json:"event_id"`
+type CreatePieceEventParams struct {
+	PieceID uuid.UUID `json:"piece_id"`
+	EventID uuid.UUID `json:"event_id"`
 }
 
-func (q *Queries) CreateWorkEvent(ctx context.Context, arg CreateWorkEventParams) error {
-	_, err := q.db.Exec(ctx, createWorkEvent, arg.WorkID, arg.EventID)
+func (q *Queries) CreatePieceEvent(ctx context.Context, arg CreatePieceEventParams) error {
+	_, err := q.db.Exec(ctx, createPieceEvent, arg.PieceID, arg.EventID)
 	return err
 }
 
@@ -91,7 +92,7 @@ delete from musmgr.events
 where id = $1
 `
 
-func (q *Queries) DeleteEvent(ctx context.Context, id string) error {
+func (q *Queries) DeleteEvent(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteEvent, id)
 	return err
 }
@@ -101,38 +102,77 @@ delete from musmgr.files
 where id = $1
 `
 
-func (q *Queries) DeleteFile(ctx context.Context, id string) error {
+func (q *Queries) DeleteFile(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteFile, id)
 	return err
 }
 
-const deleteWork = `-- name: DeleteWork :exec
-delete from musmgr.works
+const deletePiece = `-- name: DeletePiece :exec
+delete from musmgr.pieces
 where id = $1
 `
 
-func (q *Queries) DeleteWork(ctx context.Context, id string) error {
-	_, err := q.db.Exec(ctx, deleteWork, id)
+func (q *Queries) DeletePiece(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deletePiece, id)
 	return err
 }
 
-const deleteWorkEvent = `-- name: DeleteWorkEvent :exec
-delete from musmgr.works_events
-where work_id = $1 and event_id = $2
+const deletePieceEvent = `-- name: DeletePieceEvent :exec
+delete from musmgr.pieces_events
+where piece_id = $1 and event_id = $2
 `
 
-type DeleteWorkEventParams struct {
-	WorkID  string `json:"work_id"`
-	EventID string `json:"event_id"`
+type DeletePieceEventParams struct {
+	PieceID uuid.UUID `json:"piece_id"`
+	EventID uuid.UUID `json:"event_id"`
 }
 
-func (q *Queries) DeleteWorkEvent(ctx context.Context, arg DeleteWorkEventParams) error {
-	_, err := q.db.Exec(ctx, deleteWorkEvent, arg.WorkID, arg.EventID)
+func (q *Queries) DeletePieceEvent(ctx context.Context, arg DeletePieceEventParams) error {
+	_, err := q.db.Exec(ctx, deletePieceEvent, arg.PieceID, arg.EventID)
 	return err
+}
+
+const getEventPieces = `-- name: GetEventPieces :many
+select id, composed_at, instrumentation, title from musmgr.pieces
+inner join musmgr.pieces_events
+on musmgr.pieces.id = musmgr.pieces_events.piece_id
+where musmgr.pieces.id = $1
+`
+
+type GetEventPiecesRow struct {
+	ID              uuid.UUID                 `json:"id"`
+	ComposedAt      pgtype.Date               `json:"composed_at"`
+	Instrumentation MusmgrInstrumentationName `json:"instrumentation"`
+	Title           string                    `json:"title"`
+}
+
+func (q *Queries) GetEventPieces(ctx context.Context, id uuid.UUID) ([]GetEventPiecesRow, error) {
+	rows, err := q.db.Query(ctx, getEventPieces, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetEventPiecesRow
+	for rows.Next() {
+		var i GetEventPiecesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ComposedAt,
+			&i.Instrumentation,
+			&i.Title,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getEventTypeEvents = `-- name: GetEventTypeEvents :many
-select id, date, description, event_type from musmgr.events
+select id, happened_at, happened_at_precision, description, event_type, created_at, uphappened_atd_at from musmgr.events
 where event_type = $1
 `
 
@@ -147,41 +187,12 @@ func (q *Queries) GetEventTypeEvents(ctx context.Context, eventType MusmgrEventT
 		var i MusmgrEvent
 		if err := rows.Scan(
 			&i.ID,
-			&i.Date,
+			&i.HappenedAt,
+			&i.HappenedAtPrecision,
 			&i.Description,
 			&i.EventType,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getEventWorks = `-- name: GetEventWorks :many
-select id, composed_at, instrumentation, title from musmgr.works
-inner join musmgr.works_events
-on musmgr.works.id = musmgr.works_events.work_id
-where musmgr.works.id = $1
-`
-
-func (q *Queries) GetEventWorks(ctx context.Context, id string) ([]MusmgrWork, error) {
-	rows, err := q.db.Query(ctx, getEventWorks, id)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []MusmgrWork
-	for rows.Next() {
-		var i MusmgrWork
-		if err := rows.Scan(
-			&i.ID,
-			&i.ComposedAt,
-			&i.Instrumentation,
-			&i.Title,
+			&i.CreatedAt,
+			&i.UphappenedAtdAt,
 		); err != nil {
 			return nil, err
 		}
@@ -194,7 +205,7 @@ func (q *Queries) GetEventWorks(ctx context.Context, id string) ([]MusmgrWork, e
 }
 
 const getEvents = `-- name: GetEvents :many
-select id, date, description, event_type from musmgr.events
+select id, happened_at, happened_at_precision, description, event_type, created_at, uphappened_atd_at from musmgr.events
 `
 
 func (q *Queries) GetEvents(ctx context.Context) ([]MusmgrEvent, error) {
@@ -208,9 +219,12 @@ func (q *Queries) GetEvents(ctx context.Context) ([]MusmgrEvent, error) {
 		var i MusmgrEvent
 		if err := rows.Scan(
 			&i.ID,
-			&i.Date,
+			&i.HappenedAt,
+			&i.HappenedAtPrecision,
 			&i.Description,
 			&i.EventType,
+			&i.CreatedAt,
+			&i.UphappenedAtdAt,
 		); err != nil {
 			return nil, err
 		}
@@ -222,25 +236,28 @@ func (q *Queries) GetEvents(ctx context.Context) ([]MusmgrEvent, error) {
 	return items, nil
 }
 
-const getInstrumentationWorks = `-- name: GetInstrumentationWorks :many
-select id, composed_at, instrumentation, title from musmgr.works
+const getInstrumentationPieces = `-- name: GetInstrumentationPieces :many
+select id, composed_at, composed_at_precision, instrumentation, title, created_at, updated_at from musmgr.pieces
 where instrumentation = $1
 `
 
-func (q *Queries) GetInstrumentationWorks(ctx context.Context, instrumentation MusmgrInstrumentationName) ([]MusmgrWork, error) {
-	rows, err := q.db.Query(ctx, getInstrumentationWorks, instrumentation)
+func (q *Queries) GetInstrumentationPieces(ctx context.Context, instrumentation MusmgrInstrumentationName) ([]MusmgrPiece, error) {
+	rows, err := q.db.Query(ctx, getInstrumentationPieces, instrumentation)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []MusmgrWork
+	var items []MusmgrPiece
 	for rows.Next() {
-		var i MusmgrWork
+		var i MusmgrPiece
 		if err := rows.Scan(
 			&i.ID,
 			&i.ComposedAt,
+			&i.ComposedAtPrecision,
 			&i.Instrumentation,
 			&i.Title,
+			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -252,25 +269,32 @@ func (q *Queries) GetInstrumentationWorks(ctx context.Context, instrumentation M
 	return items, nil
 }
 
-const getWorkEvents = `-- name: GetWorkEvents :many
-select id, date, description, event_type from musmgr.events
-inner join musmgr.works_events
-on musmgr.events.id = musmgr.works_events.event_id
-where musmgr.works_events.work_id = $1
+const getPieceEvents = `-- name: GetPieceEvents :many
+select id, happened_at, description, event_type from musmgr.events
+inner join musmgr.pieces_events
+on musmgr.events.id = musmgr.pieces_events.event_id
+where musmgr.pieces_events.piece_id = $1
 `
 
-func (q *Queries) GetWorkEvents(ctx context.Context, workID string) ([]MusmgrEvent, error) {
-	rows, err := q.db.Query(ctx, getWorkEvents, workID)
+type GetPieceEventsRow struct {
+	ID          uuid.UUID       `json:"id"`
+	HappenedAt  pgtype.Date     `json:"happened_at"`
+	Description pgtype.Text     `json:"description"`
+	EventType   MusmgrEventType `json:"event_type"`
+}
+
+func (q *Queries) GetPieceEvents(ctx context.Context, pieceID uuid.UUID) ([]GetPieceEventsRow, error) {
+	rows, err := q.db.Query(ctx, getPieceEvents, pieceID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []MusmgrEvent
+	var items []GetPieceEventsRow
 	for rows.Next() {
-		var i MusmgrEvent
+		var i GetPieceEventsRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.Date,
+			&i.HappenedAt,
 			&i.Description,
 			&i.EventType,
 		); err != nil {
@@ -284,13 +308,13 @@ func (q *Queries) GetWorkEvents(ctx context.Context, workID string) ([]MusmgrEve
 	return items, nil
 }
 
-const getWorkFiles = `-- name: GetWorkFiles :many
-select id, name, work_id from musmgr.files
-where work_id = $1
+const getPieceFiles = `-- name: GetPieceFiles :many
+select id, name, piece_id, created_at, updated_at from musmgr.files
+where piece_id = $1
 `
 
-func (q *Queries) GetWorkFiles(ctx context.Context, workID string) ([]MusmgrFile, error) {
-	rows, err := q.db.Query(ctx, getWorkFiles, workID)
+func (q *Queries) GetPieceFiles(ctx context.Context, pieceID uuid.UUID) ([]MusmgrFile, error) {
+	rows, err := q.db.Query(ctx, getPieceFiles, pieceID)
 	if err != nil {
 		return nil, err
 	}
@@ -298,7 +322,13 @@ func (q *Queries) GetWorkFiles(ctx context.Context, workID string) ([]MusmgrFile
 	var items []MusmgrFile
 	for rows.Next() {
 		var i MusmgrFile
-		if err := rows.Scan(&i.ID, &i.Name, &i.WorkID); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.PieceID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -309,24 +339,27 @@ func (q *Queries) GetWorkFiles(ctx context.Context, workID string) ([]MusmgrFile
 	return items, nil
 }
 
-const getWorks = `-- name: GetWorks :many
-select id, composed_at, instrumentation, title from musmgr.works
+const getPieces = `-- name: GetPieces :many
+select id, composed_at, composed_at_precision, instrumentation, title, created_at, updated_at from musmgr.pieces
 `
 
-func (q *Queries) GetWorks(ctx context.Context) ([]MusmgrWork, error) {
-	rows, err := q.db.Query(ctx, getWorks)
+func (q *Queries) GetPieces(ctx context.Context) ([]MusmgrPiece, error) {
+	rows, err := q.db.Query(ctx, getPieces)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []MusmgrWork
+	var items []MusmgrPiece
 	for rows.Next() {
-		var i MusmgrWork
+		var i MusmgrPiece
 		if err := rows.Scan(
 			&i.ID,
 			&i.ComposedAt,
+			&i.ComposedAtPrecision,
 			&i.Instrumentation,
 			&i.Title,
+			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -340,7 +373,7 @@ func (q *Queries) GetWorks(ctx context.Context) ([]MusmgrWork, error) {
 
 const updateEvent = `-- name: UpdateEvent :exec
 update musmgr.events
-set date = coalesce($2, date),
+set happened_at = coalesce($2, happened_at),
     description = coalesce($3, description),
     event_type = coalesce($4, event_type),
     updated_at = now()
@@ -348,8 +381,8 @@ where id = $1
 `
 
 type UpdateEventParams struct {
-	ID          string              `json:"id"`
-	Date        pgtype.Date         `json:"date"`
+	ID          uuid.UUID           `json:"id"`
+	HappenedAt  pgtype.Date         `json:"happened_at"`
 	Description pgtype.Text         `json:"description"`
 	EventType   NullMusmgrEventType `json:"event_type"`
 }
@@ -357,7 +390,7 @@ type UpdateEventParams struct {
 func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) error {
 	_, err := q.db.Exec(ctx, updateEvent,
 		arg.ID,
-		arg.Date,
+		arg.HappenedAt,
 		arg.Description,
 		arg.EventType,
 	)
@@ -372,7 +405,7 @@ where id = $1
 `
 
 type UpdateFileParams struct {
-	ID   string      `json:"id"`
+	ID   uuid.UUID   `json:"id"`
 	Name pgtype.Text `json:"name"`
 }
 
@@ -381,8 +414,8 @@ func (q *Queries) UpdateFile(ctx context.Context, arg UpdateFileParams) error {
 	return err
 }
 
-const updateWork = `-- name: UpdateWork :exec
-update musmgr.works
+const updatePiece = `-- name: UpdatePiece :exec
+update musmgr.pieces
 set composed_at = coalesce($2, composed_at),
     instrumentation = coalesce($3, instrumentation),
     title = coalesce($4, title),
@@ -390,15 +423,15 @@ set composed_at = coalesce($2, composed_at),
 where id = $1
 `
 
-type UpdateWorkParams struct {
-	ID              string                        `json:"id"`
+type UpdatePieceParams struct {
+	ID              uuid.UUID                     `json:"id"`
 	ComposedAt      pgtype.Date                   `json:"composed_at"`
 	Instrumentation NullMusmgrInstrumentationName `json:"instrumentation"`
 	Title           pgtype.Text                   `json:"title"`
 }
 
-func (q *Queries) UpdateWork(ctx context.Context, arg UpdateWorkParams) error {
-	_, err := q.db.Exec(ctx, updateWork,
+func (q *Queries) UpdatePiece(ctx context.Context, arg UpdatePieceParams) error {
+	_, err := q.db.Exec(ctx, updatePiece,
 		arg.ID,
 		arg.ComposedAt,
 		arg.Instrumentation,
