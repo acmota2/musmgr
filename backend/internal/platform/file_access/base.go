@@ -32,6 +32,7 @@ type StorageManager interface {
 func NewStorage(kind StorageType, cfg StorageConfig) (StorageManager, error) {
 	switch kind {
 	case LOCAL:
+		return newLocalStorage(cfg.LocalPath)
 	case MINIO:
 	default:
 	}
