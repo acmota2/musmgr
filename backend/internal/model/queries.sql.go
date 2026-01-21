@@ -12,6 +12,21 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createComposer = `-- name: CreateComposer :exec
+insert into musmgr.composer (full_name, biography, created_at, updated_at)
+values ($1, $2, now(), now())
+`
+
+type CreateComposerParams struct {
+	FullName  string `json:"full_name"`
+	Biography string `json:"biography"`
+}
+
+func (q *Queries) CreateComposer(ctx context.Context, arg CreateComposerParams) error {
+	_, err := q.db.Exec(ctx, createComposer, arg.FullName, arg.Biography)
+	return err
+}
+
 const createEvent = `-- name: CreateEvent :exec
 insert into musmgr.events (id, happened_at, description, event_type, create_at, updated_at)
 values ($1, $2, $3, $4, now(), now())
@@ -35,29 +50,44 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error 
 }
 
 const createFile = `-- name: CreateFile :exec
-insert into musmgr.files (id, name, piece_id, create_at, updated_at)
-values ($1, $2, $3, now(), now())
+insert into musmgr.files (id, content_type, classification, file_type, name, origin, parent_id, piece_id, created_at, updated_at)
+values ($1, $2, $3, $4, $5, $6, $7, $8, now(), now())
 `
 
 type CreateFileParams struct {
-	ID      uuid.UUID `json:"id"`
-	Name    string    `json:"name"`
-	PieceID uuid.UUID `json:"piece_id"`
+	ID             uuid.UUID        `json:"id"`
+	ContentType    string           `json:"content_type"`
+	Classification int16            `json:"classification"`
+	FileType       MusmgrFileType   `json:"file_type"`
+	Name           string           `json:"name"`
+	Origin         MusmgrFileOrigin `json:"origin"`
+	ParentID       pgtype.UUID      `json:"parent_id"`
+	PieceID        uuid.UUID        `json:"piece_id"`
 }
 
 func (q *Queries) CreateFile(ctx context.Context, arg CreateFileParams) error {
-	_, err := q.db.Exec(ctx, createFile, arg.ID, arg.Name, arg.PieceID)
+	_, err := q.db.Exec(ctx, createFile,
+		arg.ID,
+		arg.ContentType,
+		arg.Classification,
+		arg.FileType,
+		arg.Name,
+		arg.Origin,
+		arg.ParentID,
+		arg.PieceID,
+	)
 	return err
 }
 
 const createPiece = `-- name: CreatePiece :exec
-insert into musmgr.pieces (id, composed_at, instrumentation, title, create_at, updated_at)
-values ($1, $2, $3, $4, now(), now())
+insert into musmgr.pieces (id, composed_at, description, instrumentation, title, created_at, updated_at)
+values ($1, $2, $3, $4, $5, now(), now())
 `
 
 type CreatePieceParams struct {
 	ID              uuid.UUID                 `json:"id"`
 	ComposedAt      pgtype.Date               `json:"composed_at"`
+	Description     string                    `json:"description"`
 	Instrumentation MusmgrInstrumentationName `json:"instrumentation"`
 	Title           string                    `json:"title"`
 }
@@ -66,6 +96,7 @@ func (q *Queries) CreatePiece(ctx context.Context, arg CreatePieceParams) error 
 	_, err := q.db.Exec(ctx, createPiece,
 		arg.ID,
 		arg.ComposedAt,
+		arg.Description,
 		arg.Instrumentation,
 		arg.Title,
 	)
@@ -85,6 +116,21 @@ type CreatePieceEventParams struct {
 func (q *Queries) CreatePieceEvent(ctx context.Context, arg CreatePieceEventParams) error {
 	_, err := q.db.Exec(ctx, createPieceEvent, arg.PieceID, arg.EventID)
 	return err
+}
+
+const deleteComposerPicture = `-- name: DeleteComposerPicture :one
+update musmgr.composer set picture = null,
+                           picture_content_type = null,
+                           updated_at = now()
+where id = true
+returning picture
+`
+
+func (q *Queries) DeleteComposerPicture(ctx context.Context) (pgtype.UUID, error) {
+	row := q.db.QueryRow(ctx, deleteComposerPicture)
+	var picture pgtype.UUID
+	err := row.Scan(&picture)
+	return picture, err
 }
 
 const deleteEvent = `-- name: DeleteEvent :exec
@@ -132,10 +178,52 @@ func (q *Queries) DeletePieceEvent(ctx context.Context, arg DeletePieceEventPara
 	return err
 }
 
+const getComposer = `-- name: GetComposer :one
+select id, biography, full_name, picture, picture_content_type, created_at, updated_at
+from musmgr.composer
+limit 1
+`
+
+func (q *Queries) GetComposer(ctx context.Context) (MusmgrComposer, error) {
+	row := q.db.QueryRow(ctx, getComposer)
+	var i MusmgrComposer
+	err := row.Scan(
+		&i.ID,
+		&i.Biography,
+		&i.FullName,
+		&i.Picture,
+		&i.PictureContentType,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getEvent = `-- name: GetEvent :one
+select id, happened_at, happened_at_precision, description, event_type, created_at, updated_at
+from musmgr.events
+where id = $1
+`
+
+func (q *Queries) GetEvent(ctx context.Context, id uuid.UUID) (MusmgrEvent, error) {
+	row := q.db.QueryRow(ctx, getEvent, id)
+	var i MusmgrEvent
+	err := row.Scan(
+		&i.ID,
+		&i.HappenedAt,
+		&i.HappenedAtPrecision,
+		&i.Description,
+		&i.EventType,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getEventPieces = `-- name: GetEventPieces :many
-select id, composed_at, instrumentation, title from musmgr.pieces
-inner join musmgr.pieces_events
-on musmgr.pieces.id = musmgr.pieces_events.piece_id
+select id, composed_at, instrumentation, title
+from musmgr.pieces
+inner join musmgr.pieces_events on musmgr.pieces.id = musmgr.pieces_events.piece_id
 where musmgr.pieces.id = $1
 `
 
@@ -171,32 +259,23 @@ func (q *Queries) GetEventPieces(ctx context.Context, id uuid.UUID) ([]GetEventP
 	return items, nil
 }
 
-const getEventTypeEvents = `-- name: GetEventTypeEvents :many
-select id, happened_at, happened_at_precision, description, event_type, created_at, uphappened_atd_at from musmgr.events
-where event_type = $1
+const getEventTypes = `-- name: GetEventTypes :many
+select unnest(enum_range(null::musmgr.event_type))::musmgr.event_type as event_type
 `
 
-func (q *Queries) GetEventTypeEvents(ctx context.Context, eventType MusmgrEventType) ([]MusmgrEvent, error) {
-	rows, err := q.db.Query(ctx, getEventTypeEvents, eventType)
+func (q *Queries) GetEventTypes(ctx context.Context) ([]MusmgrEventType, error) {
+	rows, err := q.db.Query(ctx, getEventTypes)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []MusmgrEvent
+	var items []MusmgrEventType
 	for rows.Next() {
-		var i MusmgrEvent
-		if err := rows.Scan(
-			&i.ID,
-			&i.HappenedAt,
-			&i.HappenedAtPrecision,
-			&i.Description,
-			&i.EventType,
-			&i.CreatedAt,
-			&i.UphappenedAtdAt,
-		); err != nil {
+		var event_type MusmgrEventType
+		if err := rows.Scan(&event_type); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, event_type)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -205,7 +284,8 @@ func (q *Queries) GetEventTypeEvents(ctx context.Context, eventType MusmgrEventT
 }
 
 const getEvents = `-- name: GetEvents :many
-select id, happened_at, happened_at_precision, description, event_type, created_at, uphappened_atd_at from musmgr.events
+select id, happened_at, happened_at_precision, description, event_type, created_at, updated_at
+from musmgr.events
 `
 
 func (q *Queries) GetEvents(ctx context.Context) ([]MusmgrEvent, error) {
@@ -224,39 +304,6 @@ func (q *Queries) GetEvents(ctx context.Context) ([]MusmgrEvent, error) {
 			&i.Description,
 			&i.EventType,
 			&i.CreatedAt,
-			&i.UphappenedAtdAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getInstrumentationPieces = `-- name: GetInstrumentationPieces :many
-select id, composed_at, composed_at_precision, instrumentation, title, created_at, updated_at from musmgr.pieces
-where instrumentation = $1
-`
-
-func (q *Queries) GetInstrumentationPieces(ctx context.Context, instrumentation MusmgrInstrumentationName) ([]MusmgrPiece, error) {
-	rows, err := q.db.Query(ctx, getInstrumentationPieces, instrumentation)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []MusmgrPiece
-	for rows.Next() {
-		var i MusmgrPiece
-		if err := rows.Scan(
-			&i.ID,
-			&i.ComposedAt,
-			&i.ComposedAtPrecision,
-			&i.Instrumentation,
-			&i.Title,
-			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
@@ -269,10 +316,112 @@ func (q *Queries) GetInstrumentationPieces(ctx context.Context, instrumentation 
 	return items, nil
 }
 
+const getFile = `-- name: GetFile :one
+select id, classification, content_type, description, name, origin, file_type, parent_id, piece_id, created_at, updated_at
+from musmgr.files
+where id = $1 and classification <= $2
+`
+
+type GetFileParams struct {
+	ID             uuid.UUID `json:"id"`
+	Classification int16     `json:"classification"`
+}
+
+func (q *Queries) GetFile(ctx context.Context, arg GetFileParams) (MusmgrFile, error) {
+	row := q.db.QueryRow(ctx, getFile, arg.ID, arg.Classification)
+	var i MusmgrFile
+	err := row.Scan(
+		&i.ID,
+		&i.Classification,
+		&i.ContentType,
+		&i.Description,
+		&i.Name,
+		&i.Origin,
+		&i.FileType,
+		&i.ParentID,
+		&i.PieceID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getFileTypes = `-- name: GetFileTypes :many
+select unnest(enum_range(null::musmgr.file_type))::musmgr.file_type as file_type
+`
+
+func (q *Queries) GetFileTypes(ctx context.Context) ([]MusmgrFileType, error) {
+	rows, err := q.db.Query(ctx, getFileTypes)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []MusmgrFileType
+	for rows.Next() {
+		var file_type MusmgrFileType
+		if err := rows.Scan(&file_type); err != nil {
+			return nil, err
+		}
+		items = append(items, file_type)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getInstrumentationNames = `-- name: GetInstrumentationNames :many
+select
+    unnest(enum_range(null::musmgr.instrumentation_name))::musmgr.instrumentation_name
+    as instrumentation_name
+`
+
+func (q *Queries) GetInstrumentationNames(ctx context.Context) ([]MusmgrInstrumentationName, error) {
+	rows, err := q.db.Query(ctx, getInstrumentationNames)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []MusmgrInstrumentationName
+	for rows.Next() {
+		var instrumentation_name MusmgrInstrumentationName
+		if err := rows.Scan(&instrumentation_name); err != nil {
+			return nil, err
+		}
+		items = append(items, instrumentation_name)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPiece = `-- name: GetPiece :one
+select id, composed_at, composed_at_precision, description, instrumentation, title, created_at, updated_at
+from musmgr.pieces
+where id = $1
+`
+
+func (q *Queries) GetPiece(ctx context.Context, id uuid.UUID) (MusmgrPiece, error) {
+	row := q.db.QueryRow(ctx, getPiece, id)
+	var i MusmgrPiece
+	err := row.Scan(
+		&i.ID,
+		&i.ComposedAt,
+		&i.ComposedAtPrecision,
+		&i.Description,
+		&i.Instrumentation,
+		&i.Title,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getPieceEvents = `-- name: GetPieceEvents :many
-select id, happened_at, description, event_type from musmgr.events
-inner join musmgr.pieces_events
-on musmgr.events.id = musmgr.pieces_events.event_id
+select id, happened_at, description, event_type
+from musmgr.events
+inner join musmgr.pieces_events on musmgr.events.id = musmgr.pieces_events.event_id
 where musmgr.pieces_events.piece_id = $1
 `
 
@@ -309,12 +458,18 @@ func (q *Queries) GetPieceEvents(ctx context.Context, pieceID uuid.UUID) ([]GetP
 }
 
 const getPieceFiles = `-- name: GetPieceFiles :many
-select id, name, piece_id, created_at, updated_at from musmgr.files
-where piece_id = $1
+select id, classification, content_type, description, name, origin, file_type, parent_id, piece_id, created_at, updated_at
+from musmgr.files
+where piece_id = $1 and classification <= $2
 `
 
-func (q *Queries) GetPieceFiles(ctx context.Context, pieceID uuid.UUID) ([]MusmgrFile, error) {
-	rows, err := q.db.Query(ctx, getPieceFiles, pieceID)
+type GetPieceFilesParams struct {
+	PieceID        uuid.UUID `json:"piece_id"`
+	Classification int16     `json:"classification"`
+}
+
+func (q *Queries) GetPieceFiles(ctx context.Context, arg GetPieceFilesParams) ([]MusmgrFile, error) {
+	rows, err := q.db.Query(ctx, getPieceFiles, arg.PieceID, arg.Classification)
 	if err != nil {
 		return nil, err
 	}
@@ -324,7 +479,13 @@ func (q *Queries) GetPieceFiles(ctx context.Context, pieceID uuid.UUID) ([]Musmg
 		var i MusmgrFile
 		if err := rows.Scan(
 			&i.ID,
+			&i.Classification,
+			&i.ContentType,
+			&i.Description,
 			&i.Name,
+			&i.Origin,
+			&i.FileType,
+			&i.ParentID,
 			&i.PieceID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -340,7 +501,8 @@ func (q *Queries) GetPieceFiles(ctx context.Context, pieceID uuid.UUID) ([]Musmg
 }
 
 const getPieces = `-- name: GetPieces :many
-select id, composed_at, composed_at_precision, instrumentation, title, created_at, updated_at from musmgr.pieces
+select id, composed_at, composed_at_precision, description, instrumentation, title, created_at, updated_at
+from musmgr.pieces
 `
 
 func (q *Queries) GetPieces(ctx context.Context) ([]MusmgrPiece, error) {
@@ -356,6 +518,7 @@ func (q *Queries) GetPieces(ctx context.Context) ([]MusmgrPiece, error) {
 			&i.ID,
 			&i.ComposedAt,
 			&i.ComposedAtPrecision,
+			&i.Description,
 			&i.Instrumentation,
 			&i.Title,
 			&i.CreatedAt,
@@ -369,6 +532,42 @@ func (q *Queries) GetPieces(ctx context.Context) ([]MusmgrPiece, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateComposer = `-- name: UpdateComposer :exec
+update musmgr.composer
+set full_name = coalesce($1, full_name),
+    biography = coalesce($2, biography),
+    updated_at = now
+where id = true
+`
+
+type UpdateComposerParams struct {
+	FullName  pgtype.Text `json:"full_name"`
+	Biography pgtype.Text `json:"biography"`
+}
+
+func (q *Queries) UpdateComposer(ctx context.Context, arg UpdateComposerParams) error {
+	_, err := q.db.Exec(ctx, updateComposer, arg.FullName, arg.Biography)
+	return err
+}
+
+const updateComposerPicture = `-- name: UpdateComposerPicture :exec
+update musmgr.composer set picture = $1,
+                           picture_content_type = $2,
+                           updated_at = now()
+where id = true
+returning picture
+`
+
+type UpdateComposerPictureParams struct {
+	Picture            pgtype.UUID `json:"picture"`
+	PictureContentType pgtype.Text `json:"picture_content_type"`
+}
+
+func (q *Queries) UpdateComposerPicture(ctx context.Context, arg UpdateComposerPictureParams) error {
+	_, err := q.db.Exec(ctx, updateComposerPicture, arg.Picture, arg.PictureContentType)
+	return err
 }
 
 const updateEvent = `-- name: UpdateEvent :exec
@@ -397,28 +596,31 @@ func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) error 
 	return err
 }
 
-const updateFile = `-- name: UpdateFile :exec
+const updateFileMetadata = `-- name: UpdateFileMetadata :exec
 update musmgr.files
-set name = coalesce($2, name),
+set description = coalesce($2, description),
+    name = coalesce($3, name),
     updated_at = now()
 where id = $1
 `
 
-type UpdateFileParams struct {
-	ID   uuid.UUID   `json:"id"`
-	Name pgtype.Text `json:"name"`
+type UpdateFileMetadataParams struct {
+	ID          uuid.UUID   `json:"id"`
+	Description pgtype.Text `json:"description"`
+	Name        pgtype.Text `json:"name"`
 }
 
-func (q *Queries) UpdateFile(ctx context.Context, arg UpdateFileParams) error {
-	_, err := q.db.Exec(ctx, updateFile, arg.ID, arg.Name)
+func (q *Queries) UpdateFileMetadata(ctx context.Context, arg UpdateFileMetadataParams) error {
+	_, err := q.db.Exec(ctx, updateFileMetadata, arg.ID, arg.Description, arg.Name)
 	return err
 }
 
 const updatePiece = `-- name: UpdatePiece :exec
 update musmgr.pieces
 set composed_at = coalesce($2, composed_at),
-    instrumentation = coalesce($3, instrumentation),
-    title = coalesce($4, title),
+    description = coalesce($3, description),
+    instrumentation = coalesce($4, instrumentation),
+    title = coalesce($5, title),
     updated_at = now()
 where id = $1
 `
@@ -426,6 +628,7 @@ where id = $1
 type UpdatePieceParams struct {
 	ID              uuid.UUID                     `json:"id"`
 	ComposedAt      pgtype.Date                   `json:"composed_at"`
+	Description     pgtype.Text                   `json:"description"`
 	Instrumentation NullMusmgrInstrumentationName `json:"instrumentation"`
 	Title           pgtype.Text                   `json:"title"`
 }
@@ -434,6 +637,7 @@ func (q *Queries) UpdatePiece(ctx context.Context, arg UpdatePieceParams) error 
 	_, err := q.db.Exec(ctx, updatePiece,
 		arg.ID,
 		arg.ComposedAt,
+		arg.Description,
 		arg.Instrumentation,
 		arg.Title,
 	)

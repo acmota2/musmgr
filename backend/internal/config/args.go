@@ -3,7 +3,6 @@ package config
 import (
 	"flag"
 	"fmt"
-	"log"
 
 	platform "github.com/acmota2/musmgr/backend/internal/platform/file_access"
 )
@@ -21,14 +20,14 @@ type configFromArgs struct {
 
 func parseStorageType(s string) (platform.StorageType, error) {
 	if s == "" {
-		s = "MINIO"
+		s = platform.MINIO
 	}
 
 	switch s {
-	case "MINIO", "LOCAL":
+	case platform.LOCAL, platform.MINIO:
 		return platform.StorageType(s), nil
 	default:
-		return "", fmt.Errorf("Invalid storage type: %q", s)
+		return "", fmt.Errorf("Invalid storage type: %s", s)
 	}
 }
 
@@ -43,8 +42,7 @@ func loadFromArgs() (configFromArgs, error) {
 
 	newStorageType, err := parseStorageType(storageType)
 	if err != nil {
-		newStorageType = platform.MINIO
-		log.Println("Invalid storage type, will use MinIO")
+		return configFromArgs{}, err
 	}
 
 	argsConfig.StorageType = newStorageType

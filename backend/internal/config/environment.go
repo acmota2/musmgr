@@ -18,11 +18,17 @@ const (
 type DeploymentType string
 
 type fromEnvConfig struct {
-	AdminRoutes    []string
-	DatabaseUrl    string
-	DeploymentMode string
-	PublicRoutes   []string
-	StorageConfig  *platform.StorageConfig
+	AdminRoutes          []string
+	DatabaseUrl          string
+	DeploymentMode       string
+	PublicRoutes         []string
+	LocalPath            string
+	MinioEndpoint        string
+	MinioBucketName      string
+	MinioBucketRegion    string
+	MinioAccessKeyId     string
+	MinioSecretAccessKey string
+	MinioSSL             bool
 }
 
 type EnvironmentError struct {
@@ -49,6 +55,7 @@ func requireEnvs(scope string, keys ...string) (map[string]string, error) {
 		if env == "" {
 			return nil, fmt.Errorf("%s: %s must be defined", scope, k)
 		}
+		envMap[k] = env
 	}
 
 	return envMap, nil
@@ -72,12 +79,12 @@ func parseAllowedOrigins(list string) ([]string, error) {
 	return origins, nil
 }
 
-func validateStorageConfig(storageType platform.StorageType) (*platform.StorageConfig, error) {
+func validateStorageConfig(storageType platform.StorageType) (map[string]string, error) {
 	switch storageType {
 	case platform.LOCAL:
 		if path := os.Getenv("LOCAL_PATH"); path != "" {
-			return &platform.StorageConfig{
-				LocalPath: path,
+			return map[string]string{
+				"LOCAL_PATH": path,
 			}, nil
 		} else {
 			return nil, fmt.Errorf("LOCAL_PATH must be defined for storage type LOCAL")
@@ -86,8 +93,8 @@ func validateStorageConfig(storageType platform.StorageType) (*platform.StorageC
 		minioSettings, err := requireEnvs(
 			"MinIO",
 			"MINIO_ENDPOINT",
-			"MINIO_ACCESS_KEY",
-			"MINIO_SECRET_KEY",
+			"MINIO_ACCESS_KEY_ID",
+			"MINIO_SECRET_ACCESS_KEY",
 			"MINIO_BUCKET_NAME",
 			"MINIO_BUCKET_REGION",
 			"MINIO_SSL",
@@ -96,14 +103,7 @@ func validateStorageConfig(storageType platform.StorageType) (*platform.StorageC
 			return nil, err
 		}
 
-		return &platform.StorageConfig{
-			MinioEndpoint:        minioSettings["MINIO_ENDPOINT"],
-			MinioAccessKeyId:     minioSettings["MINIO_ACCESS_KEY"],
-			MinioSecretAccessKey: minioSettings["MINIO_SECRET_KEY"],
-			MinioBucketName:      minioSettings["MINIO_BUCKET_NAME"],
-			MinioBucketRegion:    minioSettings["MINIO_BUCKET_REGION"],
-			MinioSSL:             minioSettings["MINIO_SSL"] == "true",
-		}, nil
+		return minioSettings, nil
 	default:
 		return nil, fmt.Errorf("Invalid storage type")
 	}
@@ -123,7 +123,7 @@ func loadFromEnv(argsConfig configFromArgs) (*fromEnvConfig, error) {
 		return nil, err
 	}
 
-	storageConfig, err := validateStorageConfig(argsConfig.StorageType)
+	storageEnvs, err := validateStorageConfig(argsConfig.StorageType)
 	if err != nil {
 		return nil, err
 	}
@@ -147,8 +147,14 @@ func loadFromEnv(argsConfig configFromArgs) (*fromEnvConfig, error) {
 			postgresEnv["POSTGRES_HOST"],
 			postgresEnv["POSTGRES_DB"],
 		),
-		DeploymentMode: mode,
-		PublicRoutes:   allowedPublicRoutes,
-		StorageConfig:  storageConfig,
+		DeploymentMode:       mode,
+		PublicRoutes:         allowedPublicRoutes,
+		LocalPath:            storageEnvs["LOCAL_PATH"],
+		MinioEndpoint:        storageEnvs["MINIO_ENDPOINT"],
+		MinioBucketName:      storageEnvs["MINIO_BUCKET_NAME"],
+		MinioBucketRegion:    storageEnvs["MINIO_BUCKET_REGION"],
+		MinioAccessKeyId:     storageEnvs["MINIO_ACCESS_KEY_ID"],
+		MinioSecretAccessKey: storageEnvs["MINIO_SECRET_ACCESS_KEY"],
+		MinioSSL:             storageEnvs["MINIO_SSL"] == "true",
 	}, nil
 }

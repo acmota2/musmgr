@@ -100,6 +100,96 @@ func (ns NullMusmgrEventType) Value() (driver.Value, error) {
 	return string(ns.MusmgrEventType), nil
 }
 
+type MusmgrFileOrigin string
+
+const (
+	MusmgrFileOriginUser   MusmgrFileOrigin = "user"
+	MusmgrFileOriginSystem MusmgrFileOrigin = "system"
+)
+
+func (e *MusmgrFileOrigin) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = MusmgrFileOrigin(s)
+	case string:
+		*e = MusmgrFileOrigin(s)
+	default:
+		return fmt.Errorf("unsupported scan type for MusmgrFileOrigin: %T", src)
+	}
+	return nil
+}
+
+type NullMusmgrFileOrigin struct {
+	MusmgrFileOrigin MusmgrFileOrigin `json:"musmgr_file_origin"`
+	Valid            bool             `json:"valid"` // Valid is true if MusmgrFileOrigin is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullMusmgrFileOrigin) Scan(value interface{}) error {
+	if value == nil {
+		ns.MusmgrFileOrigin, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.MusmgrFileOrigin.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullMusmgrFileOrigin) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.MusmgrFileOrigin), nil
+}
+
+type MusmgrFileType string
+
+const (
+	MusmgrFileTypeScoreFull      MusmgrFileType = "score_full"
+	MusmgrFileTypeScorePart      MusmgrFileType = "score_part"
+	MusmgrFileTypeScorePreview   MusmgrFileType = "score_preview"
+	MusmgrFileTypeAudioRecording MusmgrFileType = "audio_recording"
+	MusmgrFileTypeAudioPreview   MusmgrFileType = "audio_preview"
+	MusmgrFileTypePicture        MusmgrFileType = "picture"
+	MusmgrFileTypeVideo          MusmgrFileType = "video"
+	MusmgrFileTypeOther          MusmgrFileType = "other"
+)
+
+func (e *MusmgrFileType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = MusmgrFileType(s)
+	case string:
+		*e = MusmgrFileType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for MusmgrFileType: %T", src)
+	}
+	return nil
+}
+
+type NullMusmgrFileType struct {
+	MusmgrFileType MusmgrFileType `json:"musmgr_file_type"`
+	Valid          bool           `json:"valid"` // Valid is true if MusmgrFileType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullMusmgrFileType) Scan(value interface{}) error {
+	if value == nil {
+		ns.MusmgrFileType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.MusmgrFileType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullMusmgrFileType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.MusmgrFileType), nil
+}
+
 type MusmgrInstrumentationName string
 
 const (
@@ -147,6 +237,16 @@ func (ns NullMusmgrInstrumentationName) Value() (driver.Value, error) {
 	return string(ns.MusmgrInstrumentationName), nil
 }
 
+type MusmgrComposer struct {
+	ID                 bool               `json:"id"`
+	Biography          string             `json:"biography"`
+	FullName           string             `json:"full_name"`
+	Picture            pgtype.UUID        `json:"picture"`
+	PictureContentType pgtype.Text        `json:"picture_content_type"`
+	CreatedAt          pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt          pgtype.Timestamptz `json:"updated_at"`
+}
+
 type MusmgrEvent struct {
 	ID                  uuid.UUID           `json:"id"`
 	HappenedAt          pgtype.Date         `json:"happened_at"`
@@ -154,21 +254,28 @@ type MusmgrEvent struct {
 	Description         pgtype.Text         `json:"description"`
 	EventType           MusmgrEventType     `json:"event_type"`
 	CreatedAt           pgtype.Timestamptz  `json:"created_at"`
-	UphappenedAtdAt     pgtype.Timestamptz  `json:"uphappened_atd_at"`
+	UpdatedAt           pgtype.Timestamptz  `json:"updated_at"`
 }
 
 type MusmgrFile struct {
-	ID        uuid.UUID          `json:"id"`
-	Name      string             `json:"name"`
-	PieceID   uuid.UUID          `json:"piece_id"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	ID             uuid.UUID          `json:"id"`
+	Classification int16              `json:"classification"`
+	ContentType    string             `json:"content_type"`
+	Description    pgtype.Text        `json:"description"`
+	Name           string             `json:"name"`
+	Origin         MusmgrFileOrigin   `json:"origin"`
+	FileType       MusmgrFileType     `json:"file_type"`
+	ParentID       pgtype.UUID        `json:"parent_id"`
+	PieceID        uuid.UUID          `json:"piece_id"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
 }
 
 type MusmgrPiece struct {
 	ID                  uuid.UUID                 `json:"id"`
 	ComposedAt          pgtype.Date               `json:"composed_at"`
 	ComposedAtPrecision MusmgrDatePrecision       `json:"composed_at_precision"`
+	Description         string                    `json:"description"`
 	Instrumentation     MusmgrInstrumentationName `json:"instrumentation"`
 	Title               string                    `json:"title"`
 	CreatedAt           pgtype.Timestamptz        `json:"created_at"`

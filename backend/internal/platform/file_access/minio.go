@@ -16,7 +16,7 @@ type minioStorage struct {
 	BucketName  string
 }
 
-func newMinioStorage(sc StorageConfig) (*minioStorage, error) {
+func newMinioStorage(sc *StorageConfig) (*minioStorage, error) {
 	minioClient, err := minio.New(
 		sc.MinioEndpoint,
 		&minio.Options{

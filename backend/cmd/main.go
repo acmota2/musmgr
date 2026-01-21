@@ -3,14 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/acmota2/musmgr/backend/internal/config"
-	"github.com/acmota2/musmgr/backend/internal/controller"
-	"github.com/acmota2/musmgr/backend/internal/model"
-	"github.com/acmota2/musmgr/backend/internal/server"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/acmota2/musmgr/backend/internal/config"
+	"github.com/acmota2/musmgr/backend/internal/controller"
+	"github.com/acmota2/musmgr/backend/internal/model"
+	platform "github.com/acmota2/musmgr/backend/internal/platform/file_access"
+	"github.com/acmota2/musmgr/backend/internal/server"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -29,23 +31,30 @@ func main() {
 	)
 	defer stop()
 
-	conn, err := pgxpool.New(ctx, initConfig.DatabaseUrl)
+	pool, err := pgxpool.New(ctx, initConfig.DatabaseUrl)
 	if err != nil {
 		log.Panic(err)
 	}
-	defer conn.Close()
+	defer pool.Close()
 
-	fmt.Println("Successfully connected to the database")
+	log.Println("Successfully connected to the database")
+
+	storageConfig, err := platform.NewStorage(&initConfig.StorageConfig)
+	if err != nil {
+		log.Panic(err)
+	}
 
 	handler := &controller.Handler{
-		Queries: model.New(conn),
+		Pool:    pool,
+		Queries: model.New(pool),
+		Storage: storageConfig,
 	}
 
 	adminRouter := server.NewAdminRouter(&initConfig, handler)
 	publicRouter := server.NewPublicRouter(&initConfig, handler)
 
-	go publicRouter.Run(fmt.Sprintf(":%s", initConfig.PublicPort))
 	go adminRouter.Run(fmt.Sprintf(":%s", initConfig.AdminPort))
+	go publicRouter.Run(fmt.Sprintf(":%s", initConfig.PublicPort))
 	<-ctx.Done()
 	log.Println("Shutting down gracefully, press Ctrl+C again to force")
 }

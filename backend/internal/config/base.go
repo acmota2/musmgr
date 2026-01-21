@@ -1,12 +1,14 @@
 package config
 
+import platform "github.com/acmota2/musmgr/backend/internal/platform/file_access"
+
 type Config struct {
-	EnvFilePath  string
-	DatabaseUrl  string
-	AdminPort    string
-	PublicPort   string
-	AdminRoutes  []string
-	PublicRoutes []string
+	DatabaseUrl   string
+	AdminPort     string
+	PublicPort    string
+	AdminRoutes   []string
+	PublicRoutes  []string
+	StorageConfig platform.StorageConfig
 }
 
 func New() (Config, error) {
@@ -21,11 +23,20 @@ func New() (Config, error) {
 	}
 
 	return Config{
-		EnvFilePath:  parsedArgs.EnvFilePath,
 		DatabaseUrl:  environmentVariables.DatabaseUrl,
 		AdminPort:    parsedArgs.AdminPort,
 		PublicPort:   parsedArgs.PublicPort,
 		AdminRoutes:  environmentVariables.AdminRoutes,
 		PublicRoutes: environmentVariables.PublicRoutes,
+		StorageConfig: platform.StorageConfig{
+			Kind:                 parsedArgs.StorageType,
+			LocalPath:            environmentVariables.LocalPath,
+			MinioEndpoint:        environmentVariables.MinioEndpoint,
+			MinioAccessKeyId:     environmentVariables.MinioAccessKeyId,
+			MinioSecretAccessKey: environmentVariables.MinioSecretAccessKey,
+			MinioBucketName:      environmentVariables.MinioBucketName,
+			MinioBucketRegion:    environmentVariables.MinioBucketRegion,
+			MinioSSL:             environmentVariables.MinioSSL,
+		},
 	}, nil
 }

@@ -9,33 +9,36 @@ const (
 	ScopeAdmin
 )
 
+// file classification in this domain can be ordered in a lattice
 type FileClassification int16
 
 var MaxClassification = math.MaxInt16
 
 const (
-	ClassPublic = iota
+	ClassPublic FileClassification = iota
 	ClassProtected
 )
 
 type Perm uint8
 
 const (
-	PermRead Perm = 1 << iota
+	PermList Perm = 1 << iota
+	PermGet
 	PermWrite
 	PermDelete
 )
 
+// permission lattice shortcuts
 const (
-	PermNoneField   = 0
-	PermReadField   = PermRead
-	PermUpdateField = PermRead | PermWrite
-	PermDeleteField = PermRead | PermWrite | PermDelete
+	PermNone        = 0 // for completeness
+	PermReadFull    = PermList | PermGet
+	PermUpdateField = PermList | PermGet | PermWrite
+	PermDeleteField = PermList | PermGet | PermWrite | PermDelete
 )
 
 var policies = map[Scope]map[FileClassification]Perm{
 	ScopePublic: {
-		ClassPublic: PermReadField,
+		ClassPublic: PermReadFull,
 	},
 	ScopeAdmin: {
 		ClassProtected: PermDeleteField,

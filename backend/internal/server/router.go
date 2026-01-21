@@ -1,8 +1,12 @@
 package server
 
 import (
+	"net/http"
+
 	"github.com/acmota2/musmgr/backend/internal/config"
 	"github.com/acmota2/musmgr/backend/internal/controller"
+	"github.com/acmota2/musmgr/backend/internal/middleware"
+	"github.com/acmota2/musmgr/backend/internal/policies"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -13,12 +17,22 @@ func baseRouter() *gin.Engine {
 	return router
 }
 
-func setPublicRoutes(router *gin.Engine, handler *controller.Handler) {
-	router.GET("/events", handler.GetEvents)
-	router.GET("/events/:event_id/works", handler.GetEventPieces)
-	router.GET("/works", handler.GetPieces)
-	router.GET("/works/:work_id/files", handler.GetPieceFiles)
-	router.GET("/works/:work_id/events", handler.GetPieceEvents)
+func setPublicRoutes(router *gin.Engine, handler *controller.Handler, fileGetter *gin.RouterGroup) {
+	router.GET("/health", func(c *gin.Context) { c.Status(http.StatusOK) })
+
+	router.GET("/event_types", middleware.RequirePerm(policies.PermList), handler.GetEventTypes)
+	router.GET("/file_types", middleware.RequirePerm(policies.PermList), handler.GetFileTypes)
+	router.GET("/instrumentation_names", middleware.RequirePerm(policies.PermList), handler.GetInstrumentationNames)
+
+	router.GET("/events", middleware.RequirePerm(policies.PermList), handler.GetEvents)
+	router.GET("/events/:event_id", middleware.RequirePerm(policies.PermList), handler.GetEvent)
+	router.GET("/events/:event_id/pieces", middleware.RequirePerm(policies.PermList), handler.GetEventPieces)
+	router.GET("/pieces", middleware.RequirePerm(policies.PermList), handler.GetPieces)
+	router.GET("/pieces/:piece_id", middleware.RequirePerm(policies.PermList), handler.GetPiece)
+	router.GET("/pieces/:piece_id/events", middleware.RequirePerm(policies.PermList), handler.GetPieceEvents)
+	router.GET("/pieces/:piece_id/files", middleware.RequirePerm(policies.PermList), handler.GetPieceFiles)
+
+	fileGetter.GET("/", middleware.RequirePerm(policies.PermGet), handler.GetFile)
 }
 
 func NewPublicRouter(cfg *config.Config, handler *controller.Handler) *gin.Engine {
@@ -30,19 +44,36 @@ func NewPublicRouter(cfg *config.Config, handler *controller.Handler) *gin.Engin
 		AllowHeaders: []string{"Content-Type"},
 	}))
 
-	setPublicRoutes(router, handler)
+	router.Use(middleware.SetPublicRouterScope())
+	fileGetter := router.Group("/pieces/:piece_id/files/:file_id", middleware.FileClassificationBlocking(handler.Queries))
+
+	setPublicRoutes(router, handler, fileGetter)
 
 	return router
 }
 
-func setAdminOnlyRoutes(router *gin.Engine, handler *controller.Handler) {
-	router.POST("/events", handler.CreateEvent)
-	router.POST("/work_event", handler.CreatePieceEvent)
-	router.POST("/works", handler.CreateEvent)
+func setAdminOnlyRoutes(router *gin.Engine, handler *controller.Handler, fileGetter *gin.RouterGroup) {
+	router.POST("/composer", middleware.RequirePerm(policies.PermWrite), handler.CreateComposer)
+	router.POST("/events", middleware.RequirePerm(policies.PermWrite), handler.CreateEvent)
+	router.POST("/piece/:piece_id/event/:event_id", middleware.RequirePerm(policies.PermWrite), handler.CreatePieceEvent)
+	router.POST("/pieces", middleware.RequirePerm(policies.PermWrite), handler.CreatePiece)
+	router.POST("/pieces/:piece_id/file", middleware.RequirePerm(policies.PermWrite), handler.CreateFile)
+
+	router.PATCH("/composer", middleware.RequirePerm(policies.PermWrite), handler.UpdateComposer)
+	router.PATCH("/composer/picture", middleware.RequirePerm(policies.PermWrite), handler.UpdateComposerPicture)
+	router.PATCH("/events/:event_id", middleware.RequirePerm(policies.PermWrite), handler.UpdateEvent)
+	router.PATCH("/pieces/:piece_id", middleware.RequirePerm(policies.PermWrite), handler.UpdatePiece)
+
+	router.DELETE("/composer/picture", middleware.RequirePerm(policies.PermDelete), handler.DeleteComposerPicture)
+	router.DELETE("/pieces/:piece_id", middleware.RequirePerm(policies.PermDelete), handler.DeletePiece)
+	router.DELETE("/events/:event_id", middleware.RequirePerm(policies.PermDelete), handler.DeleteEvent)
+
+	fileGetter.DELETE("/", middleware.RequirePerm(policies.PermDelete), handler.DeleteFile)
 }
 
 func NewAdminRouter(cfg *config.Config, handler *controller.Handler) *gin.Engine {
 	router := baseRouter()
+	router.MaxMultipartMemory = 64 << 20 // 64MiB
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: cfg.AdminRoutes,
@@ -50,8 +81,11 @@ func NewAdminRouter(cfg *config.Config, handler *controller.Handler) *gin.Engine
 		AllowHeaders: []string{"Content-Type"},
 	}))
 
-	setPublicRoutes(router, handler)
-	setAdminOnlyRoutes(router, handler)
+	router.Use(middleware.SetAdminRouterScope())
+	fileGetter := router.Group("/pieces/:piece_id/files", middleware.FileClassificationBlocking(handler.Queries))
+
+	setPublicRoutes(router, handler, fileGetter)
+	setAdminOnlyRoutes(router, handler, fileGetter)
 
 	return router
 }

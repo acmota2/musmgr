@@ -4,18 +4,20 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 
 	"github.com/google/uuid"
 )
+
+type StorageType string
 
 const (
 	MINIO = "MINIO"
 	LOCAL = "LOCAL"
 )
 
-type StorageType string
-
 type StorageConfig struct {
+	Kind                 StorageType
 	LocalPath            string
 	MinioEndpoint        string
 	MinioAccessKeyId     string
@@ -31,13 +33,15 @@ type StorageManager interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
-func NewStorage(kind StorageType, cfg StorageConfig) (StorageManager, error) {
-	switch kind {
+func NewStorage(cfg *StorageConfig) (StorageManager, error) {
+	switch cfg.Kind {
 	case LOCAL:
+		log.Println("Using local storage")
 		return newLocalStorage(cfg.LocalPath)
 	case MINIO:
+		log.Printf("Using MinIO listening on: %s", cfg.MinioEndpoint)
 		return newMinioStorage(cfg)
 	default:
 	}
-	return nil, fmt.Errorf("Wrong storage type: %s", kind)
+	return nil, fmt.Errorf("Wrong storage type: %s", cfg.Kind)
 }

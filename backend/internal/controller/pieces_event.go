@@ -1,24 +1,37 @@
 package controller
 
 import (
-	"github.com/acmota2/musmgr/backend/internal/model"
 	"net/http"
+
+	"github.com/acmota2/musmgr/backend/internal/model"
+	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
 )
 
 func (h *Handler) CreatePieceEvent(c *gin.Context) {
-	var workEvent model.CreatePieceEventParams
-	if err := c.ShouldBindJSON(&workEvent); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	pieceID, err := uuid.Parse(c.Param("piece_id"))
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	eventID, err := uuid.Parse(c.Param("event_id"))
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
 	ctx := c.Request.Context()
 
-	if err := h.Queries.CreatePieceEvent(ctx, workEvent); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-	} else {
-		c.JSON(http.StatusCreated, gin.H{"data": workEvent})
+	queryArgs := model.CreatePieceEventParams{
+		PieceID: pieceID,
+		EventID: eventID,
 	}
+
+	if err := h.Queries.CreatePieceEvent(ctx, queryArgs); err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.Status(http.StatusCreated)
 }
