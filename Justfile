@@ -1,7 +1,7 @@
 set dotenv-load
 set shell := ["bash", "-c"]
 
-export POSTGRES_URL := 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_NAME}'
+export POSTGRES_URL := 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB}'
 
 install_deps:
     @echo "Installing dependencies..."
