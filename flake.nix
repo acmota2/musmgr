@@ -47,7 +47,7 @@
               just
               nixpkgs-fmt
               pnpm
-              postgresql
+              postgresql_18
               python313Packages.sqlfmt
               sqlc
             ];

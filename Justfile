@@ -18,8 +18,17 @@ migrate_db:
 
 dump_db_schema:
     @echo "Dumping database to schema.sql..."
-    pg_dump -s -O -h ${POSTGRES_HOST} -U ${POSTGRES_USER} ${POSTGRES_NAME} --exclude-table=public.goose_db_version > backend/db/schema.sql
-
+    pg_dump \
+      -s \
+      --format=plain \
+      --no-owner \
+      --no-privileges \
+      -h ${POSTGRES_HOST} \
+      -U ${POSTGRES_USER} \
+      ${POSTGRES_DB} \
+      --exclude-table=public.goose_db_version \
+      | sed '/^\\restrict/d; /^\\unrestrict/d' \
+      > backend/db/schema.sql
 create_models:
     @echo "Creating controllers from schema..."
     cd backend/db && sqlc generate
