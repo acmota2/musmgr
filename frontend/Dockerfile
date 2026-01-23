@@ -20,7 +20,8 @@ WORKDIR /app
 COPY --from=builder /app/build build/
 COPY --from=builder /app/package.json .
 
-EXPOSE 3000
+EXPOSE 38226
+EXPOSE 38227
 
 ENV NODE_ENV=production
 

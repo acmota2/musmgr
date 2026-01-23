@@ -1,17 +1,11 @@
 <script lang="ts">
-  import "../app.css";
+	import favicon from '$lib/assets/favicon.svg';
 
-  let { children } = $props();
+	let { children } = $props();
 </script>
 
-<nav class="flex items-center bg-slate-400 px-10 py-5">
-  <a href="/" class="text-lg font-bold">SongMGR</a>
-</nav>
+<svelte:head>
+	<link rel="icon" href={favicon} />
+</svelte:head>
 
-<div class="px-10 pt-4">
-  {@render children()}
-</div>
-
-<footer class="flex justify-center pt-5">
-  <p><b>MusMGR</b> 2025</p>
-</footer>
+{@render children()}
