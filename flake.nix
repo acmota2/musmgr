@@ -45,6 +45,7 @@
               goose
               jq
               just
+              nodejs_24
               nixpkgs-fmt
               pnpm
               postgresql_18
