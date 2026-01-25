@@ -1,15 +1,19 @@
 import type { Handle } from "@sveltejs/kit";
 
 export const handle: Handle = async ({ event, resolve }) => {
-  const userType = process.env.USER_TYPE || "public";
+  const frontendVisibilityMode =
+    process.env.FRONTEND_VISIBILITY_MODE || "public";
 
-  if (!(userType in ["public", "admin"])) {
-    return new Response("You must set USER_TYPE to 'public' or 'admin'", {
-      status: 500,
-    });
+  if (!["public", "admin"].includes(frontendVisibilityMode)) {
+    return new Response(
+      "You must set FRONTEND_VISIBILITY_MODE to 'public' or 'admin'",
+      {
+        status: 500,
+      },
+    );
   }
 
-  event.locals.user = userType;
+  event.locals.user = frontendVisibilityMode;
 
   return await resolve(event);
 };
