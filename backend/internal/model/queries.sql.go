@@ -34,7 +34,7 @@ values ($1, $2, $3, $4, now(), now())
 
 type CreateEventParams struct {
 	ID          uuid.UUID       `json:"id"`
-	HappenedAt  pgtype.Date     `json:"happened_at"`
+	HappenedAt  string          `json:"happened_at"`
 	Description pgtype.Text     `json:"description"`
 	EventType   MusmgrEventType `json:"event_type"`
 }
@@ -86,7 +86,7 @@ values ($1, $2, $3, $4, $5, now(), now())
 
 type CreatePieceParams struct {
 	ID              uuid.UUID                 `json:"id"`
-	ComposedAt      pgtype.Date               `json:"composed_at"`
+	ComposedAt      string                    `json:"composed_at"`
 	Description     string                    `json:"description"`
 	Instrumentation MusmgrInstrumentationName `json:"instrumentation"`
 	Title           string                    `json:"title"`
@@ -200,7 +200,7 @@ func (q *Queries) GetComposer(ctx context.Context) (MusmgrComposer, error) {
 }
 
 const getEvent = `-- name: GetEvent :one
-select id, happened_at, happened_at_precision, description, event_type, created_at, updated_at
+select id, happened_at, description, event_type, created_at, updated_at
 from musmgr.events
 where id = $1
 `
@@ -211,7 +211,6 @@ func (q *Queries) GetEvent(ctx context.Context, id uuid.UUID) (MusmgrEvent, erro
 	err := row.Scan(
 		&i.ID,
 		&i.HappenedAt,
-		&i.HappenedAtPrecision,
 		&i.Description,
 		&i.EventType,
 		&i.CreatedAt,
@@ -229,7 +228,7 @@ where musmgr.pieces.id = $1
 
 type GetEventPiecesRow struct {
 	ID              uuid.UUID                 `json:"id"`
-	ComposedAt      pgtype.Date               `json:"composed_at"`
+	ComposedAt      string                    `json:"composed_at"`
 	Instrumentation MusmgrInstrumentationName `json:"instrumentation"`
 	Title           string                    `json:"title"`
 }
@@ -284,7 +283,7 @@ func (q *Queries) GetEventTypes(ctx context.Context) ([]MusmgrEventType, error) 
 }
 
 const getEvents = `-- name: GetEvents :many
-select id, happened_at, happened_at_precision, description, event_type, created_at, updated_at
+select id, happened_at, description, event_type, created_at, updated_at
 from musmgr.events
 `
 
@@ -300,7 +299,6 @@ func (q *Queries) GetEvents(ctx context.Context) ([]MusmgrEvent, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.HappenedAt,
-			&i.HappenedAtPrecision,
 			&i.Description,
 			&i.EventType,
 			&i.CreatedAt,
@@ -397,7 +395,7 @@ func (q *Queries) GetInstrumentationNames(ctx context.Context) ([]MusmgrInstrume
 }
 
 const getPiece = `-- name: GetPiece :one
-select id, composed_at, composed_at_precision, description, instrumentation, title, created_at, updated_at
+select id, composed_at, description, instrumentation, title, created_at, updated_at
 from musmgr.pieces
 where id = $1
 `
@@ -408,7 +406,6 @@ func (q *Queries) GetPiece(ctx context.Context, id uuid.UUID) (MusmgrPiece, erro
 	err := row.Scan(
 		&i.ID,
 		&i.ComposedAt,
-		&i.ComposedAtPrecision,
 		&i.Description,
 		&i.Instrumentation,
 		&i.Title,
@@ -427,7 +424,7 @@ where musmgr.pieces_events.piece_id = $1
 
 type GetPieceEventsRow struct {
 	ID          uuid.UUID       `json:"id"`
-	HappenedAt  pgtype.Date     `json:"happened_at"`
+	HappenedAt  string          `json:"happened_at"`
 	Description pgtype.Text     `json:"description"`
 	EventType   MusmgrEventType `json:"event_type"`
 }
@@ -501,7 +498,7 @@ func (q *Queries) GetPieceFiles(ctx context.Context, arg GetPieceFilesParams) ([
 }
 
 const getPieces = `-- name: GetPieces :many
-select id, composed_at, composed_at_precision, description, instrumentation, title, created_at, updated_at
+select id, composed_at, description, instrumentation, title, created_at, updated_at
 from musmgr.pieces
 `
 
@@ -517,7 +514,6 @@ func (q *Queries) GetPieces(ctx context.Context) ([]MusmgrPiece, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.ComposedAt,
-			&i.ComposedAtPrecision,
 			&i.Description,
 			&i.Instrumentation,
 			&i.Title,
@@ -581,7 +577,7 @@ where id = $1
 
 type UpdateEventParams struct {
 	ID          uuid.UUID           `json:"id"`
-	HappenedAt  pgtype.Date         `json:"happened_at"`
+	HappenedAt  pgtype.Text         `json:"happened_at"`
 	Description pgtype.Text         `json:"description"`
 	EventType   NullMusmgrEventType `json:"event_type"`
 }
@@ -627,7 +623,7 @@ where id = $1
 
 type UpdatePieceParams struct {
 	ID              uuid.UUID                     `json:"id"`
-	ComposedAt      pgtype.Date                   `json:"composed_at"`
+	ComposedAt      pgtype.Text                   `json:"composed_at"`
 	Description     pgtype.Text                   `json:"description"`
 	Instrumentation NullMusmgrInstrumentationName `json:"instrumentation"`
 	Title           pgtype.Text                   `json:"title"`

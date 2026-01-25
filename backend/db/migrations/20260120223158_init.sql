@@ -1,20 +1,6 @@
 -- +goose Up
 create schema if not exists musmgr;
 
-create type musmgr.date_precision as enum ('day', 'month', 'year');
-
-create or replace function musmgr.check_precision(d date, p musmgr.date_precision)
-returns boolean
-language sql
-immutable
-as $$
-  select
-    (p = 'year' and d = date_trunc('year', d)::date) or
-    (p = 'month' and d = date_trunc('month', d)::date) or
-    (p = 'day')
-$$
-;
-
 create table if not exists musmgr.composer (
   id boolean primary key default true,
   biography text not null,
@@ -30,37 +16,23 @@ create type musmgr.instrumentation_name as enum ('choir', 'solo', 'chamber', 'or
 
 create table if not exists musmgr.pieces (
   id uuid primary key,
-  composed_at date not null,
-  composed_at_precision musmgr.date_precision not null default 'month',
+  composed_at text not null,
   description text not null,
   instrumentation musmgr.instrumentation_name not null,
   title varchar(255) not null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
-  check(
-    musmgr.check_precision(
-      composed_at,
-      composed_at_precision
-    )
-  )
 );
 
 create type musmgr.event_type as enum ('concert', 'exhibition', 'competition', 'festival', 'other');
 
 create table if not exists musmgr.events (
   id uuid primary key,
-  happened_at date not null,
-  happened_at_precision musmgr.date_precision not null default 'day',
+  happened_at text not null,
   description text,
   event_type musmgr.event_type not null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
-  check(
-    musmgr.check_precision(
-      happened_at,
-      happened_at_precision
-    )
-  )
 );
 
 create table if not exists musmgr.pieces_events (

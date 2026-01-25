@@ -12,49 +12,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type MusmgrDatePrecision string
-
-const (
-	MusmgrDatePrecisionDay   MusmgrDatePrecision = "day"
-	MusmgrDatePrecisionMonth MusmgrDatePrecision = "month"
-	MusmgrDatePrecisionYear  MusmgrDatePrecision = "year"
-)
-
-func (e *MusmgrDatePrecision) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = MusmgrDatePrecision(s)
-	case string:
-		*e = MusmgrDatePrecision(s)
-	default:
-		return fmt.Errorf("unsupported scan type for MusmgrDatePrecision: %T", src)
-	}
-	return nil
-}
-
-type NullMusmgrDatePrecision struct {
-	MusmgrDatePrecision MusmgrDatePrecision `json:"musmgr_date_precision"`
-	Valid               bool                `json:"valid"` // Valid is true if MusmgrDatePrecision is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullMusmgrDatePrecision) Scan(value interface{}) error {
-	if value == nil {
-		ns.MusmgrDatePrecision, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.MusmgrDatePrecision.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullMusmgrDatePrecision) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return string(ns.MusmgrDatePrecision), nil
-}
-
 type MusmgrEventType string
 
 const (
@@ -248,13 +205,12 @@ type MusmgrComposer struct {
 }
 
 type MusmgrEvent struct {
-	ID                  uuid.UUID           `json:"id"`
-	HappenedAt          pgtype.Date         `json:"happened_at"`
-	HappenedAtPrecision MusmgrDatePrecision `json:"happened_at_precision"`
-	Description         pgtype.Text         `json:"description"`
-	EventType           MusmgrEventType     `json:"event_type"`
-	CreatedAt           pgtype.Timestamptz  `json:"created_at"`
-	UpdatedAt           pgtype.Timestamptz  `json:"updated_at"`
+	ID          uuid.UUID          `json:"id"`
+	HappenedAt  string             `json:"happened_at"`
+	Description pgtype.Text        `json:"description"`
+	EventType   MusmgrEventType    `json:"event_type"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
 }
 
 type MusmgrFile struct {
@@ -272,14 +228,13 @@ type MusmgrFile struct {
 }
 
 type MusmgrPiece struct {
-	ID                  uuid.UUID                 `json:"id"`
-	ComposedAt          pgtype.Date               `json:"composed_at"`
-	ComposedAtPrecision MusmgrDatePrecision       `json:"composed_at_precision"`
-	Description         string                    `json:"description"`
-	Instrumentation     MusmgrInstrumentationName `json:"instrumentation"`
-	Title               string                    `json:"title"`
-	CreatedAt           pgtype.Timestamptz        `json:"created_at"`
-	UpdatedAt           pgtype.Timestamptz        `json:"updated_at"`
+	ID              uuid.UUID                 `json:"id"`
+	ComposedAt      string                    `json:"composed_at"`
+	Description     string                    `json:"description"`
+	Instrumentation MusmgrInstrumentationName `json:"instrumentation"`
+	Title           string                    `json:"title"`
+	CreatedAt       pgtype.Timestamptz        `json:"created_at"`
+	UpdatedAt       pgtype.Timestamptz        `json:"updated_at"`
 }
 
 type MusmgrPiecesEvent struct {

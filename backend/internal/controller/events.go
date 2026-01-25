@@ -8,7 +8,6 @@ import (
 
 	"github.com/acmota2/musmgr/backend/internal/model"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -33,7 +32,7 @@ func (h *Handler) CreateEvent(c *gin.Context) {
 
 	ctx := c.Request.Context()
 
-	happenedAt, err := formatEventDate(req.HappenedAt)
+	_, err := formatEventDate(req.HappenedAt)
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
@@ -42,11 +41,8 @@ func (h *Handler) CreateEvent(c *gin.Context) {
 	queryArgs := model.CreateEventParams{
 		ID:          newEventID,
 		Description: textOrNull(req.Description),
-		HappenedAt: pgtype.Date{
-			Time:  happenedAt,
-			Valid: true,
-		},
-		EventType: req.EventType,
+		HappenedAt:  req.HappenedAt,
+		EventType:   req.EventType,
 	}
 
 	if err := h.Queries.CreateEvent(ctx, queryArgs); err != nil {
@@ -77,23 +73,17 @@ func (h *Handler) UpdateEvent(c *gin.Context) {
 		return
 	}
 
+	_, err = formatEventDate(*req.HappenedAt)
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
 	queryArgs := model.UpdateEventParams{
 		ID:          eventID,
 		Description: textOrNull(req.Description),
+		HappenedAt:  textOrNull(req.HappenedAt),
 	}
-
-	if req.HappenedAt != nil {
-		happenedAt, err := formatEventDate(*req.HappenedAt)
-		if err != nil {
-			c.AbortWithStatus(http.StatusBadRequest)
-			return
-		}
-		queryArgs.HappenedAt = pgtype.Date{
-			Time:  happenedAt,
-			Valid: true,
-		}
-	}
-
 	if req.EventType != nil {
 		queryArgs.EventType = model.NullMusmgrEventType{
 			MusmgrEventType: *req.EventType,

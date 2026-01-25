@@ -9,7 +9,6 @@ import (
 	"github.com/acmota2/musmgr/backend/internal/model"
 	"github.com/acmota2/musmgr/backend/internal/policies"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -33,7 +32,7 @@ func (h *Handler) CreatePiece(c *gin.Context) {
 		return
 	}
 
-	composedAt, err := formatPieceDate(req.ComposedAt)
+	_, err := formatPieceDate(req.ComposedAt)
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
@@ -43,11 +42,8 @@ func (h *Handler) CreatePiece(c *gin.Context) {
 
 	newID := uuid.New()
 	queryArgs := model.CreatePieceParams{
-		ID: newID,
-		ComposedAt: pgtype.Date{
-			Time:  composedAt,
-			Valid: true,
-		},
+		ID:              newID,
+		ComposedAt:      req.ComposedAt,
 		Instrumentation: req.Instrumentation,
 		Title:           req.Title,
 	}
@@ -80,6 +76,11 @@ func (h *Handler) UpdatePiece(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
+	_, err = formatPieceDate(*req.ComposedAt)
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
 
 	ctx := c.Request.Context()
 
@@ -87,18 +88,7 @@ func (h *Handler) UpdatePiece(c *gin.Context) {
 		ID:          pieceID,
 		Description: textOrNull(req.Description),
 		Title:       textOrNull(req.Title),
-	}
-
-	if req.ComposedAt != nil {
-		composedAt, err := formatPieceDate(*req.ComposedAt)
-		if err != nil {
-			c.AbortWithStatus(http.StatusBadRequest)
-			return
-		}
-		queryArgs.ComposedAt = pgtype.Date{
-			Time:  composedAt,
-			Valid: true,
-		}
+		ComposedAt:  textOrNull(req.ComposedAt),
 	}
 
 	if req.Instrumentation != nil {
