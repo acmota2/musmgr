@@ -82,7 +82,7 @@ func NewAdminRouter(cfg *config.Config, handler *controller.Handler) *gin.Engine
 	}))
 
 	router.Use(middleware.SetAdminRouterScope())
-	fileGetter := router.Group("/pieces/:piece_id/files", middleware.FileClassificationBlocking(handler.Queries))
+	fileGetter := router.Group("/pieces/:piece_id/files/:file_id", middleware.FileClassificationBlocking(handler.Queries))
 
 	setPublicRoutes(router, handler, fileGetter)
 	setAdminOnlyRoutes(router, handler, fileGetter)

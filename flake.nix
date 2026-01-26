@@ -28,7 +28,6 @@
         );
     in
     {
-
       schemas = flake-schemas.schemas;
 
       devShells = forEachSupportedSystem (
@@ -49,6 +48,7 @@
               nixpkgs-fmt
               pnpm
               postgresql_18
+              prettierd
               python313Packages.sqlfmt
               sqlc
             ];
