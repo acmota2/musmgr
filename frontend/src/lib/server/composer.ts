@@ -17,9 +17,7 @@ export interface Composer {
   pictureId: string;
 }
 
-export async function getComposer(
-  fetch: typeof globalThis.fetch,
-): Promise<Composer | null> {
+export async function getComposer(fetch: typeof globalThis.fetch): Promise<Composer | null> {
   const res = await fetch("/api/composer");
 
   if (res.status === 404) {

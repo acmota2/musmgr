@@ -1,7 +1,7 @@
 import { error, redirect } from "@sveltejs/kit";
-import type { LayoutServerLoad } from "./$types";
 import { isAdmin } from "$lib/app";
 import { getComposer } from "$lib/server/composer";
+import type { LayoutServerLoad } from "./$types";
 
 export const load: LayoutServerLoad = async ({ fetch }) => {
   const composer = await getComposer(fetch);

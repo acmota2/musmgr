@@ -1,5 +1,5 @@
 <script lang="ts">
-let { class: className = "", id = "", required = false } = $props();
+  const { class: className = "", id = "", required = false } = $props();
 </script>
 
 <textarea class={`textarea ${className}`} {id} {required}></textarea>

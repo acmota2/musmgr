@@ -1,10 +1,8 @@
 <script lang="ts">
-let { class: className = "", children, disabled = false } = $props();
+  const { class: className = "", children, disabled = false } = $props();
 </script>
 
-<button class={`button ${className}`} {disabled}>
-  {@render children()}
-</button>
+<button class={`button ${className}`} {disabled}>{@render children()}</button>
 
 <style>
   .button {

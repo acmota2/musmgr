@@ -19,9 +19,7 @@ export interface Piece {
   description: string;
 }
 
-export async function getPieces(
-  fetch: typeof globalThis.fetch,
-): Promise<Piece[]> {
+export async function getPieces(fetch: typeof globalThis.fetch): Promise<Piece[]> {
   const res = await fetch("/api/pieces");
 
   const piecesData: GetPieceResponse[] = await res.json();

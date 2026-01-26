@@ -10,5 +10,5 @@ pre-commit:
         go vet ./...
     frontend:
       root: frontend
-      glob: "src/*.{css,ts,svelte}"
+      glob: "src/**/*.{css,ts,svelte}"
       run: biome check {staged_files}

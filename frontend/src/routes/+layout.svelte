@@ -1,32 +1,24 @@
 <script lang="ts">
-import { page } from "$app/state";
-import "$lib/styles/app.css";
+  import { page } from "$app/state";
+  import "$lib/styles/app.css";
 
-const { children } = $props();
-const pathname = $derived(page.url.pathname);
+  const { children } = $props();
+  const pathname = $derived(page.url.pathname);
 
-function navLink(href: string) {
-  return `nav-link ${pathname.startsWith(href) ? "active" : ""}`;
-}
+  function navLink(href: string) {
+    return `nav-link ${pathname.startsWith(href) ? "active" : ""}`;
+  }
 </script>
 
 <nav>
   <div class="frame nav-in">
-    <a href="/" class={navLink("/")}>
-      MusMGR
-    </a>
-    <a href="/events" class={navLink("/events")}>
-      Events
-    </a>
-    <a href="/pieces" class={navLink("/pieces")}>
-      Pieces
-    </a>
+    <a href="/" class={navLink("/")}> MusMGR </a>
+    <a href="/events" class={navLink("/events")}> Events </a>
+    <a href="/pieces" class={navLink("/pieces")}> Pieces </a>
   </div>
 </nav>
 
-<div class="frame">
-  {@render children()}
-</div>
+<div class="frame">{@render children()}</div>
 
 <style>
   .frame {

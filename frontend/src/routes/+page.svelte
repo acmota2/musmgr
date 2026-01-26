@@ -1,14 +1,14 @@
 <script lang="ts">
-import UnderConstruction from "$lib/ui/UnderConstruction.svelte";
+  import UnderConstruction from "$lib/ui/UnderConstruction.svelte";
 
-let { composer } = $props();
+  const { composer } = $props();
 </script>
 
 {#if composer}
   <h1>Biography</h1>
 
   <p>{composer.biography}</p>
-  <img src={`/composer/${composer.picture}`} alt="Portrait of {composer.fullName}" />
+  <img src={`/composer/${composer.picture}`} alt="Portrait of {composer.fullName}">
 {:else}
   <UnderConstruction />
 {/if}

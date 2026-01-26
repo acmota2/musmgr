@@ -1,14 +1,13 @@
 <script>
-    import FormField from "$lib/ui/FormField.svelte";
-    import TextArea from "$lib/ui/TextArea.svelte";
-    import TextInput from "$lib/ui/TextInput.svelte";
+  import FormField from "$lib/ui/FormField.svelte";
+  import TextArea from "$lib/ui/TextArea.svelte";
+  import TextInput from "$lib/ui/TextInput.svelte";
 </script>
-
 
 <div class="container narrow">
   <FormField>
     <h1>About yourself</h1>
-    <br/>
+    <br>
     <label for="full_name">
       <h2>Full name:</h2>
     </label>

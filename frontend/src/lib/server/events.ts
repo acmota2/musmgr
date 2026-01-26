@@ -16,9 +16,7 @@ export interface Event {
   eventType: string;
 }
 
-export async function getEvents(
-  fetch: typeof globalThis.fetch,
-): Promise<Event[]> {
+export async function getEvents(fetch: typeof globalThis.fetch): Promise<Event[]> {
   const res = await fetch("/api/events");
 
   const eventsData: GetEventResponse[] = await res.json();

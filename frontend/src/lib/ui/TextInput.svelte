@@ -1,21 +1,8 @@
 <script lang="ts">
-let {
-  class: className = "",
-  id = "",
-  placeholder = "",
-  required = false,
-} = $props();
+  const { class: className = "", id = "", placeholder = "", required = false } = $props();
 </script>
 
-<input 
-  class={`text-input ${className}`}
-  {id} 
-  {placeholder} 
-  type="text" 
-  {required} 
-  min="" 
-  max="" 
-/>
+<input class={`text-input ${className}`} {id} {placeholder} type="text" {required} min="" max="">
 
 <style>
   .text-input {
