@@ -1,0 +1,14 @@
+pre-commit:
+  parallel: true
+  commands:
+    backend:
+      glob: "src/*.go"
+      root: backend
+      run: |
+        set -e
+        gofmt -w {staged_files}
+        go vet ./...
+    frontend:
+      root: frontend
+      glob: "src/*.{css,ts,svelte}"
+      run: biome check {staged_files}
