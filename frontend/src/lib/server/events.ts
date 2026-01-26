@@ -1,3 +1,5 @@
+import { error } from "@sveltejs/kit";
+
 interface GetEventResponse {
   id: string;
   happened_at: string;
@@ -14,10 +16,16 @@ export interface Event {
   eventType: string;
 }
 
-export async function getEvents(): Promise<Event[]> {
-  const res = await fetch("/events");
+export async function getEvents(
+  fetch: typeof globalThis.fetch,
+): Promise<Event[]> {
+  const res = await fetch("/api/events");
 
   const eventsData: GetEventResponse[] = await res.json();
+
+  if (!res.ok) {
+    throw error(500);
+  }
 
   return eventsData.map((event) => ({
     id: event.id,

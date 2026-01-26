@@ -1,0 +1,40 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* colors */
+  --accent: #348fff;
+  --border-color: #cacaca;
+
+  /* decoration settings */
+  --default-radius: 4px;
+  --default-border: 4px;
+  --default-padding: 10px;
+
+  /* layout settings */
+  --frame-max: 1366px;
+  --frame-padding: 24px;
+
+  --layout-wide: 1300px;
+  --layout-defaut: 960px;
+  --layout-narrow: 800px;
+}
+
+.container {
+  margin-inline: auto;
+}
+
+.container.default {
+  max-width: var(--layout-default);
+}
+
+.container.narrow {
+  max-width: var(--layout-narrow);
+}
+
+.container.wide {
+  max-width: var(--layout-wide);
+}

@@ -1,5 +1,7 @@
 <script lang="ts">
-  let { composer } = $props();
+import UnderConstruction from "$lib/ui/UnderConstruction.svelte";
+
+let { composer } = $props();
 </script>
 
 {#if composer}
@@ -8,5 +10,5 @@
   <p>{composer.biography}</p>
   <img src={`/composer/${composer.picture}`} alt="Portrait of {composer.fullName}" />
 {:else}
-  <h1>Composer Not Found</h1>
+  <UnderConstruction />
 {/if}

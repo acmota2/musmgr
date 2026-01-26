@@ -1,3 +1,5 @@
+import { error } from "@sveltejs/kit";
+
 interface GetPieceResponse {
   id: string;
   composed_at: string;
@@ -17,10 +19,16 @@ export interface Piece {
   description: string;
 }
 
-export async function getPieces(): Promise<Piece[]> {
-  const res = await fetch("/pieces");
+export async function getPieces(
+  fetch: typeof globalThis.fetch,
+): Promise<Piece[]> {
+  const res = await fetch("/api/pieces");
 
   const piecesData: GetPieceResponse[] = await res.json();
+
+  if (!res.ok) {
+    throw error(500);
+  }
 
   return piecesData.map((piece) => ({
     id: piece.id,

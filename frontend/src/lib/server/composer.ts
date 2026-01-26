@@ -1,3 +1,5 @@
+import { error } from "@sveltejs/kit";
+
 export interface GetComposerResponse {
   id: boolean;
   biography: string;
@@ -15,11 +17,17 @@ export interface Composer {
   pictureId: string;
 }
 
-export async function getComposer(): Promise<Composer | null> {
-  const res = await fetch("/composer");
+export async function getComposer(
+  fetch: typeof globalThis.fetch,
+): Promise<Composer | null> {
+  const res = await fetch("/api/composer");
 
   if (res.status === 404) {
     return null;
+  }
+
+  if (!res.ok) {
+    throw error(500);
   }
 
   const composerData: GetComposerResponse = await res.json();
