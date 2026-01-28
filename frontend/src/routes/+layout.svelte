@@ -18,13 +18,22 @@
   </div>
 </nav>
 
-<div class="frame">{@render children()}</div>
+<main class="frame">{@render children()}</main>
 
 <style>
+  nav {
+    flex: 0 0 auto;
+  }
+
   .frame {
     max-width: var(--frame-max);
     margin-inline: auto;
     padding-inline: var(--frame-padding);
+  }
+
+  main.frame {
+    min-height: 0;
+    width: 100%;
   }
 
   nav {

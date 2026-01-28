@@ -1,18 +1,20 @@
 <script lang="ts">
-  const { class: className = "", id = "", placeholder = "", required = false } = $props();
+  const { class: className = "", ...rest } = $props();
 </script>
 
-<input class={`text-input ${className}`} {id} {placeholder} type="text" {required} min="" max="">
+<textarea class={`textarea ${className}`} {...rest}></textarea>
 
 <style>
-  .text-input {
+  .textarea {
+    min-height: 500px;
     border: solid 1px var(--border-color);
     border-radius: var(--default-radius);
     padding: var(--default-padding);
+    resize: vertical;
     width: 100%;
   }
 
-  .text-input:focus {
+  .textarea:focus {
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 5px var(--accent);

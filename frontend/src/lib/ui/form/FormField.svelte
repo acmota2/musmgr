@@ -1,8 +1,8 @@
 <script lang="ts">
-  const { action = "", children, class: className = "" } = $props();
+  const { children, class: className = "", ...rest } = $props();
 </script>
 
-<form {action} class={`form-field ${className}`}>{@render children()}</form>
+<form class={`form-field ${className}`} {...rest}>{@render children()}</form>
 
 <style>
   .form-field {

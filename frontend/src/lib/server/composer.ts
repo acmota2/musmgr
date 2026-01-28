@@ -1,5 +1,10 @@
 import { error } from "@sveltejs/kit";
 
+export interface CreateComposerPayload {
+  full_name: string;
+  biography: string;
+}
+
 export interface GetComposerResponse {
   id: boolean;
   biography: string;
@@ -17,6 +22,37 @@ export interface Composer {
   pictureId: string;
 }
 
+export async function createComposer(
+  fetch: typeof globalThis.fetch,
+  data: CreateComposerPayload,
+): Promise<string> {
+  const res = await fetch("/api/composer", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    console.log("failed response: ", res);
+    throw error(500, {
+      code: "SERVER_ERROR",
+      message: "It's not you, it's us",
+      status: 500,
+    });
+  }
+
+  const location = res.headers.get("Location");
+  if (location === null) {
+    console.log("failed location");
+    throw error(500, {
+      code: "INVALID_LOCATION_HEADER",
+      message: "It's not you, it's us",
+      status: 500,
+    });
+  }
+
+  return `/api${location}`;
+}
+
 export async function getComposer(fetch: typeof globalThis.fetch): Promise<Composer | null> {
   const res = await fetch("/api/composer");
 
@@ -25,7 +61,11 @@ export async function getComposer(fetch: typeof globalThis.fetch): Promise<Compo
   }
 
   if (!res.ok) {
-    throw error(500);
+    throw error(500, {
+      code: "SERVER_ERROR",
+      message: "It's not you, it's us",
+      status: 500,
+    });
   }
 
   const composerData: GetComposerResponse = await res.json();

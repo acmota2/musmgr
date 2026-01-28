@@ -1,3 +1,1 @@
-export function isAdmin(): boolean {
-  return import.meta.env.VITE_FRONTEND_BUILD_MODE === "admin";
-}
+export const IS_ADMIN = import.meta.env.VITE_FRONTEND_BUILD_MODE === "admin";

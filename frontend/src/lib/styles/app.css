@@ -1,7 +1,21 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 html,
 body {
+  font-family: system-ui;
   margin: 0;
   padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
 }
 
 :root {
@@ -10,7 +24,7 @@ body {
   --border-color: #cacaca;
 
   /* decoration settings */
-  --default-radius: 4px;
+  --default-radius: 6px;
   --default-border: 4px;
   --default-padding: 10px;
 
