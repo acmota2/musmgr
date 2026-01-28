@@ -20,6 +20,8 @@ func baseRouter() *gin.Engine {
 func setPublicRoutes(router *gin.Engine, handler *controller.Handler, fileGetter *gin.RouterGroup) {
 	router.GET("/health", func(c *gin.Context) { c.Status(http.StatusOK) })
 
+	router.GET("/composer", middleware.RequirePerm(policies.PermList), handler.GetComposer)
+
 	router.GET("/event_types", middleware.RequirePerm(policies.PermList), handler.GetEventTypes)
 	router.GET("/file_types", middleware.RequirePerm(policies.PermList), handler.GetFileTypes)
 	router.GET("/instrumentation_names", middleware.RequirePerm(policies.PermList), handler.GetInstrumentationNames)
@@ -44,7 +46,7 @@ func NewPublicRouter(cfg *config.Config, handler *controller.Handler) *gin.Engin
 		AllowHeaders: []string{"Content-Type"},
 	}))
 
-	router.Use(middleware.SetPublicRouterScope())
+	router.Use(middleware.SetPublicRouterScope(), middleware.SetPublicRouterClass())
 	fileGetter := router.Group("/pieces/:piece_id/files/:file_id", middleware.FileClassificationBlocking(handler.Queries))
 
 	setPublicRoutes(router, handler, fileGetter)
@@ -81,7 +83,7 @@ func NewAdminRouter(cfg *config.Config, handler *controller.Handler) *gin.Engine
 		AllowHeaders: []string{"Content-Type"},
 	}))
 
-	router.Use(middleware.SetAdminRouterScope())
+	router.Use(middleware.SetAdminRouterScope(), middleware.SetAdminRouterClass())
 	fileGetter := router.Group("/pieces/:piece_id/files/:file_id", middleware.FileClassificationBlocking(handler.Queries))
 
 	setPublicRoutes(router, handler, fileGetter)
