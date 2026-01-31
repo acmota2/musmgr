@@ -21,6 +21,7 @@ func setPublicRoutes(router *gin.Engine, handler *controller.Handler, fileGetter
 	router.GET("/health", func(c *gin.Context) { c.Status(http.StatusOK) })
 
 	router.GET("/composer", middleware.RequirePerm(policies.PermList), handler.GetComposer)
+	router.GET("/composer/picture", middleware.RequirePerm(policies.PermList), handler.GetComposerPicture)
 
 	router.GET("/event_types", middleware.RequirePerm(policies.PermList), handler.GetEventTypes)
 	router.GET("/file_types", middleware.RequirePerm(policies.PermList), handler.GetFileTypes)
@@ -62,9 +63,10 @@ func setAdminOnlyRoutes(router *gin.Engine, handler *controller.Handler, fileGet
 	router.POST("/pieces/:piece_id/file", middleware.RequirePerm(policies.PermWrite), handler.CreateFile)
 
 	router.PATCH("/composer", middleware.RequirePerm(policies.PermWrite), handler.UpdateComposer)
-	router.PATCH("/composer/picture", middleware.RequirePerm(policies.PermWrite), handler.UpdateComposerPicture)
 	router.PATCH("/events/:event_id", middleware.RequirePerm(policies.PermWrite), handler.UpdateEvent)
 	router.PATCH("/pieces/:piece_id", middleware.RequirePerm(policies.PermWrite), handler.UpdatePiece)
+
+	router.PUT("/composer/picture", middleware.RequirePerm(policies.PermWrite), handler.UpdateComposerPicture)
 
 	router.DELETE("/composer/picture", middleware.RequirePerm(policies.PermDelete), handler.DeleteComposerPicture)
 	router.DELETE("/pieces/:piece_id", middleware.RequirePerm(policies.PermDelete), handler.DeletePiece)
@@ -79,7 +81,7 @@ func NewAdminRouter(cfg *config.Config, handler *controller.Handler) *gin.Engine
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: cfg.AdminRoutes,
-		AllowMethods: []string{"DELETE", "GET", "PATCH", "POST"},
+		AllowMethods: []string{"DELETE", "GET", "PATCH", "POST", "PUT"},
 		AllowHeaders: []string{"Content-Type"},
 	}))
 

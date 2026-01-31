@@ -49,7 +49,7 @@ returning picture;
 update musmgr.composer
 set full_name = coalesce(sqlc.narg(full_name), full_name),
     biography = coalesce(sqlc.narg(biography), biography),
-    updated_at = now
+    updated_at = now()
 where id = true;
 
 -- name: UpdateComposerPicture :exec
@@ -150,4 +150,3 @@ select unnest(enum_range(null::musmgr.event_type))::musmgr.event_type as event_t
 -- name: GetFileTypes :many
 select unnest(enum_range(null::musmgr.file_type))::musmgr.file_type as file_type
 ;
-

@@ -534,7 +534,7 @@ const updateComposer = `-- name: UpdateComposer :exec
 update musmgr.composer
 set full_name = coalesce($1, full_name),
     biography = coalesce($2, biography),
-    updated_at = now
+    updated_at = now()
 where id = true
 `
 
