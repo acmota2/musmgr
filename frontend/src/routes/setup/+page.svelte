@@ -10,26 +10,29 @@
   }
 
   function confirm() {
-    confirmDialog.showModal();
+    confirmDialog?.showModal();
   }
 
   const action = "?/create";
-  let confirmDialog: HTMLDialogElement;
+
+  let { data } = $props();
+  let confirmDialog: HTMLDialogElement | null = $state(null);
 </script>
 
-<div class="container narrow">
+<div class="container {data.layoutWidth}">
   <FormField {action} method="POST" id="create-composer">
     <h1>About yourself</h1>
     <br>
+
     <label for="full_name">
       <h2>Full name:</h2>
     </label>
     <TextInput id="full_name" name="full_name" required />
+
     <label for="biography">
       <h2>Biography:</h2>
     </label>
     <TextArea id="biography" name="biography" required />
-
     <FormButtonSet {cancel} {confirm} />
   </FormField>
 </div>

@@ -9,17 +9,17 @@ interface GetEventResponse {
   updated_at: Date;
 }
 
-export interface Event {
+export interface MusmgrEvent {
   id: string;
   happenedAt: string;
   description: string;
   eventType: string;
 }
 
-export async function getEvents(fetch: typeof globalThis.fetch): Promise<Event[]> {
+export async function getEvents(fetch: typeof globalThis.fetch): Promise<MusmgrEvent[]> {
   const res = await fetch("/api/events");
 
-  const eventsData: GetEventResponse[] = await res.json();
+  const eventsData: GetEventResponse[] = (await res.json()) || [];
 
   if (!res.ok) {
     throw error(500);

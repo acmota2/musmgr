@@ -11,7 +11,7 @@
 </script>
 
 <nav>
-  <div class="frame nav-in">
+  <div class="nav-in">
     <a href="/" class={navLink("/")}> MusMGR </a>
     <a href="/events" class={navLink("/events")}> Events </a>
     <a href="/pieces" class={navLink("/pieces")}> Pieces </a>
@@ -23,30 +23,29 @@
 <style>
   nav {
     flex: 0 0 auto;
+    border-top: solid white 5px;
+    position: relative;
+    background: white;
+    border-bottom: solid 5px
+      linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.1) 100%);
   }
 
   .frame {
     max-width: var(--frame-max);
     margin-inline: auto;
-    padding-inline: var(--frame-padding);
   }
 
   main.frame {
     min-height: 0;
+    height: 100%;
     width: 100%;
   }
 
-  nav {
-    padding: var(--default-padding);
-  }
-
   .nav-link {
-    border: var(--default-border) solid transparent;
+    padding: 2px 8px;
     position: relative;
     color: black;
-    font-weight: bold;
     font-size: 24px;
-    padding: var(--default-padding);
     text-decoration: none;
   }
 
@@ -69,6 +68,6 @@
     display: flex;
     gap: 16px;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
   }
 </style>

@@ -1,8 +1,11 @@
 <script lang="ts">
-  import type { ChangeEventHandler } from "svelte/elements";
+  import type { ChangeEventHandler, HTMLImgAttributes } from "svelte/elements";
   import { IS_ADMIN } from "$lib/app";
 
-  let previewUrl: string | null = $state(null);
+  type EditablePictureProps = {
+    name: string;
+    pictureId: string;
+  } & HTMLImgAttributes;
 
   const onFileChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     const input = event.target as HTMLInputElement;
@@ -14,52 +17,80 @@
     previewUrl = URL.createObjectURL(file);
   };
 
-  let { pictureId, alt = "", wrapperClass = "", ...imgProps } = $props();
+  const onFileReset: ChangeEventHandler<HTMLInputElement> = () => {
+    previewUrl = "/api/composer/picture";
+  };
+
+  let { name = "", pictureId, ...imgProps }: EditablePictureProps = $props();
+
+  let previewUrl: string = $state("/api/composer/picture");
 </script>
 
-{#if pictureId !== null}
-  <figure>
-    <img class="" {...imgProps}>
-  </figure>
-{:else if IS_ADMIN && pictureId === null}
-  <article class={wrapperClass}>
-    <input type="file" id="picture" accept="image/*" hidden onchange={onFileChange}>
-    <label for="picture" class="image-picker">
-      {#if previewUrl}
-        <figure class="picture-wrapper">
-          <img class="picture-preview" src={previewUrl} alt="Couldn't load preview">
-        </figure>
-      {:else}
-        <span id="chooser-text">Choose image</span>
-      {/if}
-    </label>
-  </article>
+{#if !IS_ADMIN && pictureId !== null}
+  <img class="picture" {...imgProps}>
+{:else if IS_ADMIN}
+  <input
+    {name}
+    type="file"
+    id="picture"
+    accept="image/*"
+    hidden
+    onchange={onFileChange}
+    onreset={onFileReset}
+  >
+  <label for="picture" class="image-picker">
+    {#if pictureId !== null || previewUrl}
+      <figure class="picture-wrapper">
+        <img class="picture-preview" src={previewUrl} alt="Couldn't load preview">
+      </figure>
+    {:else}
+      <span id="chooser-text">Choose a picture</span>
+    {/if}
+  </label>
 {/if}
 
 <style>
   #chooser-text {
-    border-radius: var(--default-radius);
+    display: flex;
     max-width: 100%;
+    text-align: center;
+    font: 24px bold;
+  }
+
+  .image-picker,
+  .picture-wrapper,
+  #chooser-text {
+    height: 100%;
+    width: 100%;
+  }
+
+  .image-picker,
+  #chooser-text {
+    align-items: center;
+    justify-content: center;
   }
 
   .image-picker {
     position: relative;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 700px;
+    overflow: hidden;
     max-height: 100%;
-    border: solid 2px rgba(100, 100, 100, 0.6);
-    border-radius: var(--default-radius);
     cursor: pointer;
+    background: linear-gradient(
+      to left,
+      rgba(225, 226, 238, 0) 0%,
+      rgba(225, 226, 238, 0.3) 30%,
+      rgba(225, 226, 238, 0.6) 70%,
+      rgba(225, 226, 238, 1) 100%
+    );
   }
 
   .image-picker:has(.picture-preview) {
     border: transparent;
   }
 
+  .picture,
   .picture-preview {
-    border-radius: var(--default-radius);
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -72,6 +103,8 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
+    margin: 0;
+    max-height: 100%;
   }
 
   .picture-wrapper::after {
@@ -85,8 +118,8 @@
     justify-content: center;
 
     background-color: rgba(150, 150, 150, 0.35);
-    border-radius: var(--default-radius);
     font-weight: bold;
+    font-size: 24px;
 
     opacity: 0;
     transition: opacity 150ms ease;

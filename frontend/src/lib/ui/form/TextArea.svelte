@@ -1,8 +1,8 @@
 <script lang="ts">
-  const { class: className = "", ...rest } = $props();
+  let { class: className = "", value = $bindable(), ...rest } = $props();
 </script>
 
-<textarea class={`textarea ${className}`} {...rest}></textarea>
+<textarea bind:value class={`textarea ${className}`} {...rest}>{value}</textarea>
 
 <style>
   .textarea {

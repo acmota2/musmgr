@@ -2,11 +2,12 @@
   const { class: className = "", children, ...rest } = $props();
 </script>
 
-<button class={`button ${className}`} {...rest}>{@render children()}</button>
+<button class="button ${className}" {...rest}>{@render children()}</button>
 
 <style>
   .button {
-    background: #eee;
+    background: var(--button-plain);
+    font-size: 20px;
     border: solid 1px rgba(238, 238, 238, 0.3);
     border-radius: var(--default-radius);
     padding: var(--default-padding);

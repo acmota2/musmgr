@@ -5,6 +5,11 @@
     "clientKind": "git",
     "useIgnoreFile": true
   },
+  "css": {
+    "parser": {
+      "cssModules": true
+    }
+  },
   "files": {
     "includes": [
       "**/*.{js,json,ts}",

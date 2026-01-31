@@ -1,4 +1,5 @@
 import { error } from "@sveltejs/kit";
+import { generalServerError } from "./utils";
 
 export interface CreateComposerPayload {
   full_name: string;
@@ -13,6 +14,10 @@ export interface GetComposerResponse {
   picture: string;
   created_at: Date;
   updated_at: Date;
+}
+
+export interface UpdateComposerPayload {
+  biography?: string;
 }
 
 export interface Composer {
@@ -33,11 +38,7 @@ export async function createComposer(
 
   if (!res.ok) {
     console.log("failed response: ", res);
-    throw error(500, {
-      code: "SERVER_ERROR",
-      message: "It's not you, it's us",
-      status: 500,
-    });
+    throw error(500, generalServerError);
   }
 
   const location = res.headers.get("Location");
@@ -61,11 +62,7 @@ export async function getComposer(fetch: typeof globalThis.fetch): Promise<Compo
   }
 
   if (!res.ok) {
-    throw error(500, {
-      code: "SERVER_ERROR",
-      message: "It's not you, it's us",
-      status: 500,
-    });
+    throw error(500, generalServerError);
   }
 
   const composerData: GetComposerResponse = await res.json();
@@ -76,4 +73,35 @@ export async function getComposer(fetch: typeof globalThis.fetch): Promise<Compo
     pictureContentType: composerData.picture_content_type,
     pictureId: composerData.picture,
   };
+}
+
+export async function updateComposer(
+  fetch: typeof globalThis.fetch,
+  data: UpdateComposerPayload,
+): Promise<void> {
+  const res = await fetch("/api/composer", {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    throw error(500, generalServerError);
+  }
+}
+
+export async function updateComposerPicture(
+  fetch: typeof globalThis.fetch,
+  blob: File,
+): Promise<void> {
+  const formData = new FormData();
+  formData.append("file", blob);
+
+  const res = await fetch("/api/composer/picture", {
+    method: "PUT",
+    body: formData,
+  });
+
+  if (!res.ok) {
+    throw error(500, generalServerError);
+  }
 }

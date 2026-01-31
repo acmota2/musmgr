@@ -6,11 +6,16 @@
     confirmDialog = $bindable<HTMLDialogElement>(),
     formId,
     message = "Apply changes?",
+    children = undefined,
   } = $props();
 </script>
 
-<dialog class={`confirm-dialog ${className}`} bind:this={confirmDialog}>
-  <p>{message}</p>
+<dialog class="confirm-dialog {className}" bind:this={confirmDialog}>
+  {#if children}
+    {@render children()}
+  {:else}
+    <p>{message}</p>
+  {/if}
 
   <div class="confirm-buttons">
     <form method="dialog">
@@ -23,6 +28,7 @@
 
 <style>
   .confirm-dialog {
+    opacity: 0;
     & p {
       justify-self: center;
     }
@@ -30,6 +36,14 @@
     border-radius: var(--default-radius);
     box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
     padding: 15px 30px;
+    transition: opacity 250ms ease;
+  }
+
+  .confirm-dialog[open] {
+    opacity: 1;
+    @starting-style {
+      opacity: 0;
+    }
   }
 
   .confirm-buttons {

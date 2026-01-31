@@ -4,12 +4,30 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-y: scroll;
+}
+
 html,
 body {
-  font-family: system-ui;
   margin: 0;
   padding: 0;
   height: 100%;
+  background: var(--background-light);
+}
+
+html,
+body,
+button,
+input,
+pre,
+select,
+textarea {
+  font-family: "EB Garamond", system-ui;
+}
+
+figure {
+  margin: 0;
 }
 
 body {
@@ -18,10 +36,33 @@ body {
   min-height: 100%;
 }
 
+h1 {
+  font-size: 48px;
+  margin: 0;
+}
+
+h2 {
+  font-size: 36px;
+  margin: 0;
+}
+
+h3 {
+  font-size: 28px;
+  margin: 0;
+}
+
+p,
+pre {
+  font-size: 24px;
+  margin: 0;
+}
+
 :root {
   /* colors */
   --accent: #348fff;
   --border-color: #cacaca;
+  --background-light: #f1f2fe;
+  --button-plain: #eeeeee;
 
   /* decoration settings */
   --default-radius: 6px;
@@ -29,12 +70,13 @@ body {
   --default-padding: 10px;
 
   /* layout settings */
-  --frame-max: 1366px;
+  --frame-max: 100%;
   --frame-padding: 24px;
+  --paragraph-font: 24px;
 
   --layout-wide: 1300px;
-  --layout-defaut: 960px;
-  --layout-narrow: 800px;
+  --layout-defaut: 1000px;
+  --layout-narrow: 900px;
 }
 
 .container {
@@ -51,4 +93,8 @@ body {
 
 .container.wide {
   max-width: var(--layout-wide);
+}
+
+.container.full {
+  max-width: 100%;
 }
