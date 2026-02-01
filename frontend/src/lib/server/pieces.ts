@@ -49,7 +49,7 @@ export async function createPiece(
 export async function getPieces(fetch: typeof globalThis.fetch): Promise<Piece[]> {
   const res = await fetch("/api/pieces");
 
-  const piecesData: GetPieceResponse[] = await res.json();
+  const piecesData: GetPieceResponse[] = (await res.json()) || [];
 
   if (!res.ok) {
     throw error(500);

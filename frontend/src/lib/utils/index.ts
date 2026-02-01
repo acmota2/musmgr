@@ -11,10 +11,13 @@ export function checkStringFormField(formField: FormDataEntryValue | null, key: 
 }
 
 export function checkFileFormField(formField: FormDataEntryValue | null, key: string): File | null {
-  console.log("Actual form field: ", formField, typeof formField);
   if (formField === null || formField instanceof File) {
     return formField;
   }
 
   throw new Error(`Value for ${key} should be null or File`);
+}
+
+export function extractMonthFromDate(date: string): string {
+  return new Date(date).toLocaleDateString("en-US", { month: "long" });
 }

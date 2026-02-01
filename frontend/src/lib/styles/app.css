@@ -5,7 +5,7 @@
 }
 
 html {
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 html,
@@ -26,6 +26,17 @@ textarea {
   font-family: "EB Garamond", system-ui;
 }
 
+main {
+  flex: 1 1 auto;
+  min-height: 100%;
+  background: var(--background-light);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
 figure {
   margin: 0;
 }
@@ -33,7 +44,6 @@ figure {
 body {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
 }
 
 h1 {
@@ -72,11 +82,21 @@ pre {
   /* layout settings */
   --frame-max: 100%;
   --frame-padding: 24px;
-  --paragraph-font: 24px;
 
   --layout-wide: 1300px;
   --layout-defaut: 1000px;
   --layout-narrow: 900px;
+
+  /* font sizes */
+  --paragraph-font: 24px;
+  --h3-font: 28px;
+  --h2-font: 36px;
+  --h1-font: 48px;
+
+  /* mobile widths */
+  --mobile-maximum: 480px;
+  --mobile-normal: 420px;
+  --mobile-minimum: 360px;
 }
 
 .container {

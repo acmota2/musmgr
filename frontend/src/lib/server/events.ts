@@ -2,8 +2,9 @@ import { error } from "@sveltejs/kit";
 
 interface GetEventResponse {
   id: string;
+  name: string;
   happened_at: string;
-  description: string;
+  description?: string;
   event_type: string;
   created_at: Date;
   updated_at: Date;
@@ -11,8 +12,9 @@ interface GetEventResponse {
 
 export interface MusmgrEvent {
   id: string;
+  name: string;
   happenedAt: string;
-  description: string;
+  description?: string;
   eventType: string;
 }
 
@@ -27,6 +29,7 @@ export async function getEvents(fetch: typeof globalThis.fetch): Promise<MusmgrE
 
   return eventsData.map((event) => ({
     id: event.id,
+    name: event.name,
     happenedAt: event.happened_at,
     description: event.description,
     eventType: event.event_type,
