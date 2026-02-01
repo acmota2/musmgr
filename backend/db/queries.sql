@@ -7,8 +7,8 @@ insert into musmgr.pieces (id, composed_at, description, instrumentation, title,
 values ($1, $2, $3, $4, $5, now(), now());
 
 -- name: CreateEvent :exec
-insert into musmgr.events (id, happened_at, description, event_type, create_at, updated_at)
-values ($1, $2, $3, $4, now(), now());
+insert into musmgr.events (id, happened_at, name, description, event_type, create_at, updated_at)
+values ($1, $2, $3, $4, $5, now(), now());
 
 -- name: CreatePieceEvent :exec
 insert into musmgr.pieces_events (piece_id, event_id)
@@ -70,8 +70,9 @@ where id = $1;
 
 -- name: UpdateEvent :exec
 update musmgr.events
-set happened_at = coalesce(sqlc.narg(happened_at), happened_at),
+set name = coalesce(sqlc.narg(name), name),
     description = coalesce(sqlc.narg(description), description),
+    happened_at = coalesce(sqlc.narg(happened_at), happened_at),
     event_type = coalesce(sqlc.narg(event_type), event_type),
     updated_at = now()
 where id = $1;

@@ -1,40 +1,34 @@
 --
 -- PostgreSQL database dump
 --
+
+
 -- Dumped from database version 18.1 (Debian 18.1-1.pgdg13+2)
 -- Dumped by pg_dump version 18.1
-set statement_timeout = 0
-;
-set lock_timeout = 0
-;
-set idle_in_transaction_session_timeout = 0
-;
-set transaction_timeout = 0
-;
-set client_encoding = 'UTF8'
-;
-set standard_conforming_strings = on
-;
-select pg_catalog.set_config('search_path', '', false)
-;
-set check_function_bodies = false
-;
-set xmloption = content
-;
-set client_min_messages = warning
-;
-set row_security = off
-;
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
 
 --
 -- Name: musmgr; Type: SCHEMA; Schema: -; Owner: -
 --
+
 CREATE SCHEMA musmgr;
 
 
 --
 -- Name: event_type; Type: TYPE; Schema: musmgr; Owner: -
 --
+
 CREATE TYPE musmgr.event_type AS ENUM (
     'concert',
     'exhibition',
@@ -47,6 +41,7 @@ CREATE TYPE musmgr.event_type AS ENUM (
 --
 -- Name: file_origin; Type: TYPE; Schema: musmgr; Owner: -
 --
+
 CREATE TYPE musmgr.file_origin AS ENUM (
     'user',
     'system'
@@ -56,6 +51,7 @@ CREATE TYPE musmgr.file_origin AS ENUM (
 --
 -- Name: file_type; Type: TYPE; Schema: musmgr; Owner: -
 --
+
 CREATE TYPE musmgr.file_type AS ENUM (
     'score_full',
     'score_part',
@@ -71,6 +67,7 @@ CREATE TYPE musmgr.file_type AS ENUM (
 --
 -- Name: instrumentation_name; Type: TYPE; Schema: musmgr; Owner: -
 --
+
 CREATE TYPE musmgr.instrumentation_name AS ENUM (
     'choir',
     'solo',
@@ -82,15 +79,14 @@ CREATE TYPE musmgr.instrumentation_name AS ENUM (
 );
 
 
-set default_tablespace = ''
-;
+SET default_tablespace = '';
 
-set default_table_access_method = heap
-;
+SET default_table_access_method = heap;
 
 --
 -- Name: composer; Type: TABLE; Schema: musmgr; Owner: -
 --
+
 CREATE TABLE musmgr.composer (
     id boolean DEFAULT true NOT NULL,
     biography text NOT NULL,
@@ -106,19 +102,22 @@ CREATE TABLE musmgr.composer (
 --
 -- Name: events; Type: TABLE; Schema: musmgr; Owner: -
 --
+
 CREATE TABLE musmgr.events (
     id uuid NOT NULL,
     happened_at text NOT NULL,
     description text,
     event_type musmgr.event_type NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    name text NOT NULL
 );
 
 
 --
 -- Name: files; Type: TABLE; Schema: musmgr; Owner: -
 --
+
 CREATE TABLE musmgr.files (
     id uuid NOT NULL,
     classification smallint NOT NULL,
@@ -137,6 +136,7 @@ CREATE TABLE musmgr.files (
 --
 -- Name: pieces; Type: TABLE; Schema: musmgr; Owner: -
 --
+
 CREATE TABLE musmgr.pieces (
     id uuid NOT NULL,
     composed_at text NOT NULL,
@@ -151,6 +151,7 @@ CREATE TABLE musmgr.pieces (
 --
 -- Name: pieces_events; Type: TABLE; Schema: musmgr; Owner: -
 --
+
 CREATE TABLE musmgr.pieces_events (
     piece_id uuid NOT NULL,
     event_id uuid NOT NULL
@@ -160,6 +161,7 @@ CREATE TABLE musmgr.pieces_events (
 --
 -- Name: composer composer_pkey; Type: CONSTRAINT; Schema: musmgr; Owner: -
 --
+
 ALTER TABLE ONLY musmgr.composer
     ADD CONSTRAINT composer_pkey PRIMARY KEY (id);
 
@@ -167,6 +169,7 @@ ALTER TABLE ONLY musmgr.composer
 --
 -- Name: events events_pkey; Type: CONSTRAINT; Schema: musmgr; Owner: -
 --
+
 ALTER TABLE ONLY musmgr.events
     ADD CONSTRAINT events_pkey PRIMARY KEY (id);
 
@@ -174,6 +177,7 @@ ALTER TABLE ONLY musmgr.events
 --
 -- Name: files files_pkey; Type: CONSTRAINT; Schema: musmgr; Owner: -
 --
+
 ALTER TABLE ONLY musmgr.files
     ADD CONSTRAINT files_pkey PRIMARY KEY (id);
 
@@ -181,6 +185,7 @@ ALTER TABLE ONLY musmgr.files
 --
 -- Name: pieces_events pieces_events_pkey; Type: CONSTRAINT; Schema: musmgr; Owner: -
 --
+
 ALTER TABLE ONLY musmgr.pieces_events
     ADD CONSTRAINT pieces_events_pkey PRIMARY KEY (piece_id, event_id);
 
@@ -188,6 +193,7 @@ ALTER TABLE ONLY musmgr.pieces_events
 --
 -- Name: pieces pieces_pkey; Type: CONSTRAINT; Schema: musmgr; Owner: -
 --
+
 ALTER TABLE ONLY musmgr.pieces
     ADD CONSTRAINT pieces_pkey PRIMARY KEY (id);
 
@@ -195,12 +201,14 @@ ALTER TABLE ONLY musmgr.pieces
 --
 -- Name: piece_file_access; Type: INDEX; Schema: musmgr; Owner: -
 --
+
 CREATE INDEX piece_file_access ON musmgr.files USING btree (piece_id, classification);
 
 
 --
 -- Name: files files_parent_id_fkey; Type: FK CONSTRAINT; Schema: musmgr; Owner: -
 --
+
 ALTER TABLE ONLY musmgr.files
     ADD CONSTRAINT files_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES musmgr.files(id) ON DELETE CASCADE;
 
@@ -208,22 +216,23 @@ ALTER TABLE ONLY musmgr.files
 --
 -- Name: files files_piece_id_fkey; Type: FK CONSTRAINT; Schema: musmgr; Owner: -
 --
+
 ALTER TABLE ONLY musmgr.files
     ADD CONSTRAINT files_piece_id_fkey FOREIGN KEY (piece_id) REFERENCES musmgr.pieces(id) ON DELETE CASCADE;
 
 
 --
--- Name: pieces_events pieces_events_event_id_fkey; Type: FK CONSTRAINT; Schema:
--- musmgr; Owner: -
+-- Name: pieces_events pieces_events_event_id_fkey; Type: FK CONSTRAINT; Schema: musmgr; Owner: -
 --
+
 ALTER TABLE ONLY musmgr.pieces_events
     ADD CONSTRAINT pieces_events_event_id_fkey FOREIGN KEY (event_id) REFERENCES musmgr.events(id) ON DELETE CASCADE;
 
 
 --
--- Name: pieces_events pieces_events_piece_id_fkey; Type: FK CONSTRAINT; Schema:
--- musmgr; Owner: -
+-- Name: pieces_events pieces_events_piece_id_fkey; Type: FK CONSTRAINT; Schema: musmgr; Owner: -
 --
+
 ALTER TABLE ONLY musmgr.pieces_events
     ADD CONSTRAINT pieces_events_piece_id_fkey FOREIGN KEY (piece_id) REFERENCES musmgr.pieces(id) ON DELETE CASCADE;
 
@@ -231,4 +240,5 @@ ALTER TABLE ONLY musmgr.pieces_events
 --
 -- PostgreSQL database dump complete
 --
+
 

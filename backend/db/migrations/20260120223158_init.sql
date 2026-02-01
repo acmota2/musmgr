@@ -29,6 +29,7 @@ create type musmgr.event_type as enum ('concert', 'exhibition', 'competition', '
 create table if not exists musmgr.events (
   id uuid primary key,
   happened_at text not null,
+  name text not null,
   description text,
   event_type musmgr.event_type not null,
   created_at timestamptz not null default now(),
@@ -60,4 +61,3 @@ create table if not exists musmgr.files (
 
 create index if not exists piece_file_access
 on musmgr.files (piece_id, classification);
-

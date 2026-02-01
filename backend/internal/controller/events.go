@@ -18,6 +18,7 @@ func formatEventDate(s string) (time.Time, error) {
 }
 
 type createEventRequest struct {
+	Name        string                `json:"name"`
 	Description *string               `json:"description"`
 	EventType   model.MusmgrEventType `json:"event_type"`
 	HappenedAt  string                `json:"happened_at"`
@@ -40,6 +41,7 @@ func (h *Handler) CreateEvent(c *gin.Context) {
 	newEventID := uuid.New()
 	queryArgs := model.CreateEventParams{
 		ID:          newEventID,
+		Name:        req.Name,
 		Description: textOrNull(req.Description),
 		HappenedAt:  req.HappenedAt,
 		EventType:   req.EventType,
@@ -55,6 +57,7 @@ func (h *Handler) CreateEvent(c *gin.Context) {
 }
 
 type updateEventRequest struct {
+	Name        *string                `json:"name"`
 	Description *string                `json:"description"`
 	EventType   *model.MusmgrEventType `json:"event_type"`
 	HappenedAt  *string                `json:"happened_at"`
@@ -81,6 +84,7 @@ func (h *Handler) UpdateEvent(c *gin.Context) {
 
 	queryArgs := model.UpdateEventParams{
 		ID:          eventID,
+		Name:        textOrNull(req.Name),
 		Description: textOrNull(req.Description),
 		HappenedAt:  textOrNull(req.HappenedAt),
 	}

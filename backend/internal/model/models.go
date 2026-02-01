@@ -211,6 +211,7 @@ type MusmgrEvent struct {
 	EventType   MusmgrEventType    `json:"event_type"`
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	Name        string             `json:"name"`
 }
 
 type MusmgrFile struct {

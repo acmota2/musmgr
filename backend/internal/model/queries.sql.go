@@ -28,13 +28,14 @@ func (q *Queries) CreateComposer(ctx context.Context, arg CreateComposerParams) 
 }
 
 const createEvent = `-- name: CreateEvent :exec
-insert into musmgr.events (id, happened_at, description, event_type, create_at, updated_at)
-values ($1, $2, $3, $4, now(), now())
+insert into musmgr.events (id, happened_at, name, description, event_type, create_at, updated_at)
+values ($1, $2, $3, $4, $5, now(), now())
 `
 
 type CreateEventParams struct {
 	ID          uuid.UUID       `json:"id"`
 	HappenedAt  string          `json:"happened_at"`
+	Name        string          `json:"name"`
 	Description pgtype.Text     `json:"description"`
 	EventType   MusmgrEventType `json:"event_type"`
 }
@@ -43,6 +44,7 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error 
 	_, err := q.db.Exec(ctx, createEvent,
 		arg.ID,
 		arg.HappenedAt,
+		arg.Name,
 		arg.Description,
 		arg.EventType,
 	)
@@ -200,7 +202,7 @@ func (q *Queries) GetComposer(ctx context.Context) (MusmgrComposer, error) {
 }
 
 const getEvent = `-- name: GetEvent :one
-select id, happened_at, description, event_type, created_at, updated_at
+select id, happened_at, description, event_type, created_at, updated_at, name
 from musmgr.events
 where id = $1
 `
@@ -215,6 +217,7 @@ func (q *Queries) GetEvent(ctx context.Context, id uuid.UUID) (MusmgrEvent, erro
 		&i.EventType,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Name,
 	)
 	return i, err
 }
@@ -283,7 +286,7 @@ func (q *Queries) GetEventTypes(ctx context.Context) ([]MusmgrEventType, error) 
 }
 
 const getEvents = `-- name: GetEvents :many
-select id, happened_at, description, event_type, created_at, updated_at
+select id, happened_at, description, event_type, created_at, updated_at, name
 from musmgr.events
 `
 
@@ -303,6 +306,7 @@ func (q *Queries) GetEvents(ctx context.Context) ([]MusmgrEvent, error) {
 			&i.EventType,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.Name,
 		); err != nil {
 			return nil, err
 		}
@@ -568,25 +572,28 @@ func (q *Queries) UpdateComposerPicture(ctx context.Context, arg UpdateComposerP
 
 const updateEvent = `-- name: UpdateEvent :exec
 update musmgr.events
-set happened_at = coalesce($2, happened_at),
+set name = coalesce($2, name),
     description = coalesce($3, description),
-    event_type = coalesce($4, event_type),
+    happened_at = coalesce($4, happened_at),
+    event_type = coalesce($5, event_type),
     updated_at = now()
 where id = $1
 `
 
 type UpdateEventParams struct {
 	ID          uuid.UUID           `json:"id"`
-	HappenedAt  pgtype.Text         `json:"happened_at"`
+	Name        pgtype.Text         `json:"name"`
 	Description pgtype.Text         `json:"description"`
+	HappenedAt  pgtype.Text         `json:"happened_at"`
 	EventType   NullMusmgrEventType `json:"event_type"`
 }
 
 func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) error {
 	_, err := q.db.Exec(ctx, updateEvent,
 		arg.ID,
-		arg.HappenedAt,
+		arg.Name,
 		arg.Description,
+		arg.HappenedAt,
 		arg.EventType,
 	)
 	return err
