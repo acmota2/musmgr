@@ -90,4 +90,11 @@
   :global(#biography) {
     margin: 100px 0;
   }
+
+  @media (max-width: 767px) {
+    .biography-content,
+    :global(.biography-content > #biography-admin-form) {
+      flex-direction: column-reverse;
+    }
+  }
 </style>

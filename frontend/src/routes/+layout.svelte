@@ -23,11 +23,12 @@
 <style>
   nav {
     flex: 0 0 auto;
-    border-top: solid white 5px;
-    position: relative;
-    background: white;
-    border-bottom: solid 5px
-      linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.1) 100%);
+    padding-top: 5px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
   }
 
   .frame {
@@ -37,8 +38,9 @@
 
   main.frame {
     min-height: 0;
-    height: 100%;
     width: 100%;
+    height: 100%;
+    max-height: none;
   }
 
   .nav-link {
