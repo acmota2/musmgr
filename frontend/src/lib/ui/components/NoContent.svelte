@@ -1,7 +1,7 @@
-<h1 class="no-events">No events to show</h1>
+<h1 class="no-content">Nothing to show</h1>
 
 <style>
-  .no-events {
+  .no-content {
     justify-self: center;
     align-self: center;
   }

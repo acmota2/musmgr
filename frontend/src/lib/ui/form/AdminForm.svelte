@@ -1,7 +1,8 @@
 <script lang="ts">
   import type { ChangeEventHandler } from "svelte/elements";
   import { IS_ADMIN } from "$lib/app";
-  import Button from "../Button.svelte";
+  import BottomControlsContainer from "../components/BottomControlsContainer.svelte";
+  import Button from "../components/Button.svelte";
   import ConfirmDialog from "./ConfirmDialog.svelte";
 
   const onclick: ChangeEventHandler<HTMLButtonElement> = () => {
@@ -16,13 +17,13 @@
   <form class="admin-form {className}" {id} {...props}>
     {@render children()}
 
-    <div id="bottom-submit">
+    <BottomControlsContainer id="bottom-submit">
       <p><em>Changes were made</em></p>
       <div class="admin-form-button-set">
         <Button type="submit" {onclick}>Submit</Button>
         <Button type="reset">Reset</Button>
       </div>
-    </div>
+    </BottomControlsContainer>
   </form>
 
   <ConfirmDialog bind:confirmDialog formId={id} />
@@ -37,30 +38,7 @@
     width: 100%;
   }
 
-  #bottom-submit {
-    display: flex;
-    border: none;
-
-    background: linear-gradient(
-      to bottom,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(255, 255, 255, 0.1) 10%,
-      rgba(255, 255, 255, 0.6) 40%,
-      rgba(255, 255, 255, 0.8) 80%,
-      rgba(255, 255, 255, 1) 100%
-    );
-
-    padding: var(--default-padding);
-    backdrop-filter: blur(15px);
-    justify-content: center;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    gap: 20px;
-  }
-
-  #bottom-submit > * {
+  :global(#bottom-submit > *) {
     display: flex;
     flex-direction: row;
     gap: 8px;

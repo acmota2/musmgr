@@ -1,6 +1,9 @@
 <script lang="ts">
+  import { IS_ADMIN } from "$lib/app/index.js";
   import type { MusmgrEvent } from "$lib/server/events.js";
-  import NoContent from "$lib/ui/NoContent.svelte";
+  import BottomControlsContainer from "$lib/ui/components/BottomControlsContainer.svelte";
+  import ButtonAnchor from "$lib/ui/components/ButtonAnchor.svelte";
+  import NoContent from "$lib/ui/components/NoContent.svelte";
   import type { PageMusmgrEvents } from "./proxy+page.server.js";
 
   let { data } = $props();
@@ -54,6 +57,11 @@
         {/each}
       {/each}
     </ul>
+  {/if}
+  {#if IS_ADMIN}
+    <BottomControlsContainer>
+      <ButtonAnchor href="/events/new">Create event</ButtonAnchor>
+    </BottomControlsContainer>
   {/if}
 </div>
 

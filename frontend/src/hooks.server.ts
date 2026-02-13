@@ -1,4 +1,4 @@
-import type { Handle } from "@sveltejs/kit";
+import type { Handle, HandleServerError } from "@sveltejs/kit";
 
 export const handle: Handle = async ({ event, resolve }) => {
   const frontendVisibilityMode = process.env.FRONTEND_VISIBILITY_MODE || "public";
@@ -11,3 +11,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   return await resolve(event);
 };
+
+export const handleError: HandleServerError = async ({ status, message }) => ({
+  message,
+  status,
+  code: status === 404 ? "NOT_FOUND" : "",
+});
