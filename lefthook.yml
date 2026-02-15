@@ -2,7 +2,7 @@ pre-commit:
   parallel: true
   commands:
     backend:
-      glob: "src/*.go"
+      glob: "*.go"
       root: backend
       run: |
         set -e
