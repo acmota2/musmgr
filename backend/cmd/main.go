@@ -13,6 +13,7 @@ import (
 	"github.com/acmota2/musmgr/backend/internal/model"
 	platform "github.com/acmota2/musmgr/backend/internal/platform/file_access"
 	"github.com/acmota2/musmgr/backend/internal/server"
+	services "github.com/acmota2/musmgr/backend/internal/services/pdf-generation"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -45,9 +46,10 @@ func main() {
 	}
 
 	handler := &controller.Handler{
-		Pool:    pool,
-		Queries: model.New(pool),
-		Storage: storageConfig,
+		Pool:         pool,
+		Queries:      model.New(pool),
+		Storage:      storageConfig,
+		PdfGenerator: services.NewPdfGenerator(services.PDFCPU),
 	}
 
 	adminRouter := server.NewAdminRouter(&initConfig, handler)

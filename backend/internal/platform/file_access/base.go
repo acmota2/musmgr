@@ -27,6 +27,8 @@ type StorageConfig struct {
 	MinioSSL             bool
 }
 
+const UnknownSize int64 = -1
+
 type StorageManager interface {
 	Create(ctx context.Context, id uuid.UUID, r io.Reader, size int64, contentType string) error // unknown size is -1
 	Read(ctx context.Context, id uuid.UUID) (io.ReadCloser, error)

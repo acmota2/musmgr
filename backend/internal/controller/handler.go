@@ -7,14 +7,16 @@ import (
 
 	"github.com/acmota2/musmgr/backend/internal/model"
 	platform "github.com/acmota2/musmgr/backend/internal/platform/file_access"
+	services "github.com/acmota2/musmgr/backend/internal/services/pdf-generation"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Handler struct {
-	Pool    *pgxpool.Pool
-	Queries *model.Queries
-	Storage platform.StorageManager
+	Pool         *pgxpool.Pool
+	Queries      *model.Queries
+	Storage      platform.StorageManager
+	PdfGenerator services.PdfGenerator
 }
 
 func (h *Handler) BestEffortDelete(ids ...uuid.UUID) {
