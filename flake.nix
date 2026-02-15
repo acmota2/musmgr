@@ -28,6 +28,7 @@
           lefthook
           nodejs_24
           nixpkgs-fmt
+          pdfcpu
           pnpm
           postgresql_18
           python313Packages.sqlfmt
