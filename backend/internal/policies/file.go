@@ -1,6 +1,9 @@
 package policies
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 type Scope uint8
 
@@ -51,4 +54,15 @@ func IsAllowed(scope Scope, class FileClassification, need Perm) bool {
 		return true
 	}
 	return policies[scope][class]&need == need
+}
+
+func StringToClassification(s string) (FileClassification, error) {
+	switch s {
+	case "Public":
+		return ScopePublic, nil
+	case "Admin":
+		return ScopeAdmin, nil
+	default:
+		return -1, fmt.Errorf("Invalid FileClassification format")
+	}
 }

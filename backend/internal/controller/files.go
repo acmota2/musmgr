@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/acmota2/musmgr/backend/internal/middleware"
 	"github.com/acmota2/musmgr/backend/internal/model"
+	platform "github.com/acmota2/musmgr/backend/internal/platform/file-access"
 	"github.com/acmota2/musmgr/backend/internal/policies"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -39,7 +41,7 @@ func (h *Handler) GetPieceFiles(c *gin.Context) {
 }
 
 func (h *Handler) GetFile(c *gin.Context) {
-	file, ok := middleware.GetContextValue[model.MusmgrFile](c, middleware.ClassKey)
+	file, ok := middleware.GetContextValue[model.MusmgrFile](c, middleware.CurrentFile)
 	if !ok {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -49,6 +51,7 @@ func (h *Handler) GetFile(c *gin.Context) {
 
 	rd, err := h.Storage.Read(ctx, file.ID)
 	if err != nil {
+		log.Printf("Failed here with error %v", err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -63,10 +66,48 @@ func (h *Handler) GetFile(c *gin.Context) {
 	}
 }
 
+func (h *Handler) createPreviewScore(ctx context.Context, id uuid.UUID, fileName string, pieceID uuid.UUID) (*uuid.UUID, error) {
+	rd, err := h.Storage.Read(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rd.Close()
+
+	preview, err := h.PdfGenerator.Generate(ctx, rd)
+	if err != nil {
+		return nil, err
+	}
+	defer preview.Close()
+
+	newID := uuid.New()
+
+	err = h.Storage.Create(ctx, newID, preview, platform.UnknownSize, "application/pdf")
+	if err != nil {
+		return nil, err
+	}
+
+	queryParams := model.CreateFileParams{
+		ID:             newID,
+		Classification: policies.ScopePublic,
+		ContentType:    "application/pdf",
+		FileType:       model.MusmgrFileTypeScorePreview,
+		Name:           fileName,
+		Origin:         model.MusmgrFileOriginSystem,
+		ParentID:       pgtype.UUID{Valid: true, Bytes: id},
+		PieceID:        pieceID,
+	}
+
+	if err = h.Queries.CreateFile(ctx, queryParams); err != nil {
+		return nil, err
+	}
+
+	return &newID, nil
+}
+
 type createFileRequest struct {
-	Classification policies.FileClassification `form:"classification" binding:"required"`
-	FileType       model.MusmgrFileType        `form:"file_type" binding:"required"`
-	Name           string                      `form:"name" binding:"required"`
+	Classification string               `form:"classification" binding:"required"`
+	FileType       model.MusmgrFileType `form:"file_type" binding:"required"`
+	Name           string               `form:"name" binding:"required"`
 }
 
 func (h *Handler) CreateFile(c *gin.Context) {
@@ -82,7 +123,12 @@ func (h *Handler) CreateFile(c *gin.Context) {
 		return
 	}
 
-	ctx := c.Request.Context()
+	// for early return
+	class, err := policies.StringToClassification(fileParams.Classification)
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
 
 	newFileID := uuid.New()
 	fileHeader, err := c.FormFile("file")
@@ -98,6 +144,8 @@ func (h *Handler) CreateFile(c *gin.Context) {
 	}
 	defer file.Close()
 
+	ctx := c.Request.Context()
+
 	contentType := fileHeader.Header.Get("Content-Type")
 	if contentType == "" {
 		contentType = "application/octet-stream"
@@ -105,7 +153,7 @@ func (h *Handler) CreateFile(c *gin.Context) {
 
 	queryParams := model.CreateFileParams{
 		ID:             newFileID,
-		Classification: int16(fileParams.Classification),
+		Classification: int16(class),
 		ContentType:    contentType,
 		FileType:       fileParams.FileType,
 		Name:           fileParams.Name,
@@ -131,6 +179,15 @@ func (h *Handler) CreateFile(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{
 		"id": newFileID,
 	})
+
+	if fileParams.FileType == model.MusmgrFileTypeScoreFull {
+		previewID, err := h.createPreviewScore(ctx, newFileID, fileParams.Name, pieceID)
+		if err != nil {
+			log.Printf("ERR: didn't create preview file for %s with error: %v", newFileID, err)
+			return
+		}
+		log.Printf("INFO: Created preview with id: %s", *previewID)
+	}
 }
 
 type updateFileMetadataRequest struct {
@@ -168,7 +225,7 @@ func (h *Handler) UpdateFileMetadata(c *gin.Context) {
 }
 
 func (h *Handler) DeleteFile(c *gin.Context) {
-	file, ok := middleware.GetContextValue[model.MusmgrFile](c, middleware.ClassKey)
+	file, ok := middleware.GetContextValue[model.MusmgrFile](c, middleware.CurrentFile)
 	if !ok {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return

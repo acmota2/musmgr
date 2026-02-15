@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	platform "github.com/acmota2/musmgr/backend/internal/platform/file_access"
+	platform "github.com/acmota2/musmgr/backend/internal/platform/file-access"
 	"github.com/joho/godotenv"
 )
 
