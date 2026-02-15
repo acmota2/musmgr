@@ -9,7 +9,7 @@ import (
 
 	"github.com/acmota2/musmgr/backend/internal/middleware"
 	"github.com/acmota2/musmgr/backend/internal/model"
-	platform "github.com/acmota2/musmgr/backend/internal/platform/file_access"
+	platform "github.com/acmota2/musmgr/backend/internal/platform/file-access"
 	"github.com/acmota2/musmgr/backend/internal/policies"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

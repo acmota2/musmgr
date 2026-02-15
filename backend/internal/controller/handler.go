@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/acmota2/musmgr/backend/internal/model"
-	platform "github.com/acmota2/musmgr/backend/internal/platform/file_access"
+	platform "github.com/acmota2/musmgr/backend/internal/platform/file-access"
 	services "github.com/acmota2/musmgr/backend/internal/services/pdf-generation"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"

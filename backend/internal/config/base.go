@@ -1,6 +1,6 @@
 package config
 
-import platform "github.com/acmota2/musmgr/backend/internal/platform/file_access"
+import platform "github.com/acmota2/musmgr/backend/internal/platform/file-access"
 
 type Config struct {
 	DatabaseUrl   string

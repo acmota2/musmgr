@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 
-	platform "github.com/acmota2/musmgr/backend/internal/platform/file_access"
+	platform "github.com/acmota2/musmgr/backend/internal/platform/file-access"
 )
 
 type ArgsError struct {

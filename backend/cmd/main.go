@@ -11,7 +11,7 @@ import (
 	"github.com/acmota2/musmgr/backend/internal/config"
 	"github.com/acmota2/musmgr/backend/internal/controller"
 	"github.com/acmota2/musmgr/backend/internal/model"
-	platform "github.com/acmota2/musmgr/backend/internal/platform/file_access"
+	platform "github.com/acmota2/musmgr/backend/internal/platform/file-access"
 	"github.com/acmota2/musmgr/backend/internal/server"
 	services "github.com/acmota2/musmgr/backend/internal/services/pdf-generation"
 
