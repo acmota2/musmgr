@@ -1,6 +1,8 @@
 package middleware
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
 func GetContextValue[T any](c *gin.Context, key string) (val T, ok bool) {
 	anyVal, ok := c.Get(key)

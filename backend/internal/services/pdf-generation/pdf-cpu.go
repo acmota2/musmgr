@@ -29,22 +29,19 @@ func (gen pdfcpuGenerator) Generate(ctx context.Context, rd io.Reader) (io.ReadC
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-
-	conf := model.NewDefaultConfiguration()
-
 	rds, err := readerToReadSeeker(rd)
 	if err != nil {
 		return nil, err
 	}
 
 	var wrTrim bytes.Buffer
-	if err = api.Trim(rds, &wrTrim, []string{"1"}, conf); err != nil {
+	if err = api.Trim(rds, &wrTrim, []string{"1"}, model.NewDefaultConfiguration()); err != nil {
 		return nil, err
 	}
 
 	wm, err := api.TextWatermark(
-		"PREVIEW",
-		"pos:c, scale:1, op:.6",
+		"Preview",
+		"font:Helvetica,align:c,pos:c,off:0 0,scale:1 rel,points:24,op:.8",
 		true,
 		false,
 		types.POINTS,
@@ -55,10 +52,10 @@ func (gen pdfcpuGenerator) Generate(ctx context.Context, rd io.Reader) (io.ReadC
 
 	wmIn := bytes.NewReader(wrTrim.Bytes())
 	var wrWatermark bytes.Buffer
-	if err = api.AddWatermarks(wmIn, &wrWatermark, []string{"1"}, wm, conf); err != nil {
+	if err = api.AddWatermarks(wmIn, &wrWatermark, nil, wm, model.NewDefaultConfiguration()); err != nil {
 		return nil, err
 	}
 
-	rc := io.NopCloser(bytes.NewReader(wrTrim.Bytes()))
+	rc := io.NopCloser(bytes.NewReader(wrWatermark.Bytes()))
 	return rc, nil
 }

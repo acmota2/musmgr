@@ -41,7 +41,7 @@ func (h *Handler) GetPieceFiles(c *gin.Context) {
 }
 
 func (h *Handler) GetFile(c *gin.Context) {
-	file, ok := middleware.GetContextValue[model.MusmgrFile](c, middleware.ClassKey)
+	file, ok := middleware.GetContextValue[model.MusmgrFile](c, middleware.CurrentFile)
 	if !ok {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -51,6 +51,7 @@ func (h *Handler) GetFile(c *gin.Context) {
 
 	rd, err := h.Storage.Read(ctx, file.ID)
 	if err != nil {
+		log.Printf("Failed here with error %v", err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -65,16 +66,16 @@ func (h *Handler) GetFile(c *gin.Context) {
 	}
 }
 
-func (h *Handler) createPreviewScore(ctx context.Context, id uuid.UUID, fileName string, pieceID uuid.UUID) error {
+func (h *Handler) createPreviewScore(ctx context.Context, id uuid.UUID, fileName string, pieceID uuid.UUID) (*uuid.UUID, error) {
 	rd, err := h.Storage.Read(ctx, id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer rd.Close()
 
 	preview, err := h.PdfGenerator.Generate(ctx, rd)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer preview.Close()
 
@@ -82,7 +83,7 @@ func (h *Handler) createPreviewScore(ctx context.Context, id uuid.UUID, fileName
 
 	err = h.Storage.Create(ctx, newID, preview, platform.UnknownSize, "application/pdf")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	queryParams := model.CreateFileParams{
@@ -96,7 +97,11 @@ func (h *Handler) createPreviewScore(ctx context.Context, id uuid.UUID, fileName
 		PieceID:        pieceID,
 	}
 
-	return h.Queries.CreateFile(ctx, queryParams)
+	if err = h.Queries.CreateFile(ctx, queryParams); err != nil {
+		return nil, err
+	}
+
+	return &newID, nil
 }
 
 type createFileRequest struct {
@@ -176,8 +181,12 @@ func (h *Handler) CreateFile(c *gin.Context) {
 	})
 
 	if fileParams.FileType == model.MusmgrFileTypeScoreFull {
-		err = h.createPreviewScore(ctx, newFileID, fileParams.Name, pieceID)
-		log.Printf("ERR: didn't create preview file for %s with error: %v", newFileID, err)
+		previewID, err := h.createPreviewScore(ctx, newFileID, fileParams.Name, pieceID)
+		if err != nil {
+			log.Printf("ERR: didn't create preview file for %s with error: %v", newFileID, err)
+			return
+		}
+		log.Printf("INFO: Created preview with id: %s", *previewID)
 	}
 }
 
@@ -216,7 +225,7 @@ func (h *Handler) UpdateFileMetadata(c *gin.Context) {
 }
 
 func (h *Handler) DeleteFile(c *gin.Context) {
-	file, ok := middleware.GetContextValue[model.MusmgrFile](c, middleware.ClassKey)
+	file, ok := middleware.GetContextValue[model.MusmgrFile](c, middleware.CurrentFile)
 	if !ok {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
