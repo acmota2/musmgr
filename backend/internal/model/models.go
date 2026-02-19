@@ -152,7 +152,7 @@ type MusmgrInstrumentationName string
 const (
 	MusmgrInstrumentationNameChoir      MusmgrInstrumentationName = "choir"
 	MusmgrInstrumentationNameSolo       MusmgrInstrumentationName = "solo"
-	MusmgrInstrumentationNameChamber    MusmgrInstrumentationName = "chamber"
+	MusmgrInstrumentationNameEnsemble   MusmgrInstrumentationName = "ensemble"
 	MusmgrInstrumentationNameOrchestra  MusmgrInstrumentationName = "orchestra"
 	MusmgrInstrumentationNameOpera      MusmgrInstrumentationName = "opera"
 	MusmgrInstrumentationNameMusical    MusmgrInstrumentationName = "musical"
@@ -207,11 +207,11 @@ type MusmgrComposer struct {
 type MusmgrEvent struct {
 	ID          uuid.UUID          `json:"id"`
 	HappenedAt  string             `json:"happened_at"`
+	Name        string             `json:"name"`
 	Description pgtype.Text        `json:"description"`
 	EventType   MusmgrEventType    `json:"event_type"`
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
-	Name        string             `json:"name"`
 }
 
 type MusmgrFile struct {

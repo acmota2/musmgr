@@ -29,22 +29,27 @@ dump_db_schema:
       --exclude-table=public.goose_db_version \
       | sed '/^\\restrict/d; /^\\unrestrict/d' \
       > backend/db/schema.sql
+
 create_models:
     @echo "Creating controllers from schema..."
     cd backend/db && sqlc generate
 
-start_frontend:
+fe_admin_dev:
     @echo "Starting frontend server..."
-    cd frontend && pnpm dev
+    cd frontend && pnpm dev:admin
 
 start_containers STAGE:
     @echo "Starting Docker containers..."
-    COMPOSE_PROFILES={{ STAGE }} docker-compose up -d
+    docker-compose up -d --profile {{ STAGE }}
 
 build_containers STAGE:
     @echo "Building Docker containers..."
-    COMPOSE_PROFILES={{ STAGE }} docker-compose build
+    docker-compose build --profile {{ STAGE }}
 
 stop_containers STAGE:
     @echo "Stopping Docker containers..."
-    COMPOSE_PROFILES={{ STAGE }} docker-compose down
+    docker-compose down --profile {{ STAGE }}
+
+populate_db:
+    @echo "Populating database using fixtures..."
+    cd backend && go run cmd/populate/main.go

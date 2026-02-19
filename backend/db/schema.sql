@@ -71,7 +71,7 @@ CREATE TYPE musmgr.file_type AS ENUM (
 CREATE TYPE musmgr.instrumentation_name AS ENUM (
     'choir',
     'solo',
-    'chamber',
+    'ensemble',
     'orchestra',
     'opera',
     'musical',
@@ -106,11 +106,11 @@ CREATE TABLE musmgr.composer (
 CREATE TABLE musmgr.events (
     id uuid NOT NULL,
     happened_at text NOT NULL,
+    name text NOT NULL,
     description text,
     event_type musmgr.event_type NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    name text NOT NULL
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
 

@@ -7,7 +7,7 @@ insert into musmgr.pieces (id, composed_at, description, instrumentation, title,
 values ($1, $2, $3, $4, $5, now(), now());
 
 -- name: CreateEvent :exec
-insert into musmgr.events (id, happened_at, name, description, event_type, create_at, updated_at)
+insert into musmgr.events (id, happened_at, name, description, event_type, created_at, updated_at)
 values ($1, $2, $3, $4, $5, now(), now());
 
 -- name: CreatePieceEvent :exec

@@ -17,7 +17,7 @@ func New() (Config, error) {
 		return Config{}, err
 	}
 
-	environmentVariables, err := loadFromEnv(parsedArgs)
+	environmentVariables, err := LoadFromEnv(parsedArgs.StorageType)
 	if err != nil {
 		return Config{}, err
 	}

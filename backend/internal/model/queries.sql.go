@@ -28,7 +28,7 @@ func (q *Queries) CreateComposer(ctx context.Context, arg CreateComposerParams) 
 }
 
 const createEvent = `-- name: CreateEvent :exec
-insert into musmgr.events (id, happened_at, name, description, event_type, create_at, updated_at)
+insert into musmgr.events (id, happened_at, name, description, event_type, created_at, updated_at)
 values ($1, $2, $3, $4, $5, now(), now())
 `
 
@@ -202,7 +202,7 @@ func (q *Queries) GetComposer(ctx context.Context) (MusmgrComposer, error) {
 }
 
 const getEvent = `-- name: GetEvent :one
-select id, happened_at, description, event_type, created_at, updated_at, name
+select id, happened_at, name, description, event_type, created_at, updated_at
 from musmgr.events
 where id = $1
 `
@@ -213,11 +213,11 @@ func (q *Queries) GetEvent(ctx context.Context, id uuid.UUID) (MusmgrEvent, erro
 	err := row.Scan(
 		&i.ID,
 		&i.HappenedAt,
+		&i.Name,
 		&i.Description,
 		&i.EventType,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.Name,
 	)
 	return i, err
 }
@@ -286,7 +286,7 @@ func (q *Queries) GetEventTypes(ctx context.Context) ([]MusmgrEventType, error) 
 }
 
 const getEvents = `-- name: GetEvents :many
-select id, happened_at, description, event_type, created_at, updated_at, name
+select id, happened_at, name, description, event_type, created_at, updated_at
 from musmgr.events
 `
 
@@ -302,11 +302,11 @@ func (q *Queries) GetEvents(ctx context.Context) ([]MusmgrEvent, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.HappenedAt,
+			&i.Name,
 			&i.Description,
 			&i.EventType,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.Name,
 		); err != nil {
 			return nil, err
 		}

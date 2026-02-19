@@ -21,6 +21,3 @@ minio-data/
 
 # Direnv
 .direnv/
-
-# test files
-*.pdf
