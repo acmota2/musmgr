@@ -57,7 +57,7 @@ func (h *Handler) GetFile(c *gin.Context) {
 	}
 	defer rd.Close()
 
-	c.Header("Content-Type", "application/octet-stream")
+	c.Header("Content-Type", file.ContentType)
 	c.Status(http.StatusOK)
 
 	_, err = io.Copy(c.Writer, rd)

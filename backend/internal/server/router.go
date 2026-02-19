@@ -35,7 +35,7 @@ func setPublicRoutes(router *gin.Engine, handler *controller.Handler, fileGetter
 	router.GET("/pieces/:piece_id/events", middleware.RequirePerm(policies.PermList), handler.GetPieceEvents)
 	router.GET("/pieces/:piece_id/files", middleware.RequirePerm(policies.PermList), handler.GetPieceFiles)
 
-	fileGetter.GET("/", middleware.RequirePerm(policies.PermGet), handler.GetFile)
+	fileGetter.GET("", middleware.RequirePerm(policies.PermGet), handler.GetFile)
 }
 
 func NewPublicRouter(cfg *config.Config, handler *controller.Handler) *gin.Engine {
@@ -58,7 +58,7 @@ func NewPublicRouter(cfg *config.Config, handler *controller.Handler) *gin.Engin
 func setAdminOnlyRoutes(router *gin.Engine, handler *controller.Handler, fileGetter *gin.RouterGroup) {
 	router.POST("/composer", middleware.RequirePerm(policies.PermWrite), handler.CreateComposer)
 	router.POST("/events", middleware.RequirePerm(policies.PermWrite), handler.CreateEvent)
-	router.POST("/piece/:piece_id/event/:event_id", middleware.RequirePerm(policies.PermWrite), handler.CreatePieceEvent)
+	router.POST("/pieces/:piece_id/events/:event_id", middleware.RequirePerm(policies.PermWrite), handler.CreatePieceEvent)
 	router.POST("/pieces", middleware.RequirePerm(policies.PermWrite), handler.CreatePiece)
 	router.POST("/pieces/:piece_id/file", middleware.RequirePerm(policies.PermWrite), handler.CreateFile)
 
@@ -72,7 +72,7 @@ func setAdminOnlyRoutes(router *gin.Engine, handler *controller.Handler, fileGet
 	router.DELETE("/pieces/:piece_id", middleware.RequirePerm(policies.PermDelete), handler.DeletePiece)
 	router.DELETE("/events/:event_id", middleware.RequirePerm(policies.PermDelete), handler.DeleteEvent)
 
-	fileGetter.DELETE("/", middleware.RequirePerm(policies.PermDelete), handler.DeleteFile)
+	fileGetter.DELETE("", middleware.RequirePerm(policies.PermDelete), handler.DeleteFile)
 }
 
 func NewAdminRouter(cfg *config.Config, handler *controller.Handler) *gin.Engine {
