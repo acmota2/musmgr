@@ -1,13 +1,12 @@
 <script lang="ts">
-  import { IS_ADMIN } from "$lib/app/index.js";
   import type { MusmgrEvent, MusmgrEventTimetable } from "$lib/server/events.js";
-  import BottomControlsContainer from "$lib/ui/components/BottomControlsContainer.svelte";
-  import ButtonAnchor from "$lib/ui/components/ButtonAnchor.svelte";
-  import NoContent from "$lib/ui/components/NoContent.svelte";
 
-  let { data } = $props();
-  let events: MusmgrEventTimetable = $derived(data.events);
-  const descriptionCap = 40;
+  interface EventProps {
+    descriptionCap: number;
+    events: MusmgrEventTimetable;
+  }
+
+  let { descriptionCap = 40, events }: EventProps = $props();
 </script>
 
 {#snippet eventElement(event: MusmgrEvent)}
@@ -35,34 +34,23 @@
   </a></div>
 {/snippet}
 
-<div class="events container narrow">
-  {#if !data.hasEvents}
-    <NoContent />
-  {:else}
-    <ul class="timeline">
-      {#each Object.entries(events) as [year, monthEvents]}
-        <li>
-          <h1 class="year">{year}</h1>
-        </li>
-        {#each Object.entries(monthEvents) as [month, events]}
-          <li>
-            <h2 class="month">{month}</h2>
-          </li>
-          <div class="month-events">
-            {#each events as event}
-              <li class="event-card">{@render eventElement(event)}</li>
-            {/each}
-          </div>
+<ul class="timeline">
+  {#each Object.entries(events) as [year, monthEvents]}
+    <li>
+      <h1 class="year">{year}</h1>
+    </li>
+    {#each Object.entries(monthEvents) as [month, events]}
+      <li>
+        <h2 class="month">{month}</h2>
+      </li>
+      <div class="month-events">
+        {#each events as event}
+          <li class="event-card">{@render eventElement(event)}</li>
         {/each}
-      {/each}
-    </ul>
-  {/if}
-  {#if IS_ADMIN}
-    <BottomControlsContainer>
-      <ButtonAnchor href="/events/new">Create event</ButtonAnchor>
-    </BottomControlsContainer>
-  {/if}
-</div>
+      </div>
+    {/each}
+  {/each}
+</ul>
 
 <style>
   .year {
@@ -74,16 +62,7 @@
     padding-bottom: 10px;
   }
 
-  .events {
-    width: 100%;
-    height: 100%;
-  }
-
-  .events {
-    height: 100%;
-  }
-
-  .events ul li {
+  .timeline li {
     list-style: none;
   }
 
@@ -185,7 +164,7 @@
     }
   }
 
-  @media (max-width: 767px) {
+  @container (max-width: 767px) {
     .year {
       font-size: 28px;
     }
@@ -215,7 +194,7 @@
     }
   }
 
-  @media (max-width: 999px) {
+  @container (max-width: 999px) {
     .timeline {
       padding-left: 50px;
     }

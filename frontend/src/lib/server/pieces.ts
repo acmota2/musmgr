@@ -123,7 +123,9 @@ export async function getPieceFiles(
   }
 
   return pieceFiles.map((file: PieceFileResponse) => ({
-    ...file,
+    id: file.id,
+    description: file.description,
+    name: file.name,
     contentType: file.content_type,
     fileType: file.file_type,
     pieceId: file.piece_id,

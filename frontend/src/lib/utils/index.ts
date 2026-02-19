@@ -18,10 +18,6 @@ export function checkFileFormField(formField: FormDataEntryValue | null, key: st
   throw new Error(`Value for ${key} should be null or File`);
 }
 
-export function extractMonthFromDate(date: string): string {
-  return new Date(date).toLocaleDateString("en-US", { month: "long" });
-}
-
 export function capitalize(str: string): string {
   const strs = str.split(" ");
   return strs.map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join(" ");

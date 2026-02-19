@@ -12,7 +12,7 @@
   <NoContent />
 {:else}
   <div class="pieces container narrow">
-    {#each data.pieces as piece}<a href="/piece/{piece.id}" class="piece-card will-focus">
+    {#each data.pieces as piece}<a href="/pieces/{piece.id}" class="piece-card will-focus">
       <h2 class="title">{piece.title}</h2>
       <div class="piece-details">
         <time class="year">{piece.composedAt}</time>
