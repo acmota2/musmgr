@@ -18,7 +18,7 @@ type configFromArgs struct {
 	PublicPort  string
 }
 
-func parseStorageType(s string) (platform.StorageType, error) {
+func ParseStorageType(s string) (platform.StorageType, error) {
 	if s == "" {
 		s = platform.MINIO
 	}
@@ -34,13 +34,12 @@ func parseStorageType(s string) (platform.StorageType, error) {
 func loadFromArgs() (configFromArgs, error) {
 	var argsConfig configFromArgs
 	var storageType string
-	flag.StringVar(&argsConfig.EnvFilePath, "env-file", "", "Path to the .env file")
 	flag.StringVar(&storageType, "storage-type", "MINIO", "Type of storage to use: MINIO | LOCAL")
 	flag.StringVar(&argsConfig.AdminPort, "admin-port", "4700", "The port where the admin backend should run")
 	flag.StringVar(&argsConfig.PublicPort, "public-port", "4701", "The port where the public backend should run")
 	flag.Parse()
 
-	newStorageType, err := parseStorageType(storageType)
+	newStorageType, err := ParseStorageType(storageType)
 	if err != nil {
 		return configFromArgs{}, err
 	}

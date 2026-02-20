@@ -12,7 +12,7 @@ create table if not exists musmgr.composer (
   constraint unique_id check(id)
 );
 
-create type musmgr.instrumentation_name as enum ('choir', 'solo', 'chamber', 'orchestra', 'opera', 'musical', 'acousmatic');
+create type musmgr.instrumentation_name as enum ('choir', 'solo', 'ensemble', 'orchestra', 'opera', 'musical', 'acousmatic');
 
 create table if not exists musmgr.pieces (
   id uuid primary key,

@@ -7,7 +7,6 @@ import (
 	"os"
 
 	platform "github.com/acmota2/musmgr/backend/internal/platform/file-access"
-	"github.com/joho/godotenv"
 )
 
 const (
@@ -17,7 +16,7 @@ const (
 
 type DeploymentType string
 
-type fromEnvConfig struct {
+type EnvConfig struct {
 	AdminRoutes          []string
 	DatabaseUrl          string
 	DeploymentMode       string
@@ -37,15 +36,6 @@ type EnvironmentError struct {
 
 func (e *EnvironmentError) Error() string {
 	return e.Message
-}
-
-func loadEnvFile(envFilePath string) {
-	if envFilePath != "" {
-		err := godotenv.Load(envFilePath)
-		if err != nil {
-			log.Printf("%s file found. This might've been a mistake. Continuing without it.", envFilePath)
-		}
-	}
 }
 
 func requireEnvs(scope string, keys ...string) (map[string]string, error) {
@@ -109,9 +99,7 @@ func validateStorageConfig(storageType platform.StorageType) (map[string]string,
 	}
 }
 
-func loadFromEnv(argsConfig configFromArgs) (*fromEnvConfig, error) {
-	loadEnvFile(argsConfig.EnvFilePath)
-
+func LoadFromEnv(storageType platform.StorageType) (*EnvConfig, error) {
 	postgresEnv, err := requireEnvs(
 		"Database",
 		"POSTGRES_USER",
@@ -123,7 +111,7 @@ func loadFromEnv(argsConfig configFromArgs) (*fromEnvConfig, error) {
 		return nil, err
 	}
 
-	storageEnvs, err := validateStorageConfig(argsConfig.StorageType)
+	storageEnvs, err := validateStorageConfig(storageType)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +126,7 @@ func loadFromEnv(argsConfig configFromArgs) (*fromEnvConfig, error) {
 		return nil, err
 	}
 
-	return &fromEnvConfig{
+	return &EnvConfig{
 		AdminRoutes: allowedAdminRoutes,
 		DatabaseUrl: fmt.Sprintf(
 			"postgres://%s:%s@%s/%s",
