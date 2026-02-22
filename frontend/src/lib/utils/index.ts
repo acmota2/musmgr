@@ -19,6 +19,6 @@ export function checkFileFormField(formField: FormDataEntryValue | null, key: st
 }
 
 export function capitalize(str: string): string {
-  const strs = str.split(" ");
+  const strs = str.split(/[ _]/);
   return strs.map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join(" ");
 }

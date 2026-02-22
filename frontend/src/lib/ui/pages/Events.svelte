@@ -10,28 +10,30 @@
 </script>
 
 {#snippet eventElement(event: MusmgrEvent)}
-  <div class="event-item"><a href={`/events/${event.id}`}>
-    <div class="event-item-headline">
-      <h3>{event.name}</h3>
-      <p>
-        <time datetime={event.happenedAt}>
-          {(new Date(event.happenedAt)).toLocaleDateString("en-UK", {
+  <a href={`/events/${event.id}`}>
+    <div class="event-item link-shadow">
+      <div class="event-item-headline">
+        <h3>{event.name}</h3>
+        <p>
+          <time datetime={event.happenedAt}>
+            {(new Date(event.happenedAt)).toLocaleDateString("en-UK", {
             year: "numeric", 
             month: "short", 
             day: "numeric" 
           })}
-        </time>
-      </p>
+          </time>
+        </p>
+      </div>
+      {#if event.description}
+        <p>
+          {event.description.slice(0, descriptionCap)}
+          {#if event.description.length > descriptionCap}
+            ...
+          {/if}
+        </p>
+      {/if}
     </div>
-    {#if event.description}
-      <p>
-        {event.description.slice(0, descriptionCap)}
-        {#if event.description.length > descriptionCap}
-          ...
-        {/if}
-      </p>
-    {/if}
-  </a></div>
+  </a>
 {/snippet}
 
 <ul class="timeline">
@@ -45,7 +47,7 @@
       </li>
       <div class="month-events">
         {#each events as event}
-          <li class="event-card">{@render eventElement(event)}</li>
+          <li class="event-card on-hover">{@render eventElement(event)}</li>
         {/each}
       </div>
     {/each}
@@ -55,6 +57,7 @@
 <style>
   .year {
     font-size: 48px;
+    margin-bottom: 25px;
   }
 
   .month {
@@ -67,10 +70,12 @@
   }
 
   .timeline {
+    container-type: inline-size;
     position: relative;
     margin: 0;
-    padding-left: 100px;
     min-height: 100%;
+    padding: 0 0 0 50px;
+    overflow-y: visible;
   }
 
   .timeline > * {
@@ -98,7 +103,7 @@
   .month-events {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    margin-bottom: 25px;
   }
 
   .event-card {
@@ -110,7 +115,7 @@
     position: absolute;
 
     /* same as padding */
-    left: -100px;
+    left: -50px;
     top: 50%;
 
     width: 20px;
@@ -123,8 +128,6 @@
   }
 
   .event-item {
-    border-radius: var(--default-radius);
-    box-shadow: rgba(50, 50, 93, 0.1) 15px 1px 15px 0px;
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -136,22 +139,6 @@
     width: 100%;
   }
 
-  .event-item:hover {
-    transform: scale(1.04);
-    transition:
-      ease 200ms transform,
-      ease 300ms box-shadow;
-    cursor: pointer;
-    box-shadow:
-      rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
-      rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
-  }
-
-  .event-item > a {
-    width: 100%;
-    height: 100%;
-  }
-
   .event-item-headline {
     display: flex;
     flex-direction: row;
@@ -160,11 +147,11 @@
     justify-content: space-between;
     align-items: center;
     & h3 {
-      font-size: 48px;
+      font-size: var(--title);
     }
   }
 
-  @container (max-width: 767px) {
+  @media (max-width: 767px) {
     .year {
       font-size: 28px;
     }
@@ -175,7 +162,45 @@
 
     .event-item-headline {
       flex-direction: column-reverse;
+      justify-content: start;
+      align-items: start;
+    }
+
+    .event-item-headline h3 {
+      font-size: var(--title-small);
+    }
+
+    .event-item-headline p,
+    .event-item p {
+      font-size: var(--date);
+    }
+
+    .event-card {
       justify-content: left;
+      align-items: left;
+    }
+  }
+
+  @container (max-width: 767px) {
+    .timeline::before {
+      left: 25px;
+    }
+
+    .event-card::after {
+      left: -25px;
+    }
+
+    .year {
+      font-size: 32px;
+    }
+
+    .month {
+      font-size: 28px;
+    }
+
+    .event-item-headline {
+      flex-direction: column-reverse;
+      justify-content: start;
       align-items: start;
     }
 
@@ -185,16 +210,20 @@
 
     .event-item-headline p,
     .event-item p {
-      font-size: 16px;
+      font-size: var(--date-small);
     }
 
+    .event-item {
+      border-radius: 0;
+    }
     .event-card {
       justify-content: left;
       align-items: left;
+      border-radius: 0;
     }
   }
 
-  @container (max-width: 999px) {
+  @media (max-width: 999px) {
     .timeline {
       padding-left: 50px;
     }

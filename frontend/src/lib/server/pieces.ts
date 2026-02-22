@@ -1,4 +1,5 @@
 import { error } from "@sveltejs/kit";
+import { generalServerError } from "./utils";
 
 export interface CreatePiecePayload {
   composed_at: string;
@@ -69,6 +70,24 @@ export async function createPiece(
   }
 
   return location;
+}
+
+export async function getEventPieces(fetch: typeof globalThis.fetch, id: string): Promise<Piece[]> {
+  const res = await fetch(`/api/events/${id}/pieces`);
+
+  if (!res.ok) {
+    throw error(500, generalServerError);
+  }
+
+  const pieces: PieceResponse[] = await res.json();
+
+  return pieces.map((piece) => ({
+    id: piece.id,
+    composedAt: piece.composed_at,
+    instrumentation: piece.instrumentation,
+    title: piece.title,
+    description: piece.description,
+  }));
 }
 
 export async function getPieces(fetch: typeof globalThis.fetch): Promise<Piece[]> {

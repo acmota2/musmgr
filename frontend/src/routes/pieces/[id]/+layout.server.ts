@@ -1,9 +1,10 @@
 import { error } from "@sveltejs/kit";
 import { eventListToTimetable, getPieceEvents } from "$lib/server/events";
 import { getPiece, getPieceFiles } from "$lib/server/pieces";
-import type { PageServerLoad } from "./$types";
+import type { LayoutServerLoad } from "./$types";
+import { generalServerError } from "$lib/server/utils";
 
-export const load: PageServerLoad = async ({ fetch, parent, params }) => {
+export const load: LayoutServerLoad = async ({ fetch, parent, params }) => {
   const { pieces } = await parent();
   // control when it comes from a redirect
   const currentPiece = !pieces
@@ -11,10 +12,7 @@ export const load: PageServerLoad = async ({ fetch, parent, params }) => {
     : pieces.find(({ id }) => params.id === id);
 
   if (!currentPiece) {
-    throw error(500, {
-      status: 500,
-      message: "Error while finding the piece",
-    });
+    throw error(500, generalServerError);
   }
 
   const pieceFiles = await getPieceFiles(fetch, params.id);
@@ -24,7 +22,7 @@ export const load: PageServerLoad = async ({ fetch, parent, params }) => {
     scores: pieceFiles.filter(({ fileType }) => fileType.startsWith("score")),
     audios: pieceFiles.filter(({ fileType }) => fileType.startsWith("audio")),
     images: pieceFiles.filter(
-      ({ fileType }) => !fileType.startsWith("audio") || !fileType.startsWith("score"),
+      ({ fileType }) => fileType.startsWith("audio") && fileType.startsWith("score"),
     ),
     piece: currentPiece,
     events: eventListToTimetable(pieceEvents),

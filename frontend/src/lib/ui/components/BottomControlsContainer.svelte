@@ -1,8 +1,8 @@
 <script lang="ts">
-  let { children, ...props } = $props();
+  let { children, class: className = "", ...props } = $props();
 </script>
 
-<div class="bottom-container" {...props}>{@render children()}</div>
+<div class="bottom-container {className}" {...props}>{@render children()}</div>
 
 <style>
   .bottom-container {
