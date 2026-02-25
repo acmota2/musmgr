@@ -1,5 +1,5 @@
-import { IS_ADMIN } from "$lib/app";
 import { error } from "node:console";
+import { IS_ADMIN } from "$lib/app";
 import type { LayoutServerLoad } from "./$types";
 
 export const load: LayoutServerLoad = async () => {

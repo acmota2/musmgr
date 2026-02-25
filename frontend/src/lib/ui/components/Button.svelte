@@ -4,4 +4,4 @@
   const { class: className = "", children, ...rest } = $props();
 </script>
 
-<button class="button ${className}" {...rest}>{@render children()}</button>
+<button class="button {className}" {...rest}>{@render children()}</button>

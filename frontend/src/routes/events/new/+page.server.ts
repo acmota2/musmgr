@@ -1,7 +1,7 @@
 import { type Actions, fail, redirect } from "@sveltejs/kit";
+import { type CreateEventPayload, createEvent, getEventTypes } from "$lib/server/events";
 import { checkStringFormField } from "$lib/utils";
 import type { PageServerLoad } from "./$types";
-import { createEvent, getEventTypes, type CreateEventPayload } from "$lib/server/events";
 
 export const load: PageServerLoad = async ({ fetch }) => {
   return { eventTypes: (await getEventTypes(fetch)).sort() };

@@ -24,7 +24,7 @@
       <time>{transformDate(currentEvent.happenedAt)}</time>
     </h3>
     {#if IS_ADMIN}
-      <ButtonAnchor href={`/events/${currentEvent.id}/edit`}>Edit</ButtonAnchor>
+      <ButtonAnchor href={`/events/${currentEvent.id}/edit-pieces`}>Edit</ButtonAnchor>
     {/if}
   </div>
   <div class="event-details">

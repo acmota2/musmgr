@@ -72,7 +72,7 @@ pre {
   --accent: #348fff;
   --border-color: #cacaca;
   --background-light: #f1f2fe;
-  --button-plain: #eeeeee;
+  --button-plain: #dfdfdf;
 
   /* decoration settings */
   --default-radius: 6px;
@@ -104,6 +104,10 @@ pre {
   --mobile-minimum: 360px;
 }
 
+.on-hover {
+  background: inherit;
+}
+
 .on-hover:hover {
   background: linear-gradient(
     to right,
@@ -112,7 +116,7 @@ pre {
     rgba(127, 127, 127, 0.2) 100%
   );
 
-  transition: background ease 0.1;
+  transition: background 200ms ease;
 }
 
 .link-shadow {

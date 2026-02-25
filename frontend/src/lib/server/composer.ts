@@ -37,13 +37,11 @@ export async function createComposer(
   });
 
   if (!res.ok) {
-    console.log("failed response: ", res);
     throw error(500, generalServerError);
   }
 
   const location = res.headers.get("Location");
   if (location === null) {
-    console.log("failed location");
     throw error(500, {
       code: "INVALID_LOCATION_HEADER",
       message: "It's not you, it's us",

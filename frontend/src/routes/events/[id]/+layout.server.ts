@@ -1,12 +1,12 @@
 import { error } from "@sveltejs/kit";
 import { getEvent } from "$lib/server/events";
-import type { LayoutServerLoad } from "./$types";
 import { getEventPieces } from "$lib/server/pieces";
+import type { LayoutServerLoad } from "./$types";
 
 export const load: LayoutServerLoad = async ({ fetch, params }) => {
-  const currentEvent = await getEvent(fetch, params.id);
+  const event = await getEvent(fetch, params.id);
 
-  if (!currentEvent) {
+  if (!event) {
     throw error(500, {
       status: 500,
       message: "Error while finding the piece",
@@ -15,10 +15,8 @@ export const load: LayoutServerLoad = async ({ fetch, params }) => {
 
   const eventPieces = await getEventPieces(fetch, params.id);
 
-  console.log(eventPieces);
-
   return {
-    event: currentEvent,
+    event,
     pieces: eventPieces,
   };
 };

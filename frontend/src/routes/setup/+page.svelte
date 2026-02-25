@@ -14,12 +14,10 @@
   }
 
   const action = "?/create";
-
-  let { data } = $props();
   let confirmDialog: HTMLDialogElement | null = $state(null);
 </script>
 
-<div class="container {data.layoutWidth}">
+<div class="container narrow">
   <FormField {action} method="POST" id="create-composer">
     <h1>About yourself</h1>
     <br>

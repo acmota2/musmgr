@@ -1,10 +1,10 @@
 <script lang="ts">
-  import Container from "$lib/ui/components/Container.svelte";
-  import Events from "$lib/ui/pages/Events.svelte";
+  import { IS_ADMIN } from "$lib/app/index.js";
   import type { MusmgrEventTimetable } from "$lib/server/events.js";
   import type { Piece, PieceFile } from "$lib/server/pieces";
-  import { IS_ADMIN } from "$lib/app/index.js";
   import ButtonAnchor from "$lib/ui/components/ButtonAnchor.svelte";
+  import Container from "$lib/ui/components/Container.svelte";
+  import Events from "$lib/ui/pages/Events.svelte";
 
   let { data } = $props();
   let currentScoreIndex = $state(0);
@@ -28,7 +28,7 @@
       </audio>
     {/if}
     {#if IS_ADMIN}
-      <ButtonAnchor href="/pieces/{piece.id}/edit">Edit</ButtonAnchor>
+      <ButtonAnchor href="/pieces/{piece.id}/add-file">Add file</ButtonAnchor>
     {/if}
   </div>
   <div class="bottom">
@@ -107,6 +107,7 @@
   }
 
   .audio-player {
+    flex: 1 1 0;
     width: 100%;
   }
 

@@ -44,6 +44,16 @@ export function eventListToTimetable(events: MusmgrEvent[]): MusmgrEventTimetabl
   }, {});
 }
 
+export function timetableToEventList(events: MusmgrEventTimetable): MusmgrEvent[] {
+  const res: MusmgrEvent[] = [];
+  for (const months of Object.values(events)) {
+    for (const events of Object.values(months)) {
+      res.push(...events);
+    }
+  }
+  return res;
+}
+
 export async function getEventTypes(fetch: typeof globalThis.fetch): Promise<string[]> {
   const res = await fetch("/api/event_types");
 
@@ -116,6 +126,20 @@ async function getEventsWithUrl(
 
 export async function getEvents(fetch: typeof globalThis.fetch): Promise<MusmgrEvent[]> {
   return await getEventsWithUrl(fetch, "/api/events");
+}
+
+export async function createEventPiece(
+  fetch: typeof globalThis.fetch,
+  eventId: string,
+  pieceId: string,
+): Promise<void> {
+  const res = await fetch(`/api/pieces/${pieceId}/events/${eventId}`, {
+    method: "POST",
+  });
+
+  if (!res.ok) {
+    throw error(500);
+  }
 }
 
 export async function getPieceEvents(
