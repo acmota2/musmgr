@@ -12,6 +12,7 @@ import (
 	platform "github.com/acmota2/musmgr/backend/internal/platform/file-access"
 	"github.com/acmota2/musmgr/backend/internal/policies"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -105,20 +106,22 @@ func (h *Handler) createPreviewScore(ctx context.Context, id uuid.UUID, fileName
 }
 
 type createFileRequest struct {
-	Classification string               `form:"classification" binding:"required"`
-	FileType       model.MusmgrFileType `form:"file_type" binding:"required"`
-	Name           string               `form:"name" binding:"required"`
+	Classification string `form:"classification" binding:"required"`
+	FileType       string `form:"file_type" binding:"required"`
+	Name           string `form:"name" binding:"required"`
 }
 
 func (h *Handler) CreateFile(c *gin.Context) {
 	pieceID, err := uuid.Parse(c.Param("piece_id"))
 	if err != nil {
+		log.Println("Failed on piece_id")
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
 	var fileParams createFileRequest
-	if err = c.ShouldBind(&fileParams); err != nil {
+	if err = c.ShouldBindWith(&fileParams, binding.FormMultipart); err != nil {
+		log.Printf("Failed on binding request with error: %v", err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
@@ -126,6 +129,13 @@ func (h *Handler) CreateFile(c *gin.Context) {
 	// for early return
 	class, err := policies.StringToClassification(fileParams.Classification)
 	if err != nil {
+		log.Println("Failed on parsing classification")
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	fileType := model.MusmgrFileType(fileParams.FileType)
+	if !fileType.Valid() {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
@@ -133,6 +143,7 @@ func (h *Handler) CreateFile(c *gin.Context) {
 	newFileID := uuid.New()
 	fileHeader, err := c.FormFile("file")
 	if err != nil {
+		log.Println("Failed on checking for file")
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
@@ -155,7 +166,7 @@ func (h *Handler) CreateFile(c *gin.Context) {
 		ID:             newFileID,
 		Classification: int16(class),
 		ContentType:    contentType,
-		FileType:       fileParams.FileType,
+		FileType:       fileType,
 		Name:           fileParams.Name,
 		Origin:         model.MusmgrFileOriginUser,
 		ParentID:       pgtype.UUID{Valid: false},
@@ -180,7 +191,7 @@ func (h *Handler) CreateFile(c *gin.Context) {
 		"id": newFileID,
 	})
 
-	if fileParams.FileType == model.MusmgrFileTypeScoreFull {
+	if fileType == model.MusmgrFileTypeScoreFull {
 		previewID, err := h.createPreviewScore(ctx, newFileID, fileParams.Name, pieceID)
 		if err != nil {
 			log.Printf("ERR: didn't create preview file for %s with error: %v", newFileID, err)

@@ -223,21 +223,22 @@ func (q *Queries) GetEvent(ctx context.Context, id uuid.UUID) (MusmgrEvent, erro
 }
 
 const getEventPieces = `-- name: GetEventPieces :many
-select id, composed_at, instrumentation, title
+select id, composed_at, description, instrumentation, title
 from musmgr.pieces
 inner join musmgr.pieces_events on musmgr.pieces.id = musmgr.pieces_events.piece_id
-where musmgr.pieces.id = $1
+where musmgr.pieces_events.event_id = $1
 `
 
 type GetEventPiecesRow struct {
 	ID              uuid.UUID                 `json:"id"`
 	ComposedAt      string                    `json:"composed_at"`
+	Description     string                    `json:"description"`
 	Instrumentation MusmgrInstrumentationName `json:"instrumentation"`
 	Title           string                    `json:"title"`
 }
 
-func (q *Queries) GetEventPieces(ctx context.Context, id uuid.UUID) ([]GetEventPiecesRow, error) {
-	rows, err := q.db.Query(ctx, getEventPieces, id)
+func (q *Queries) GetEventPieces(ctx context.Context, eventID uuid.UUID) ([]GetEventPiecesRow, error) {
+	rows, err := q.db.Query(ctx, getEventPieces, eventID)
 	if err != nil {
 		return nil, err
 	}
@@ -248,6 +249,7 @@ func (q *Queries) GetEventPieces(ctx context.Context, id uuid.UUID) ([]GetEventP
 		if err := rows.Scan(
 			&i.ID,
 			&i.ComposedAt,
+			&i.Description,
 			&i.Instrumentation,
 			&i.Title,
 		); err != nil {
@@ -420,7 +422,7 @@ func (q *Queries) GetPiece(ctx context.Context, id uuid.UUID) (MusmgrPiece, erro
 }
 
 const getPieceEvents = `-- name: GetPieceEvents :many
-select id, happened_at, description, event_type
+select id, name, happened_at, description, event_type
 from musmgr.events
 inner join musmgr.pieces_events on musmgr.events.id = musmgr.pieces_events.event_id
 where musmgr.pieces_events.piece_id = $1
@@ -428,6 +430,7 @@ where musmgr.pieces_events.piece_id = $1
 
 type GetPieceEventsRow struct {
 	ID          uuid.UUID       `json:"id"`
+	Name        string          `json:"name"`
 	HappenedAt  string          `json:"happened_at"`
 	Description pgtype.Text     `json:"description"`
 	EventType   MusmgrEventType `json:"event_type"`
@@ -444,6 +447,7 @@ func (q *Queries) GetPieceEvents(ctx context.Context, pieceID uuid.UUID) ([]GetP
 		var i GetPieceEventsRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.Name,
 			&i.HappenedAt,
 			&i.Description,
 			&i.EventType,

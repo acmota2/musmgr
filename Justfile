@@ -40,15 +40,15 @@ fe_admin_dev:
 
 start_containers STAGE:
     @echo "Starting Docker containers..."
-    docker-compose up -d --profile {{ STAGE }}
+    docker compose --profile {{ STAGE }} up
 
 build_containers STAGE:
     @echo "Building Docker containers..."
-    docker-compose build --profile {{ STAGE }}
+    docker compose --profile {{ STAGE }} build
 
 stop_containers STAGE:
     @echo "Stopping Docker containers..."
-    docker-compose down --profile {{ STAGE }}
+    docker compose --profile {{ STAGE }} down
 
 populate_db:
     @echo "Populating database using fixtures..."

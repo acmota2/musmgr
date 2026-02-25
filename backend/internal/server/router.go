@@ -60,7 +60,7 @@ func setAdminOnlyRoutes(router *gin.Engine, handler *controller.Handler, fileGet
 	router.POST("/events", middleware.RequirePerm(policies.PermWrite), handler.CreateEvent)
 	router.POST("/pieces/:piece_id/events/:event_id", middleware.RequirePerm(policies.PermWrite), handler.CreatePieceEvent)
 	router.POST("/pieces", middleware.RequirePerm(policies.PermWrite), handler.CreatePiece)
-	router.POST("/pieces/:piece_id/file", middleware.RequirePerm(policies.PermWrite), handler.CreateFile)
+	router.POST("/pieces/:piece_id/files", middleware.RequirePerm(policies.PermWrite), handler.CreateFile)
 
 	router.PATCH("/composer", middleware.RequirePerm(policies.PermWrite), handler.UpdateComposer)
 	router.PATCH("/events/:event_id", middleware.RequirePerm(policies.PermWrite), handler.UpdateEvent)

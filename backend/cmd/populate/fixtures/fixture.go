@@ -66,9 +66,9 @@ var Files = map[string]model.CreateFileParams{
 	},
 	filepath.Join("testdata", "Level II.mp3"): {
 		ID:             uuid.New(),
-		ContentType:    "application/mp3",
-		Classification: policies.ScopeAdmin,
-		FileType:       model.MusmgrFileTypeScoreFull,
+		ContentType:    "audio/mpeg",
+		Classification: policies.ScopePublic,
+		FileType:       model.MusmgrFileTypeAudioRecording,
 		Name:           "Level I.mp3",
 		Origin:         model.MusmgrFileOriginUser,
 		ParentID:       pgtype.UUID{Valid: false},

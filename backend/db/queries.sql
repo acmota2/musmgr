@@ -125,14 +125,14 @@ where id = $1 and classification <= $2
 ;
 
 -- name: GetEventPieces :many
-select id, composed_at, instrumentation, title
+select id, composed_at, description, instrumentation, title
 from musmgr.pieces
 inner join musmgr.pieces_events on musmgr.pieces.id = musmgr.pieces_events.piece_id
-where musmgr.pieces.id = $1
+where musmgr.pieces_events.event_id = $1
 ;
 
 -- name: GetPieceEvents :many
-select id, happened_at, description, event_type
+select id, name, happened_at, description, event_type
 from musmgr.events
 inner join musmgr.pieces_events on musmgr.events.id = musmgr.pieces_events.event_id
 where musmgr.pieces_events.piece_id = $1

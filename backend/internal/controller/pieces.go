@@ -179,7 +179,7 @@ func (h *Handler) GetPiece(c *gin.Context) {
 
 func (h *Handler) GetPieceEvents(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("piece_id"))
-	if err == nil {
+	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
