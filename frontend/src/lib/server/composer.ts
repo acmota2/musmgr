@@ -85,8 +85,6 @@ export async function updateComposer(
     },
   });
 
-  console.log(res);
-
   if (!res.ok) {
     throw error(500, generalServerError);
   }
