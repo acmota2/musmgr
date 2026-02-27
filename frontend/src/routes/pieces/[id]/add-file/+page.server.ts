@@ -40,6 +40,6 @@ export const actions: Actions = {
 
     await createFile(fetch, params.id, rawData);
 
-    throw redirect(303, `/piece/${params.id}`);
+    throw redirect(303, `/pieces/${params.id}`);
   },
 };

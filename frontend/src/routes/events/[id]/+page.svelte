@@ -24,7 +24,9 @@
       <time>{transformDate(currentEvent.happenedAt)}</time>
     </h3>
     {#if IS_ADMIN}
-      <ButtonAnchor href={`/events/${currentEvent.id}/edit-pieces`}>Edit</ButtonAnchor>
+      <ButtonAnchor href={`/events/${currentEvent.id}/edit-pieces`} class="edit-event-button">
+        Edit
+      </ButtonAnchor>
     {/if}
   </div>
   <div class="event-details">
@@ -47,9 +49,9 @@
 
   .title {
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: start;
+    justify-content: start;
     padding: 25px 0;
     & h1 {
       font-size: var(--title);
@@ -73,11 +75,14 @@
     padding-bottom: 12px;
   }
 
+  @media (max-width: 909px) {
+    .container.narrow {
+      padding: 0 10px;
+    }
+  }
+
   @media (max-width: 450px) {
     .title {
-      flex-direction: column;
-      justify-content: start;
-      align-items: start;
       & h1 {
         font-size: var(--title-small);
       }

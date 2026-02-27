@@ -1,24 +1,40 @@
 <script lang="ts">
   import { page } from "$app/state";
   import "$lib/styles/app.css";
+  import Mail from "$lib/assets/Mail.svelte";
+  import GitHub from "$lib/assets/GitHub.svelte";
 
   const { children } = $props();
   const pathname = $derived(page.url.pathname);
 
   function navLink(href: string) {
-    return `nav-link ${pathname.startsWith(href) ? "active" : ""}`;
+    return `nav-link ${(href === "/") !== pathname.startsWith(href) ? "active" : ""}`;
   }
 </script>
 
-<nav>
-  <div class="nav-in">
-    <a href="/" class={navLink("/")}> MusMGR </a>
-    <a href="/events" class={navLink("/events")}> Events </a>
-    <a href="/pieces" class={navLink("/pieces")}> Pieces </a>
-  </div>
-</nav>
+<div class="page">
+  <nav>
+    <div class="nav-in">
+      <a href="/" class={navLink("/")}> MusMGR </a>
+      <a href="/events" class={navLink("/events")}> Events </a>
+      <a href="/pieces" class={navLink("/pieces")}> Pieces </a>
+    </div>
+  </nav>
+  <main class="frame">{@render children()}</main>
+</div>
 
-<main class="frame">{@render children()}</main>
+<footer>
+  <p>Contacts and references:</p>
+  <div class="link-section">
+    <a href="mailto:acmota2@gmail.com" aria-label="Email">
+      <Mail width={60} height={60} />
+    </a>
+    <a href="https://github.com/acmota2" aria-label="GitHub">
+      <GitHub width={51} height={51} />
+    </a>
+  </div>
+  <p class="copyright">André Mota © 2026</p>
+</footer>
 
 <style>
   nav {
@@ -31,16 +47,42 @@
     backdrop-filter: blur(10px);
   }
 
+  footer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    background: white;
+  }
+
+  .link-section {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .copyright {
+    font-size: 18px;
+  }
+
   .frame {
     max-width: var(--frame-max);
     margin-inline: auto;
   }
 
+  .page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
   main.frame {
     min-height: 0;
     width: 100%;
-    height: 100%;
-    max-height: none;
+    flex: 1 1 auto;
   }
 
   .nav-link {
@@ -62,7 +104,8 @@
     transition: background 200ms ease;
   }
 
-  .nav-link:hover::after {
+  .nav-link:hover::after,
+  .nav-link.active::after {
     background: var(--accent);
   }
 

@@ -21,9 +21,7 @@
     padding: var(--default-padding);
     backdrop-filter: blur(15px);
     justify-content: center;
-    position: fixed;
-    bottom: 0;
-    left: 0;
+    height: 72px;
     width: 100%;
     gap: 20px;
   }

@@ -11,22 +11,35 @@
   const descriptionCap = 40;
 </script>
 
-<div class="events container narrow">
-  {#if !data.hasEvents}
-    <NoContent />
-  {:else}
-    <Events {events} {descriptionCap} />
-  {/if}
+<div class="view">
+  <div class="events container narrow">
+    {#if !data.hasEvents}
+      <NoContent />
+    {:else}
+      <Events {events} {descriptionCap} />
+    {/if}
+  </div>
   {#if IS_ADMIN}
-    <BottomControlsContainer>
+    <BottomControlsContainer class="create-event-bar">
       <ButtonAnchor href="/events/new">Create event</ButtonAnchor>
     </BottomControlsContainer>
   {/if}
 </div>
 
 <style>
+  .view {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
   .events {
     width: 100%;
     height: 100%;
+  }
+
+  .events.container.narrow {
+    display: flex;
+    flex-direction: column;
   }
 </style>

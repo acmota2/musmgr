@@ -12,7 +12,7 @@
 {#snippet eventElement(event: MusmgrEvent)}
   <a href={`/events/${event.id}`}>
     <div class="event-item link-shadow">
-      <div class="event-item-headline">
+      <article class="event-item-headline">
         <h3>{event.name}</h3>
         <p>
           <time datetime={event.happenedAt}>
@@ -23,7 +23,7 @@
           })}
           </time>
         </p>
-      </div>
+      </article>
       {#if event.description}
         <p>
           {event.description.slice(0, descriptionCap)}

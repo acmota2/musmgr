@@ -4,16 +4,6 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   plugins: [sveltekit()],
 
-  server: {
-    proxy: {
-      "/api": {
-        target: process.env.API_URL ?? "http://localhost:4700",
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
-      },
-    },
-  },
-
   test: {
     expect: { requireAssertions: true },
 

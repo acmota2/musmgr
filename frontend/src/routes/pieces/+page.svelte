@@ -8,23 +8,38 @@
   let { data } = $props();
 </script>
 
-{#if data.pieces.length === 0}
-  <NoContent />
-{:else}
+<div class="view">
   <div class="container narrow">
-    <div class="pieces-container">
-      <Pieces pieces={data.pieces} />
-    </div>
-    {#if IS_ADMIN}
-      <BottomControlsContainer>
-        <ButtonAnchor href="/pieces/new">Create piece</ButtonAnchor>
-      </BottomControlsContainer>
+    {#if data.pieces.length === 0}
+      <NoContent />
+    {:else}
+      <div class="pieces-container">
+        <Pieces pieces={data.pieces} />
+      </div>
     {/if}
   </div>
-{/if}
+  {#if IS_ADMIN}
+    <BottomControlsContainer>
+      <ButtonAnchor href="/pieces/new">Create piece</ButtonAnchor>
+    </BottomControlsContainer>
+  {/if}
+</div>
 
 <style>
+  .view {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .container.narrow {
+    height: 100%;
+    width: 100%;
+  }
+
   .pieces-container {
     padding: 25px 0;
+    height: 100%;
+    width: 100%;
   }
 </style>

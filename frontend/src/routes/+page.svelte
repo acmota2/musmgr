@@ -91,10 +91,17 @@
     margin: 100px 0;
   }
 
-  @media (max-width: 767px) {
-    .biography-content,
-    :global(.biography-content > #biography-admin-form) {
+  @media (max-width: 1279px) {
+    .biography-content > :global(#biography-admin-form) {
       flex-direction: column-reverse;
+    }
+
+    :global(#biography) {
+      margin: 12px 0;
+    }
+
+    .text-container {
+      padding: 50px;
     }
   }
 </style>

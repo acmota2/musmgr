@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
+    "build": "vite build",
     "build:admin": "VITE_FRONTEND_BUILD_MODE=admin vite build",
     "build:public": "VITE_FRONTEND_BUILD_MODE=public vite build",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",

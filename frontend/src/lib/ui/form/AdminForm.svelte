@@ -9,21 +9,32 @@
     confirmDialog?.showModal();
   };
 
+  const onreset: ChangeEventHandler<HTMLButtonElement> = () => {
+    wasChanged = false;
+  };
+
+  const onchange: ChangeEventHandler<HTMLFormElement> = () => {
+    wasChanged = true;
+  };
+
   let { class: className = "", children, id, ...props } = $props();
   let confirmDialog: HTMLDialogElement | null = $state(null);
+  let wasChanged = $state(false);
 </script>
 
 {#if IS_ADMIN}
-  <form class="admin-form {className}" {id} {...props}>
+  <form class="admin-form {className}" {onchange} {id} {...props}>
     {@render children()}
 
-    <BottomControlsContainer id="bottom-submit">
-      <p><em>Changes were made</em></p>
-      <div class="admin-form-button-set">
-        <Button type="submit" {onclick}>Submit</Button>
-        <Button type="reset">Reset</Button>
-      </div>
-    </BottomControlsContainer>
+    {#if wasChanged}
+      <BottomControlsContainer id="bottom-submit">
+        <p><em>Changes were made</em></p>
+        <div class="admin-form-button-set">
+          <Button type="submit" {onclick}>Submit</Button>
+          <Button type="reset" {onreset}>Clear content</Button>
+        </div>
+      </BottomControlsContainer>
+    {/if}
   </form>
 
   <ConfirmDialog bind:confirmDialog formId={id} />
@@ -33,6 +44,7 @@
 
 <style>
   .admin-form {
+    position: relative;
     display: flex;
     min-height: 0;
     width: 100%;
@@ -43,6 +55,12 @@
     flex-direction: row;
     gap: 8px;
     align-items: center;
+  }
+
+  :global(#bottom-submit) {
+    position: absolute;
+    bottom: 0;
+    left: 0;
   }
 
   .admin-form-button-set {

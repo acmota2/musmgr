@@ -5,15 +5,15 @@
 </script>
 
 <div class="pieces-container {className}">
-  {#each pieces as piece}
-    <a href="/pieces/{piece.id}" class="piece-card will-focus on-hover link-shadow">
+  {#each pieces as piece}<a href="/pieces/{piece.id}">
+    <article class="piece-card will-focus on-hover link-shadow">
       <h2 class="title">{piece.title}</h2>
       <div class="piece-details">
         <time class="year">{piece.composedAt}</time>
         <p class="instrumentation">{capitalize(piece.instrumentation)}</p>
       </div>
-    </a>
-  {/each}
+    </article>
+  </a>{/each}
 </div>
 
 <style>

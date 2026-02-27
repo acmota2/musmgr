@@ -80,7 +80,12 @@ export async function updateComposer(
   const res = await fetch("/api/composer", {
     method: "PATCH",
     body: JSON.stringify(data),
+    headers: {
+      "Content-Type": "application/json",
+    },
   });
+
+  console.log(res);
 
   if (!res.ok) {
     throw error(500, generalServerError);
