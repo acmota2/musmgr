@@ -1,0 +1,154 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  overflow-y: auto;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--background-light);
+}
+
+html,
+body,
+button,
+input,
+pre,
+select,
+textarea {
+  font-family: "EB Garamond", system-ui;
+}
+
+main {
+  flex: 1 1 auto;
+  min-height: 100%;
+  background: var(--background-light);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+figure {
+  margin: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+h1 {
+  font-size: 48px;
+  margin: 0;
+}
+
+h2 {
+  font-size: 36px;
+  margin: 0;
+}
+
+h3 {
+  font-size: 28px;
+  margin: 0;
+}
+
+p,
+pre {
+  font-size: 24px;
+  margin: 0;
+}
+
+:root {
+  /* colors */
+  --accent: #348fff;
+  --border-color: #cacaca;
+  --background-light: #f1f2fe;
+  --button-plain: #dfdfdf;
+
+  /* decoration settings */
+  --default-radius: 6px;
+  --default-border: 4px;
+  --default-padding: 10px;
+
+  /* layout settings */
+  --frame-max: 100%;
+  --frame-padding: 24px;
+
+  --layout-very-wide: 1700px;
+  --layout-wide: 1300px;
+  --layout-defaut: 1000px;
+  --layout-narrow: 900px;
+
+  /* font sizes */
+  --date: 28px;
+  --date-small: 24px;
+  --title: 42px;
+  --title-small: 32px;
+  --paragraph-font: 24px;
+  --h3-font: 28px;
+  --h2-font: 36px;
+  --h1-font: 48px;
+
+  /* mobile widths */
+  --mobile-maximum: 480px;
+  --mobile-normal: 420px;
+  --mobile-minimum: 360px;
+}
+
+.on-hover {
+  background: inherit;
+}
+
+.on-hover:hover {
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.1) 80%,
+    rgba(127, 127, 127, 0.2) 100%
+  );
+
+  transition: background 200ms ease;
+}
+
+.link-shadow {
+  box-shadow: rgba(50, 50, 93, 0.1) 15px 1px 15px 0px;
+}
+
+.will-focus:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 5px var(--accent);
+}
+
+.container {
+  margin-inline: auto;
+}
+
+.container.default {
+  max-width: var(--layout-default);
+}
+
+.container.narrow {
+  max-width: var(--layout-narrow);
+}
+
+.container.wide {
+  max-width: var(--layout-wide);
+}
+
+.container.very-wide {
+  max-width: var(--layout-very-wide);
+}
+
+.container.full {
+  max-width: 100%;
+}
