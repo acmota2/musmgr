@@ -47,7 +47,7 @@ var Files = map[string]model.CreateFileParams{
 	filepath.Join("testdata", "Level I.pdf"): {
 		ID:             uuid.New(),
 		ContentType:    "application/pdf",
-		Classification: policies.ScopeAdmin,
+		Classification: int16(policies.ClassProtected),
 		FileType:       model.MusmgrFileTypeScoreFull,
 		Name:           "Level I.pdf",
 		Origin:         model.MusmgrFileOriginUser,
@@ -57,7 +57,7 @@ var Files = map[string]model.CreateFileParams{
 	filepath.Join("testdata", "Level II.pdf"): {
 		ID:             uuid.New(),
 		ContentType:    "application/pdf",
-		Classification: policies.ScopeAdmin,
+		Classification: int16(policies.ClassProtected),
 		FileType:       model.MusmgrFileTypeScoreFull,
 		Name:           "Level II.pdf",
 		Origin:         model.MusmgrFileOriginUser,
@@ -67,7 +67,7 @@ var Files = map[string]model.CreateFileParams{
 	filepath.Join("testdata", "Level II.mp3"): {
 		ID:             uuid.New(),
 		ContentType:    "audio/mpeg",
-		Classification: policies.ScopePublic,
+		Classification: int16(policies.ClassPublic),
 		FileType:       model.MusmgrFileTypeAudioRecording,
 		Name:           "Level I.mp3",
 		Origin:         model.MusmgrFileOriginUser,

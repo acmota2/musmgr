@@ -59,9 +59,9 @@ func IsAllowed(scope Scope, class FileClassification, need Perm) bool {
 func StringToClassification(s string) (FileClassification, error) {
 	switch s {
 	case "Public":
-		return ScopePublic, nil
+		return ClassPublic, nil
 	case "Admin":
-		return ScopeAdmin, nil
+		return ClassProtected, nil
 	default:
 		return -1, fmt.Errorf("Invalid FileClassification format")
 	}
