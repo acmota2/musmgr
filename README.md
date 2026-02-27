@@ -15,8 +15,6 @@ MusMGR focuses on tracking repertoire and performance events. It is not a music 
 
 ## Architecture
 
-## Architecture
-
 ### Backend
 
 The backend is written in Go using Gin. It models the core domain (pieces, events, and files), enforces access control, and is responsible for persistence and file storage.
@@ -71,15 +69,36 @@ The backend remains authoritative over every file operation, including uploads, 
 
 ### Frontend
 
-Currently under development.
-
 The frontend is the presentation layer of the application. It consumes the backend API and renders public and admin views according to the exposed scope.
+
+#### Domain separation
+
+This frontend can provide both the `admin` and `public` builds through the `VITE_FRONTEND_BUILD_MODE` environment variable. This is then used as a variable that can be evaluated at build time forming the `IS_ADMIN` constant for conditional UI presentation.
+
+#### Pages
+
+Each one of the main entities has its own page. The one exception is files, which are presented alongside the piece.
+
+#### Current status
+
+- Public UI:
+    - concept completely implemented
+- Admin UI:
+    - functional for creation and most updates
+    - deletion function deferred for when a dedicated dashboard exists - fully implmented in the backend
 
 ---
 
 ## Project status
 
 MusMGR is under active development. APIs, data models, and deployment details may change as the project evolves.
+
+## Future plans
+
+- Create an admin dedicated dashboard:
+    - Allow deletion in the UI
+- Create dedicated file viewers
+- Allow video visualization in the UI
 
 ---
 
