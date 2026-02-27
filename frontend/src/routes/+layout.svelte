@@ -1,8 +1,8 @@
 <script lang="ts">
   import { page } from "$app/state";
   import "$lib/styles/app.css";
-  import Mail from "$lib/assets/Mail.svelte";
   import GitHub from "$lib/assets/GitHub.svelte";
+  import Mail from "$lib/assets/Mail.svelte";
 
   const { children } = $props();
   const pathname = $derived(page.url.pathname);
