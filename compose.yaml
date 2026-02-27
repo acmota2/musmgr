@@ -47,17 +47,29 @@ services:
       start_period: 30s
       timeout: 10s
 
-  svelte:
+  frontend-admin:
     profiles: ["dev"]
     build:
       context: ./frontend
-    container_name: musmgr-frontend
+    container_name: musmgr-frontend-admin
     environment:
-      VITE_BACKEND_HOST: ${BACKEND_HOST:-go-gin}
-      VITE_BACKEND_ADMIN: ${ADMIN_PORT:-4701}
-      VITE_BACKEND_PUBLIC: ${PUBLIC_PORT:-4700}
+      API_URL: http://go-gin:4700
+      VITE_FRONTEND_BUILD_MODE: admin
     ports:
       - 3000:3000
+    networks:
+      - musmgr
+
+  frontend-public:
+    profiles: ["dev"]
+    build:
+      context: ./frontend
+    container_name: musmgr-frontend-public
+    environment:
+      API_URL: http://go-gin:4701
+      VITE_FRONTEND_BUILD_MODE: public
+    ports:
+      - 3001:3000
     networks:
       - musmgr
 
