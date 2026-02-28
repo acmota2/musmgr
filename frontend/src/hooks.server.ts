@@ -1,11 +1,11 @@
 import type { Handle, HandleServerError } from "@sveltejs/kit";
 import { error } from "@sveltejs/kit";
-import { API_URL } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 
 export const handle: Handle = async ({ event, resolve }) => {
-  const API_BASE_URL = API_URL;
+  const API_BASE_URL = env.API_URL;
   const PROXY_PATH = "/api";
-  const frontendVisibilityMode = process.env.VITE_FRONTEND_VISIBILITY_MODE;
+  const FRONTEND_VISIBILITY_MODE = env.VITE_FRONTEND_VISIBILITY_MODE;
 
   if (!API_BASE_URL) {
     throw error(500, {
@@ -15,7 +15,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     });
   }
 
-  if (frontendVisibilityMode && !["public", "admin"].includes(frontendVisibilityMode)) {
+  if (FRONTEND_VISIBILITY_MODE && !["public", "admin"].includes(FRONTEND_VISIBILITY_MODE)) {
     throw error(500, {
       message: "You must set VITE_FRONTEND_VISIBILITY_MODE to 'public' or 'admin'",
       status: 500,
