@@ -2,7 +2,6 @@ package platform
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"time"
 
@@ -33,15 +32,18 @@ func newMinioStorage(sc *StorageConfig) (*minioStorage, error) {
 		return nil, err
 	}
 
-	minioCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	exists, err := minioClient.BucketExists(minioCtx, sc.MinioBucketName)
+	exists, err := minioClient.BucketExists(ctx, sc.MinioBucketName)
 	if err != nil {
 		return nil, err
 	}
 	if !exists {
-		return nil, fmt.Errorf("Minio: bucket %s doesn't exist", sc.MinioBucketName)
+		err = minioClient.MakeBucket(ctx, sc.MinioBucketName, minio.MakeBucketOptions{Region: sc.MinioBucketRegion})
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	return &minioStorage{
