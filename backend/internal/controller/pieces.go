@@ -108,6 +108,8 @@ func (h *Handler) UpdatePiece(c *gin.Context) {
 }
 
 func (h *Handler) DeletePiece(c *gin.Context) {
+	group := "DeletePiece"
+
 	pieceID, err := uuid.Parse(c.Param("piece_id"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -138,7 +140,7 @@ func (h *Handler) DeletePiece(c *gin.Context) {
 	for _, file := range files {
 		fileIDs = append(fileIDs, file.ID)
 	}
-	h.BestEffortDelete(fileIDs...)
+	h.BestEffortDelete(group, fileIDs...)
 
 	c.Status(http.StatusNoContent)
 }

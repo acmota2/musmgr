@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -14,6 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -236,8 +238,11 @@ func (h *Handler) UpdateFileMetadata(c *gin.Context) {
 }
 
 func (h *Handler) DeleteFile(c *gin.Context) {
+	logger := h.Logger.WithGroup("DeleteFile")
+
 	file, ok := middleware.GetContextValue[model.MusmgrFile](c, middleware.CurrentFile)
 	if !ok {
+		logger.Error("While converting file type")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -246,14 +251,21 @@ func (h *Handler) DeleteFile(c *gin.Context) {
 
 	err := h.Queries.DeleteFile(ctx, file.ID)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			logger.Info("File doesn't exist")
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+		logger.Error(err.Error())
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	err = h.Storage.Delete(ctx, file.ID)
 	if err != nil {
-		log.Printf("WARN: failed to delete file %s: %v", file.ID, err)
+		logger.Warn("Failed to delete file", "id", file.ID, "err", err)
 	}
 
 	c.Status(http.StatusNoContent)
+	logger.Info("Success")
 }
