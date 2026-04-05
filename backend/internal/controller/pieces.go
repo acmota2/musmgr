@@ -26,15 +26,17 @@ type createPieceRequest struct {
 }
 
 func (h *Handler) CreatePiece(c *gin.Context) {
+	logger := h.Logger.WithGroup("CreatePiece")
+
 	var req createPieceRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
 	_, err := formatPieceDate(req.ComposedAt)
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
@@ -49,12 +51,14 @@ func (h *Handler) CreatePiece(c *gin.Context) {
 	}
 
 	if err := h.Queries.CreatePiece(ctx, queryArgs); err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
 	c.Header("Location", fmt.Sprintf("/pieces/%s", newID.String()))
 	c.Status(http.StatusCreated)
+	logger.Info("success")
 }
 
 type updatePieceRequest struct {
@@ -65,20 +69,22 @@ type updatePieceRequest struct {
 }
 
 func (h *Handler) UpdatePiece(c *gin.Context) {
+	logger := h.Logger.WithGroup("UpdatePiece")
+
 	pieceID, err := uuid.Parse(c.Param("piece_id"))
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
 	var req updatePieceRequest
 	if err = c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 	_, err = formatPieceDate(*req.ComposedAt)
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
@@ -100,19 +106,22 @@ func (h *Handler) UpdatePiece(c *gin.Context) {
 
 	err = h.Queries.UpdatePiece(ctx, queryArgs)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
 	c.Status(http.StatusNoContent)
+	logger.Info("success")
 }
 
 func (h *Handler) DeletePiece(c *gin.Context) {
 	group := "DeletePiece"
+	logger := h.Logger.WithGroup(group)
 
 	pieceID, err := uuid.Parse(c.Param("piece_id"))
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
@@ -132,7 +141,8 @@ func (h *Handler) DeletePiece(c *gin.Context) {
 		return qtx.DeletePiece(ctx, pieceID)
 	})
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
@@ -143,24 +153,31 @@ func (h *Handler) DeletePiece(c *gin.Context) {
 	h.BestEffortDelete(group, fileIDs...)
 
 	c.Status(http.StatusNoContent)
+	logger.Info("success")
 }
 
 func (h *Handler) GetPieces(c *gin.Context) {
+	logger := h.Logger.WithGroup("GetPieces")
+
 	ctx := c.Request.Context()
 
 	pieces, err := h.Queries.GetPieces(ctx)
 	if err != nil {
-		c.AbortWithStatus(http.StatusNotFound)
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
 	c.JSON(http.StatusOK, pieces)
+	logger.Info("success")
 }
 
 func (h *Handler) GetPiece(c *gin.Context) {
+	logger := h.Logger.WithGroup("GetPiece")
+
 	pieceID, err := uuid.Parse(c.Param("piece_id"))
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
@@ -172,26 +189,32 @@ func (h *Handler) GetPiece(c *gin.Context) {
 			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
+		logger.Error(err.Error())
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	c.JSON(http.StatusOK, piece)
+	logger.Info("success")
 }
 
 func (h *Handler) GetPieceEvents(c *gin.Context) {
+	logger := h.Logger.WithGroup("GetPieceEvents")
+
 	id, err := uuid.Parse(c.Param("piece_id"))
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
 	ctx := c.Request.Context()
 	events, err := h.Queries.GetPieceEvents(ctx, id)
 	if err != nil {
-		c.AbortWithStatus(http.StatusNotFound)
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
 	c.JSON(http.StatusOK, events)
+	logger.Info("success")
 }

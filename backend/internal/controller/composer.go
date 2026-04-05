@@ -18,8 +18,7 @@ func (h *Handler) GetComposer(c *gin.Context) {
 	composer, err := h.Queries.GetComposer(ctx)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			logger.Error(err.Error())
-			c.AbortWithError(http.StatusNotFound, err)
+			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
 		logger.Error(err.Error())
@@ -28,7 +27,7 @@ func (h *Handler) GetComposer(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, composer)
-	logger.Info("Sent composer")
+	logger.Info("success")
 }
 
 func (h *Handler) CreateComposer(c *gin.Context) {
@@ -36,7 +35,6 @@ func (h *Handler) CreateComposer(c *gin.Context) {
 
 	var req model.CreateComposerParams
 	if err := c.BindJSON(&req); err != nil {
-		logger.Error(err.Error())
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
@@ -45,13 +43,14 @@ func (h *Handler) CreateComposer(c *gin.Context) {
 
 	err := h.Queries.CreateComposer(ctx, req)
 	if err != nil {
+		logger.Error(err.Error())
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	c.Header("Location", "/composer")
 	c.Status(http.StatusCreated)
-	logger.Info("Composer created")
+	logger.Info("success")
 }
 
 func (h *Handler) GetComposerPicture(c *gin.Context) {
@@ -66,7 +65,6 @@ func (h *Handler) GetComposerPicture(c *gin.Context) {
 	}
 
 	if !composer.Picture.Valid {
-		logger.Error("Composer's picture not found")
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
@@ -85,7 +83,7 @@ func (h *Handler) GetComposerPicture(c *gin.Context) {
 	}
 
 	c.Status(http.StatusOK)
-	logger.Info("Operation successful")
+	logger.Info("success")
 }
 
 type updateComposerRequest struct {
@@ -98,7 +96,6 @@ func (h *Handler) UpdateComposer(c *gin.Context) {
 
 	var req updateComposerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		logger.Error(err.Error())
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
@@ -117,7 +114,7 @@ func (h *Handler) UpdateComposer(c *gin.Context) {
 
 	c.Header("Location", "/composer")
 	c.Status(http.StatusNoContent)
-	logger.Info("Composer updated")
+	logger.Info("success")
 }
 
 func (h *Handler) UpdateComposerPicture(c *gin.Context) {
@@ -126,17 +123,16 @@ func (h *Handler) UpdateComposerPicture(c *gin.Context) {
 
 	fileHeader, err := c.FormFile("file")
 	if err != nil {
-		logger.Error(err.Error())
 		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
+			http.StatusBadRequest,
 			gin.H{"error": "'file' is required"},
 		)
 		return
 	}
 
+	// change this to another place when accepting more images
 	const maxPictureSize = 2 << 20 // 2MiB
 	if fileHeader.Size > maxPictureSize {
-		logger.Error("The maximum supported file size is 2MiB")
 		c.AbortWithStatusJSON(
 			http.StatusRequestEntityTooLarge,
 			gin.H{"error": "Maximum image size is 2MiB"},
@@ -158,7 +154,6 @@ func (h *Handler) UpdateComposerPicture(c *gin.Context) {
 	switch contentType {
 	case "image/jpeg", "image/png", "image/webp":
 	default:
-		logger.Error("Unsupported media type received, aborting")
 		c.AbortWithStatus(http.StatusUnsupportedMediaType)
 		return
 	}
@@ -197,7 +192,7 @@ func (h *Handler) UpdateComposerPicture(c *gin.Context) {
 
 	c.Header("Location", "/composer/picture")
 	c.Status(http.StatusNoContent)
-	logger.Info("Picture updated")
+	logger.Info("success")
 }
 
 func (h *Handler) DeleteComposerPicture(c *gin.Context) {
@@ -209,7 +204,7 @@ func (h *Handler) DeleteComposerPicture(c *gin.Context) {
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			c.Status(http.StatusNoContent)
-			logger.Info("Picture doesn't exist, nothing to delete")
+			logger.Info("success: picture didn't exist")
 			return
 		}
 		logger.Error(err.Error())
@@ -222,5 +217,5 @@ func (h *Handler) DeleteComposerPicture(c *gin.Context) {
 	}
 
 	c.Status(http.StatusNoContent)
-	logger.Info("Picture deleted")
+	logger.Info("success")
 }

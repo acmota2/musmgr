@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 
 	"github.com/acmota2/musmgr/backend/internal/middleware"
@@ -20,9 +19,11 @@ import (
 )
 
 func (h *Handler) GetPieceFiles(c *gin.Context) {
+	logger := h.Logger.WithGroup("GetPieceFiles")
+
 	pieceId, err := uuid.Parse(c.Param("piece_id"))
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
@@ -36,7 +37,12 @@ func (h *Handler) GetPieceFiles(c *gin.Context) {
 
 	files, err := h.Queries.GetPieceFiles(ctx, queryArgs)
 	if err != nil {
-		c.AbortWithStatus(http.StatusNotFound)
+		if errors.Is(err, pgx.ErrNoRows) {
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
@@ -44,6 +50,8 @@ func (h *Handler) GetPieceFiles(c *gin.Context) {
 }
 
 func (h *Handler) GetFile(c *gin.Context) {
+	logger := h.Logger.WithGroup("GetFile")
+
 	file, ok := middleware.GetContextValue[model.MusmgrFile](c, middleware.CurrentFile)
 	if !ok {
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -54,7 +62,7 @@ func (h *Handler) GetFile(c *gin.Context) {
 
 	rd, err := h.Storage.Read(ctx, file.ID)
 	if err != nil {
-		log.Printf("Failed here with error %v", err)
+		logger.Error(err.Error())
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -65,6 +73,7 @@ func (h *Handler) GetFile(c *gin.Context) {
 
 	_, err = io.Copy(c.Writer, rd)
 	if err != nil {
+		logger.Info("Client disconnected")
 		return
 	}
 }
@@ -114,45 +123,43 @@ type createFileRequest struct {
 }
 
 func (h *Handler) CreateFile(c *gin.Context) {
+	logger := h.Logger.WithGroup("CreateFile")
+
 	pieceID, err := uuid.Parse(c.Param("piece_id"))
 	if err != nil {
-		log.Println("Failed on piece_id")
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
 	var fileParams createFileRequest
 	if err = c.ShouldBindWith(&fileParams, binding.FormMultipart); err != nil {
-		log.Printf("Failed on binding request with error: %v", err)
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	// for early return
 	class, err := policies.StringToClassification(fileParams.Classification)
 	if err != nil {
-		log.Println("Failed on parsing classification")
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
 	fileType := model.MusmgrFileType(fileParams.FileType)
 	if !fileType.Valid() {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
 	newFileID := uuid.New()
 	fileHeader, err := c.FormFile("file")
 	if err != nil {
-		log.Println("Failed on checking for file")
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
 	file, err := fileHeader.Open()
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 	defer file.Close()
@@ -177,13 +184,20 @@ func (h *Handler) CreateFile(c *gin.Context) {
 
 	err = h.Queries.CreateFile(ctx, queryParams)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
 	err = h.Storage.Create(ctx, newFileID, file, fileHeader.Size, contentType)
 	if err != nil {
-		_ = h.Queries.DeleteFile(ctx, newFileID)
+		logger.Error(err.Error())
+
+		delErr := h.Queries.DeleteFile(ctx, newFileID)
+		if delErr != nil {
+			logger.Warn("couldn't delete file", "err", delErr)
+		}
+
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -192,14 +206,15 @@ func (h *Handler) CreateFile(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{
 		"id": newFileID,
 	})
+	logger.Info("success creating file")
 
 	if fileType == model.MusmgrFileTypeScoreFull {
 		previewID, err := h.createPreviewScore(ctx, newFileID, fileParams.Name, pieceID)
 		if err != nil {
-			log.Printf("ERR: didn't create preview file for %s with error: %v", newFileID, err)
+			logger.Error("didn't create preview file", "id", newFileID, "err", err)
 			return
 		}
-		log.Printf("INFO: Created preview with id: %s", *previewID)
+		logger.Info("created preview", "id", newFileID, "preview_id", *previewID)
 	}
 }
 
@@ -209,9 +224,11 @@ type updateFileMetadataRequest struct {
 }
 
 func (h *Handler) UpdateFileMetadata(c *gin.Context) {
+	logger := h.Logger.WithGroup("UpdateFileMetadata")
+
 	fileID, err := uuid.Parse(c.Param("file_id"))
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
@@ -219,7 +236,7 @@ func (h *Handler) UpdateFileMetadata(c *gin.Context) {
 
 	var req updateFileMetadataRequest
 	if err = c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
@@ -230,11 +247,13 @@ func (h *Handler) UpdateFileMetadata(c *gin.Context) {
 	}
 
 	if err = h.Queries.UpdateFileMetadata(ctx, queryArgs); err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
 	c.Status(http.StatusNoContent)
+	logger.Info("updated")
 }
 
 func (h *Handler) DeleteFile(c *gin.Context) {
