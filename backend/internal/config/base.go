@@ -3,12 +3,13 @@ package config
 import platform "github.com/acmota2/musmgr/backend/internal/platform/file-access"
 
 type Config struct {
-	DatabaseUrl   string
-	AdminPort     string
-	PublicPort    string
-	AdminRoutes   []string
-	PublicRoutes  []string
-	StorageConfig platform.StorageConfig
+	DatabaseUrl    string
+	AdminPort      string
+	PublicPort     string
+	AdminRoutes    []string
+	PublicRoutes   []string
+	StorageConfig  platform.StorageConfig
+	TrustedProxies []string
 }
 
 func New() (Config, error) {
@@ -23,11 +24,12 @@ func New() (Config, error) {
 	}
 
 	return Config{
-		DatabaseUrl:  environmentVariables.DatabaseUrl,
-		AdminPort:    parsedArgs.AdminPort,
-		PublicPort:   parsedArgs.PublicPort,
-		AdminRoutes:  environmentVariables.AdminRoutes,
-		PublicRoutes: environmentVariables.PublicRoutes,
+		DatabaseUrl:    environmentVariables.DatabaseUrl,
+		AdminPort:      parsedArgs.AdminPort,
+		PublicPort:     parsedArgs.PublicPort,
+		AdminRoutes:    environmentVariables.AdminRoutes,
+		PublicRoutes:   environmentVariables.PublicRoutes,
+		TrustedProxies: environmentVariables.TrustedProxies,
 		StorageConfig: platform.StorageConfig{
 			Kind:                 parsedArgs.StorageType,
 			LocalPath:            environmentVariables.LocalPath,

@@ -12,8 +12,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func baseRouter() *gin.Engine {
+func baseRouter(cfg *config.Config) *gin.Engine {
 	router := gin.Default()
+	router.SetTrustedProxies(cfg.TrustedProxies)
 	return router
 }
 
@@ -39,7 +40,7 @@ func setPublicRoutes(router *gin.Engine, handler *controller.Handler, fileGetter
 }
 
 func NewPublicRouter(cfg *config.Config, handler *controller.Handler) *gin.Engine {
-	router := baseRouter()
+	router := baseRouter(cfg)
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: cfg.PublicRoutes,
@@ -76,7 +77,7 @@ func setAdminOnlyRoutes(router *gin.Engine, handler *controller.Handler, fileGet
 }
 
 func NewAdminRouter(cfg *config.Config, handler *controller.Handler) *gin.Engine {
-	router := baseRouter()
+	router := baseRouter(cfg)
 	router.MaxMultipartMemory = 64 << 20 // 64MiB
 
 	router.Use(cors.New(cors.Config{
