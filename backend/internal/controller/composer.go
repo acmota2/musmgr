@@ -3,7 +3,6 @@ package controller
 import (
 	"errors"
 	"io"
-	"log"
 	"net/http"
 
 	"github.com/acmota2/musmgr/backend/internal/model"
@@ -14,6 +13,7 @@ import (
 )
 
 func (h *Handler) GetComposer(c *gin.Context) {
+	logger := h.Logger.WithGroup("GetComposer")
 	ctx := c.Request.Context()
 	composer, err := h.Queries.GetComposer(ctx)
 	if err != nil {
@@ -21,17 +21,21 @@ func (h *Handler) GetComposer(c *gin.Context) {
 			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
-		c.AbortWithStatus(http.StatusInternalServerError)
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
 	c.JSON(http.StatusOK, composer)
+	logger.Info("success")
 }
 
 func (h *Handler) CreateComposer(c *gin.Context) {
+	logger := h.Logger.WithGroup("CreateComposer")
+
 	var req model.CreateComposerParams
 	if err := c.BindJSON(&req); err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
@@ -39,20 +43,24 @@ func (h *Handler) CreateComposer(c *gin.Context) {
 
 	err := h.Queries.CreateComposer(ctx, req)
 	if err != nil {
+		logger.Error(err.Error())
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	c.Header("Location", "/composer")
 	c.Status(http.StatusCreated)
+	logger.Info("success")
 }
 
 func (h *Handler) GetComposerPicture(c *gin.Context) {
+	logger := h.Logger.WithGroup("GetComposerPicture")
 	ctx := c.Request.Context()
 
 	composer, err := h.Queries.GetComposer(ctx)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
@@ -63,17 +71,19 @@ func (h *Handler) GetComposerPicture(c *gin.Context) {
 
 	rd, err := h.Storage.Read(ctx, composer.Picture.Bytes)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
 	c.Header("Content-Type", "application/octet-stream")
 	_, err = io.Copy(c.Writer, rd)
 	if err != nil {
-		log.Println("[INFO] Client disconnected, ignoring")
+		logger.Info("Client disconnected, ignoring")
 	}
 
 	c.Status(http.StatusOK)
+	logger.Info("success")
 }
 
 type updateComposerRequest struct {
@@ -82,9 +92,11 @@ type updateComposerRequest struct {
 }
 
 func (h *Handler) UpdateComposer(c *gin.Context) {
+	logger := h.Logger.WithGroup("UpdateComposer")
+
 	var req updateComposerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
@@ -95,24 +107,30 @@ func (h *Handler) UpdateComposer(c *gin.Context) {
 		Biography: textOrNull(req.Biography),
 	}
 	if err := h.Queries.UpdateComposer(ctx, queryArgs); err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
 	c.Header("Location", "/composer")
 	c.Status(http.StatusNoContent)
+	logger.Info("success")
 }
 
 func (h *Handler) UpdateComposerPicture(c *gin.Context) {
+	group := "UpdateComposerPicture"
+	logger := h.Logger.WithGroup(group)
+
 	fileHeader, err := c.FormFile("file")
 	if err != nil {
 		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
+			http.StatusBadRequest,
 			gin.H{"error": "'file' is required"},
 		)
 		return
 	}
 
+	// change this to another place when accepting more images
 	const maxPictureSize = 2 << 20 // 2MiB
 	if fileHeader.Size > maxPictureSize {
 		c.AbortWithStatusJSON(
@@ -124,7 +142,8 @@ func (h *Handler) UpdateComposerPicture(c *gin.Context) {
 
 	file, err := fileHeader.Open()
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 	defer file.Close()
@@ -156,35 +175,47 @@ func (h *Handler) UpdateComposerPicture(c *gin.Context) {
 		}
 		if err = qtx.UpdateComposerPicture(ctx, queryArgs); err != nil {
 			// try to delete
-			h.BestEffortDelete(newPictureID)
+			h.BestEffortDelete(group, newPictureID)
 			return err
 		}
 		if composer.Picture.Valid {
-			h.BestEffortDelete(composer.Picture.Bytes)
+			h.BestEffortDelete(group, composer.Picture.Bytes)
 		}
 
 		return nil
 	})
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
 	c.Header("Location", "/composer/picture")
 	c.Status(http.StatusNoContent)
+	logger.Info("success")
 }
 
 func (h *Handler) DeleteComposerPicture(c *gin.Context) {
+	group := "DeleteComposerPicture"
+	logger := h.Logger.WithGroup(group)
+
 	ctx := c.Request.Context()
 	pictureID, err := h.Queries.DeleteComposerPicture(ctx)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			c.Status(http.StatusNoContent)
+			logger.Info("success: picture didn't exist")
+			return
+		}
+		logger.Error(err.Error())
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	if pictureID.Valid {
-		h.BestEffortDelete(pictureID.Bytes)
+		h.BestEffortDelete(group, pictureID.Bytes)
 	}
 
 	c.Status(http.StatusNoContent)
+	logger.Info("success")
 }

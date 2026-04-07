@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	platform "github.com/acmota2/musmgr/backend/internal/platform/file-access"
 )
@@ -28,6 +29,7 @@ type EnvConfig struct {
 	MinioAccessKeyId     string
 	MinioSecretAccessKey string
 	MinioSSL             bool
+	TrustedProxies       []string
 }
 
 type EnvironmentError struct {
@@ -99,6 +101,22 @@ func validateStorageConfig(storageType platform.StorageType) (map[string]string,
 	}
 }
 
+func parseTrustedProxies() []string {
+	proxiesEnv := strings.TrimSpace(os.Getenv("TRUSTED_PROXIES"))
+
+	var proxies []string
+	if proxiesEnv != "" {
+		for p := range strings.SplitSeq(proxiesEnv, ",") {
+			p = strings.TrimSpace(p)
+			if p != "" {
+				proxies = append(proxies, p)
+			}
+		}
+	}
+
+	return proxies
+}
+
 func LoadFromEnv(storageType platform.StorageType) (*EnvConfig, error) {
 	postgresEnv, err := requireEnvs(
 		"Database",
@@ -144,5 +162,6 @@ func LoadFromEnv(storageType platform.StorageType) (*EnvConfig, error) {
 		MinioAccessKeyId:     storageEnvs["MINIO_ACCESS_KEY_ID"],
 		MinioSecretAccessKey: storageEnvs["MINIO_SECRET_ACCESS_KEY"],
 		MinioSSL:             storageEnvs["MINIO_SSL"] == "true",
+		TrustedProxies:       parseTrustedProxies(),
 	}, nil
 }

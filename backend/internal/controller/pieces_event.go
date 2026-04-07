@@ -10,14 +10,16 @@ import (
 )
 
 func (h *Handler) CreatePieceEvent(c *gin.Context) {
+	logger := h.Logger.WithGroup("CreatePieceEvent")
+
 	pieceID, err := uuid.Parse(c.Param("piece_id"))
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 	eventID, err := uuid.Parse(c.Param("event_id"))
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
@@ -29,9 +31,11 @@ func (h *Handler) CreatePieceEvent(c *gin.Context) {
 	}
 
 	if err := h.Queries.CreatePieceEvent(ctx, queryArgs); err != nil {
+		logger.Error(err.Error())
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	c.Status(http.StatusCreated)
+	logger.Info("success")
 }

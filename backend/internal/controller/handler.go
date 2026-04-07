@@ -2,7 +2,7 @@ package controller
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"time"
 
 	"github.com/acmota2/musmgr/backend/internal/model"
@@ -17,16 +17,19 @@ type Handler struct {
 	Queries      *model.Queries
 	Storage      platform.StorageManager
 	PdfGenerator services.PdfGenerator
+	Logger       *slog.Logger
 }
 
-func (h *Handler) BestEffortDelete(ids ...uuid.UUID) {
+func (h *Handler) BestEffortDelete(group string, ids ...uuid.UUID) {
 	go func() {
+		logger := h.Logger.WithGroup(group)
+
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 		for _, id := range ids {
 			err := h.Storage.Delete(ctx, id)
 			if err != nil {
-				log.Printf("[WARN] Tried to delete file %s: %v", id, err)
+				logger.Warn("Tried to delete file", "id", id, "err", err)
 			}
 		}
 	}()

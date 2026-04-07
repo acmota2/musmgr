@@ -10,4 +10,5 @@ RUN go build -v -o main ./cmd/musmgr/
 EXPOSE 4700
 EXPOSE 4701
 
-CMD ["/app/main"]
+ENTRYPOINT ["/app/main"]
+CMD ["--storage-type", "MINIO"]

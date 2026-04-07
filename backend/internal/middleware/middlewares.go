@@ -2,7 +2,9 @@ package middleware
 
 import (
 	"errors"
+	"log/slog"
 	"net/http"
+	"os"
 
 	"github.com/acmota2/musmgr/backend/internal/model"
 	"github.com/acmota2/musmgr/backend/internal/policies"
@@ -32,13 +34,17 @@ func setRouterClassification(class policies.FileClassification) gin.HandlerFunc 
 
 func RequirePerm(need policies.Perm) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		logger := slog.New(slog.NewJSONHandler(os.Stdout, nil)).WithGroup("permissions")
+
 		scope, ok := GetContextValue[policies.Scope](c, ScopeKey)
 		if !ok {
+			logger.Error("error converting scope", "received", scope)
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 		class, ok := GetContextValue[policies.FileClassification](c, ClassKey)
 		if !ok {
+			logger.Error("error converting file classification", "received", class)
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
@@ -54,9 +60,11 @@ func RequirePerm(need policies.Perm) gin.HandlerFunc {
 
 func FileClassificationBlocking(q *model.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		logger := slog.New(slog.NewJSONHandler(os.Stdout, nil)).WithGroup("file_blocking")
+
 		fileID, err := uuid.Parse(c.Param("file_id"))
 		if err != nil {
-			c.AbortWithStatus(http.StatusBadRequest)
+			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
 
@@ -64,6 +72,7 @@ func FileClassificationBlocking(q *model.Queries) gin.HandlerFunc {
 
 		class, ok := GetContextValue[policies.FileClassification](c, ClassKey)
 		if !ok {
+			logger.Error("error converting file classification", "received", class)
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
@@ -75,6 +84,7 @@ func FileClassificationBlocking(q *model.Queries) gin.HandlerFunc {
 				c.AbortWithStatus(http.StatusNotFound)
 				return
 			}
+			logger.Error(err.Error())
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}

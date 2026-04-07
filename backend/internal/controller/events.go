@@ -25,9 +25,12 @@ type createEventRequest struct {
 }
 
 func (h *Handler) CreateEvent(c *gin.Context) {
+	logger := h.Logger.WithGroup("CreateEvent")
+
 	var req createEventRequest
 	if err := c.BindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
@@ -35,7 +38,8 @@ func (h *Handler) CreateEvent(c *gin.Context) {
 
 	_, err := formatEventDate(req.HappenedAt)
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 	newEventID := uuid.New()
@@ -48,12 +52,14 @@ func (h *Handler) CreateEvent(c *gin.Context) {
 	}
 
 	if err := h.Queries.CreateEvent(ctx, queryArgs); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
 	c.Header("Location", fmt.Sprintf("/events/%s", newEventID))
 	c.Status(http.StatusCreated)
+	logger.Info("Event created", "id", newEventID)
 }
 
 type updateEventRequest struct {
@@ -64,21 +70,26 @@ type updateEventRequest struct {
 }
 
 func (h *Handler) UpdateEvent(c *gin.Context) {
+	logger := h.Logger.WithGroup("UpdateEvent")
+
 	eventID, err := uuid.Parse(c.Param("event_id"))
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
 	var req updateEventRequest
 	if err = c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
 	_, err = formatEventDate(*req.HappenedAt)
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
@@ -99,33 +110,43 @@ func (h *Handler) UpdateEvent(c *gin.Context) {
 
 	err = h.Queries.UpdateEvent(ctx, queryArgs)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
 	c.Status(http.StatusNoContent)
+	logger.Info("Success")
 }
 
 func (h *Handler) DeleteEvent(c *gin.Context) {
+	logger := h.Logger.WithGroup("DeleteEvent")
+
 	eventId, err := uuid.Parse(c.Param("event_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
 	ctx := c.Request.Context()
 
 	if err := h.Queries.DeleteEvent(ctx, eventId); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
 	c.Status(http.StatusNoContent)
+	logger.Info("Success")
 }
 
 func (h *Handler) GetEvent(c *gin.Context) {
+	logger := h.Logger.WithGroup("GetEvent")
+
 	eventID, err := uuid.Parse(c.Param("event_id"))
 	if err != nil {
+		logger.Error(err.Error())
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
@@ -138,28 +159,37 @@ func (h *Handler) GetEvent(c *gin.Context) {
 			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
+		logger.Error(err.Error())
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	c.JSON(http.StatusOK, event)
+	logger.Info("Success")
 }
 
 func (h *Handler) GetEvents(c *gin.Context) {
+	logger := h.Logger.WithGroup("GetEvents")
+
 	ctx := c.Request.Context()
 	events, err := h.Queries.GetEvents(ctx)
 	if err != nil {
+		logger.Error(err.Error())
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	c.JSON(http.StatusOK, events)
+	logger.Info("Success")
 }
 
 func (h *Handler) GetEventPieces(c *gin.Context) {
+	logger := h.Logger.WithGroup("GetEventPieces")
+
 	eventId, err := uuid.Parse(c.Param("event_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
@@ -167,9 +197,11 @@ func (h *Handler) GetEventPieces(c *gin.Context) {
 
 	pieces, err := h.Queries.GetEventPieces(ctx, eventId)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		logger.Error(err.Error())
+		c.AbortWithError(http.StatusNotFound, err)
 		return
 	}
 
 	c.JSON(http.StatusOK, pieces)
+	logger.Info("Success")
 }

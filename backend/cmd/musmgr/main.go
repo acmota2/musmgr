@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -46,10 +47,11 @@ func main() {
 	}
 
 	handler := &controller.Handler{
+		Logger:       slog.New(slog.NewJSONHandler(os.Stdout, nil)),
+		PdfGenerator: services.NewPdfGenerator(services.PDFCPU),
 		Pool:         pool,
 		Queries:      model.New(pool),
 		Storage:      storageConfig,
-		PdfGenerator: services.NewPdfGenerator(services.PDFCPU),
 	}
 
 	adminRouter := server.NewAdminRouter(&initConfig, handler)
