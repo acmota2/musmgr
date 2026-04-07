@@ -2,14 +2,15 @@ name: Build and push images
 
 on:
   push:
-    branches: ["main"]
-
+    tags:
+      - "[0-9]*.[0-9]*.[0-9]*"
 jobs:
   build:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
+
     strategy:
       fail-fast: false
       matrix:
@@ -21,11 +22,13 @@ jobs:
           - name: frontend-public
             context: frontend
             image_suffix: frontend-public
-            build_args: VITE_FRONTEND_BUILD_MODE=public
+            build_args: |
+              VITE_FRONTEND_BUILD_MODE=public
           - name: frontend-admin
             context: frontend
             image_suffix: frontend-admin
-            build_args: VITE_FRONTEND_BUILD_MODE=admin
+            build_args: |
+              VITE_FRONTEND_BUILD_MODE=admin
 
     steps:
       - name: Checkout
@@ -41,9 +44,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract SHA
+      - name: Extract version
         id: vars
-        run: echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
 
       - name: Build and push
         uses: docker/build-push-action@v6
@@ -52,8 +55,8 @@ jobs:
           file: ${{ matrix.context }}/Dockerfile
           push: true
           tags: |
+            ghcr.io/${{ github.repository }}/musmgr-${{ matrix.image_suffix }}:${{ steps.vars.outputs.VERSION }}
             ghcr.io/${{ github.repository }}/musmgr-${{ matrix.image_suffix }}:latest
-            ghcr.io/${{ github.repository }}/musmgr-${{ matrix.image_suffix }}:${{ steps.vars.outputs.SHA_SHORT }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: ${{ matrix.build_args }}
