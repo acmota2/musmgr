@@ -1,0 +1,12 @@
+[tool.commitizen]
+name = "cz_conventional_commits"
+version_provider = "commitizen"
+version = "0.2.0"
+version_scheme = "semver2"
+tag_format = "$version"
+update_changelog_on_bump = true
+
+version_files = [
+  ".cz.toml:version",
+  "frontend/package.json:version",
+]
