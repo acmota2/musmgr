@@ -1,10 +1,11 @@
 [tool.commitizen]
+major_version_zero = true
 name = "cz_conventional_commits"
-version_provider = "commitizen"
-version = "0.2.0"
-version_scheme = "semver2"
 tag_format = "$version"
-update_changelog_on_bump = true
+update_changelog_on_bump = false
+version = "0.2.0"
+version_provider = "commitizen"
+version_scheme = "semver2"
 
 version_files = [
   ".cz.toml:version",

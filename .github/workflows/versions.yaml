@@ -34,7 +34,16 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Bump version
-        run: cz bump --yes
+        id: bump
+        run: |
+          set +e
+          cz bump --yes
+          status=$?
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          if [ "$status" -ne 0 ] && [ "$status" -ne 21 ]; then
+            exit "$status"
+          fi
 
       - name: Push bump commit and tag
+        if: steps.bump.outputs.status == '0'
         run: git push origin main --tags
