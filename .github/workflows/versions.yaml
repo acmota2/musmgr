@@ -37,4 +37,4 @@ jobs:
         run: cz bump --yes
 
       - name: Push bump commit and tag
-        run: git push --follow-tags
+        run: git push origin main --tags
