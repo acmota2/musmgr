@@ -20,6 +20,10 @@ jobs:
             context: backend
             image_suffix: backend
             build_args: ""
+          - name: goose-job
+            context: backend/db
+            image_suffix: goose-job
+            build_args: ""
           - name: frontend-public
             context: frontend
             image_suffix: frontend-public
@@ -56,8 +60,8 @@ jobs:
           file: ${{ matrix.context }}/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/musmgr-${{ matrix.image_suffix }}:${{ steps.vars.outputs.VERSION }}
-            ghcr.io/${{ github.repository }}/musmgr-${{ matrix.image_suffix }}:latest
+            ghcr.io/${{ github.repository }}/${{ matrix.image_suffix }}:${{ steps.vars.outputs.VERSION }}
+            ghcr.io/${{ github.repository }}/${{ matrix.image_suffix }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: ${{ matrix.build_args }}
