@@ -51,10 +51,11 @@ services:
     profiles: ["dev"]
     build:
       context: ./frontend
+      args:
+        VITE_FRONTEND_BUILD_MODE: admin
     container_name: musmgr-frontend-admin
     environment:
       API_URL: http://go-gin:4700
-      VITE_FRONTEND_BUILD_MODE: admin
     ports:
       - 3000:3000
     networks:
@@ -64,6 +65,8 @@ services:
     profiles: ["dev"]
     build:
       context: ./frontend
+      args:
+        VITE_FRONTEND_BUILD_MODE: public
     container_name: musmgr-frontend-public
     environment:
       API_URL: http://go-gin:4701
@@ -96,7 +99,6 @@ services:
       POSTGRES_HOST: postgres
       ALLOWED_ADMIN_DOMAINS: ${ALLOWED_ADMIN_DOMAINS:-'["localhost"]'}
       ALLOWED_PUBLIC_DOMAINS: ${ALLOWED_PUBLIC_DOMAINS:-'["localhost"]'}
-      DEPLOYMENT_TYPE: ${DEPLOYENT_TYPE:-DEVELOPMENT}
     depends_on:
       postgres:
         condition: service_healthy

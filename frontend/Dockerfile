@@ -2,6 +2,8 @@ FROM node:24 AS builder
 
 WORKDIR /app
 
+ARG VITE_FRONTEND_BUILD_MODE=public
+
 COPY package*.json pnpm-lock.yaml ./
 RUN npm i -g pnpm && pnpm install
 
