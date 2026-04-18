@@ -56,6 +56,8 @@ services:
     container_name: musmgr-frontend-admin
     environment:
       API_URL: http://go-gin:4700
+      ORIGIN: ${ADMIN_ORIGIN}
+      BODY_SIZE_LIMIT: ${BODY_SIZE_LIMIT:-2097152}
     ports:
       - 3000:3000
     networks:
@@ -70,7 +72,7 @@ services:
     container_name: musmgr-frontend-public
     environment:
       API_URL: http://go-gin:4701
-      VITE_FRONTEND_BUILD_MODE: public
+      ORIGIN: ${PUBLIC_ORIGIN}
     ports:
       - 3001:3000
     networks:
