@@ -15,11 +15,13 @@ FROM node:24-alpine AS runner
 
 WORKDIR /app
 
-COPY --from=builder /app/build build/
-COPY --from=builder /app/package.json .
+COPY --from=builder --chown=node:node /app/build build/
+COPY --from=builder --chown=node:node /app/package.json .
 
 EXPOSE 3000
 
 ENV NODE_ENV=production
+
+USER node
 
 CMD [ "node", "build/index.js" ]
