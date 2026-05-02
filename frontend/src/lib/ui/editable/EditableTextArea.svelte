@@ -35,11 +35,12 @@
   .viewable-area-text {
     display: flex;
     height: 100%;
-    width: 100%;
     overflow-y: auto;
     scrollbar-color: auto transparent;
-    white-space: -o-pre-wrap;
+    white-space: pre-wrap;
+    width: 100%;
     word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   .editable-text {
