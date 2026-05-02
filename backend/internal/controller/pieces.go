@@ -46,6 +46,7 @@ func (h *Handler) CreatePiece(c *gin.Context) {
 	queryArgs := model.CreatePieceParams{
 		ID:              newID,
 		ComposedAt:      req.ComposedAt,
+		Description:     req.Description,
 		Instrumentation: req.Instrumentation,
 		Title:           req.Title,
 	}
