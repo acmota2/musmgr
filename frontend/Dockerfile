@@ -1,17 +1,18 @@
-FROM node:24 AS builder
+FROM node:lts AS builder
 
 WORKDIR /app
 
 ARG VITE_FRONTEND_BUILD_MODE=public
 
-COPY package*.json pnpm-lock.yaml ./
-RUN npm i -g pnpm && pnpm install
+COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN corepack enable
+RUN pnpm install
 
 COPY . .
 
 RUN pnpm run build
 
-FROM node:24-alpine AS runner
+FROM node:lts-alpine AS runner
 
 WORKDIR /app
 
