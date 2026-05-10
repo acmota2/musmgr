@@ -11,6 +11,18 @@ services:
     ports:
       - ${ADMINER_PORT:-8080}:8080
 
+  database:
+    profiles: ["bootstrap", "local"]
+    build:
+      context: ./backend/db
+    container_name: musmgr-goose-database
+    networks:
+      - musmgr
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
+
   minio:
     profiles: ["local", "dev"]
     image: minio/minio

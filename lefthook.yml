@@ -8,6 +8,7 @@ pre-commit:
         set -e
         gofmt -w {staged_files}
         go vet ./...
+
     frontend:
       root: frontend
       glob:
@@ -15,3 +16,26 @@ pre-commit:
         - "frontend/src/**/*.{css,ts,svelte}"
         - "frontend/*.{js,json,ts}"
       run: biome check --write {staged_files}
+
+pre-push:
+  parallel: true
+  commands:
+    backend:
+      glob: "backend/**"
+      exclude:
+        - "^backend/db/.*"
+      run: |
+        set -e
+        docker compose build go-gin
+
+    frontend:
+      glob: "frontend/**"
+      run: |
+        set -e
+        docker compose build svelte-frontend
+
+    database:
+      glob: "backend/db/**"
+      run: |
+        set -e
+        docker compose build database
