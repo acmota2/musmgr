@@ -32,7 +32,8 @@ pre-push:
       glob: "frontend/**"
       run: |
         set -e
-        docker compose build svelte-frontend
+        docker compose build frontend-admin
+        docker compose build frontend-public
 
     database:
       glob: "backend/db/**"
