@@ -7,11 +7,11 @@ import type { PageServerLoad } from "./$types";
 export const load: PageServerLoad = async ({ fetch, parent }) => {
   const { pieces: eventPieces, event } = await parent();
   const pieces = await getPieces(fetch);
-  const inEvent = new Set(eventPieces.map((p) => p.id));
+  const eventPiecesLookup = new Set(eventPieces.map((p) => p.id));
 
   return {
     event,
-    pieces: pieces.filter((p) => !inEvent.has(p.id)),
+    pieces: pieces.filter((p) => !eventPiecesLookup.has(p.id)),
   };
 };
 

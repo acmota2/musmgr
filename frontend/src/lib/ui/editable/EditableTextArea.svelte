@@ -54,4 +54,10 @@
   .editable-text:hover {
     border: outset 1px var(--border-color);
   }
+
+  @media (max-width: 1279px) {
+    .viewable-area-text {
+      font-size: 16px;
+    }
+  }
 </style>

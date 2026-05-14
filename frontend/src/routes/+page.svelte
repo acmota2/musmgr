@@ -40,7 +40,7 @@
         {@render page(data.composer)}
       </AdminForm>
     {:else}
-      {@render page(data.composer)}
+      <div id="biography-public">{@render page(data.composer)}</div>
     {/if}
   </div>
 {:else}
@@ -75,7 +75,14 @@
     flex-grow: 1;
   }
 
+  #biography-public {
+    display: flex;
+    min-height: 0;
+    width: 100%;
+  }
+
   :global(#biography) {
+    margin: 100px 0;
     overflow-y: auto;
   }
 
@@ -87,12 +94,9 @@
     width: 100%;
   }
 
-  :global(#biography) {
-    margin: 100px 0;
-  }
-
   @media (max-width: 1279px) {
-    .biography-content > :global(#biography-admin-form) {
+    .biography-content > :global(#biography-admin-form),
+    .biography-content > #biography-public {
       flex-direction: column-reverse;
     }
 
@@ -102,6 +106,10 @@
 
     .text-container {
       padding: 50px;
+    }
+
+    .composer-name {
+      font-size: 50px;
     }
   }
 </style>
