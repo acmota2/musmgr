@@ -75,13 +75,13 @@ export async function createPiece(
 export async function getEventPieces(fetch: typeof globalThis.fetch, id: string): Promise<Piece[]> {
   const res = await fetch(`/api/events/${id}/pieces`);
 
-  if (!res.ok) {
-    throw error(500, generalServerError);
+  if (res.status !== 200) {
+    throw error(res.status, generalServerError);
   }
 
-  const pieces: PieceResponse[] = await res.json();
+  const pieces: PieceResponse[] | null = await res.json();
 
-  return pieces.map((piece) => ({
+  return (pieces || []).map((piece) => ({
     id: piece.id,
     composedAt: piece.composed_at,
     instrumentation: piece.instrumentation,
@@ -96,7 +96,7 @@ export async function getPieces(fetch: typeof globalThis.fetch): Promise<Piece[]
   const piecesData: PieceResponse[] = (await res.json()) || [];
 
   if (!res.ok) {
-    throw error(500);
+    throw error(res.status);
   }
 
   return piecesData.map((piece) => ({
