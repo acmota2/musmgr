@@ -6,6 +6,10 @@
     events: MusmgrEventTimetable;
   }
 
+  function reverseSort([s1]: [string, unknown], [s2]: [string, unknown]): number {
+    return s2.localeCompare(s1);
+  }
+
   let { descriptionCap = 40, events }: EventProps = $props();
 </script>
 
@@ -37,16 +41,16 @@
 {/snippet}
 
 <ul class="timeline">
-  {#each Object.entries(events) as [year, monthEvents]}
+  {#each Object.entries(events).sort(reverseSort) as [ year, monthEvents ]}
     <li>
       <h1 class="year">{year}</h1>
     </li>
-    {#each Object.entries(monthEvents) as [month, events]}
+    {#each Object.entries(monthEvents).sort(reverseSort) as [ month, events ]}
       <li>
         <h2 class="month">{month}</h2>
       </li>
       <div class="month-events">
-        {#each events as event}
+        {#each events.sort((e1, e2) => e2.happenedAt.localeCompare(e1.happenedAt)) as event}
           <li class="event-card on-hover">{@render eventElement(event)}</li>
         {/each}
       </div>

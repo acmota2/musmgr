@@ -1,19 +1,27 @@
 <script lang="ts">
+  import type { Piece } from "$lib/server/pieces";
   import { capitalize } from "$lib/utils";
 
-  let { class: className = "", pieces } = $props();
+  interface PiecesProps {
+    class: string;
+    pieces: Piece[];
+  }
+
+  let { class: className = "", pieces }: PiecesProps = $props();
 </script>
 
 <div class="pieces-container {className}">
-  {#each pieces as piece}<a href="/pieces/{piece.id}">
-    <article class="piece-card will-focus on-hover link-shadow">
-      <h2 class="title">{piece.title}</h2>
-      <div class="piece-details">
-        <time class="year">{piece.composedAt}</time>
-        <p class="instrumentation">{capitalize(piece.instrumentation)}</p>
-      </div>
-    </article>
-  </a>{/each}
+  {#each pieces.sort((p1, p2) => p1.composedAt.localeCompare(p2.composedAt)) as piece}
+    <a href="/pieces/{piece.id}">
+      <article class="piece-card will-focus on-hover link-shadow">
+        <h2 class="title">{piece.title}</h2>
+        <div class="piece-details">
+          <time class="year">{piece.composedAt}</time>
+          <p class="instrumentation">{capitalize(piece.instrumentation)}</p>
+        </div>
+      </article>
+    </a>
+  {/each}
 </div>
 
 <style>
