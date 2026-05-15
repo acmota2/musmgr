@@ -53,3 +53,6 @@ stop_containers STAGE:
 populate_db:
     @echo "Populating database using fixtures..."
     cd backend && go run cmd/populate/main.go
+
+dev MODE API_URL:
+    cd frontend && API_URL={{ API_URL }} pnpm dev:{{ MODE }}
