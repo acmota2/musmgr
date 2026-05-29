@@ -21,3 +21,4 @@ minio-data/
 
 # Direnv
 .direnv/
+.aider*
