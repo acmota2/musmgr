@@ -6,13 +6,13 @@ vars:
   POSTGRES_URL: "postgres://{{.POSTGRES_USER}}:{{.POSTGRES_PASSWORD}}@{{.POSTGRES_HOST}}:5432/{{.POSTGRES_DB}}"
 
 tasks:
-  install_deps:
+  install-deps:
     cmds:
       - echo "Installing dependencies..."
       - cd backend && go mod download
       - cd frontend && pnpm install
 
-  create_migration:
+  db:create-migration:
     vars:
       NAME: "{{.NAME}}"
     cmds:
@@ -20,12 +20,12 @@ tasks:
         echo Creating new migration: {{ .NAME }}
       - cd backend && goose -dir db/migrations postgres {{.POSTGRES_URL}} create {{.NAME}} sql
 
-  migrate_db:
+  db:migrate:
     cmds:
       - echo "Running database migrations..."
       - cd backend && goose -dir db/migrations postgres {{.POSTGRES_URL}} up
 
-  dump_db_schema:
+  db:dump-schema:
     cmds:
       - echo "Dumping database to schema.sql..."
       - |
@@ -41,43 +41,43 @@ tasks:
           | sed '/^\\restrict/d; /^\\unrestrict/d' \
           > backend/db/schema.sql
 
-  create_models:
+  db:create-models:
     cmds:
       - echo "Creating controllers from schema..."
       - cd backend/db && sqlc generate
 
-  fe_admin_dev:
+  frontend:admin-dev:
     cmds:
       - echo "Starting frontend server..."
       - cd frontend && pnpm dev:admin
 
-  start_containers:
+  start-containers:
     vars:
       STAGE: "{{.STAGE}}"
     cmds:
       - echo "Starting Docker containers..."
       - docker compose --profile {{.STAGE}} up
 
-  build_containers:
+  build-containers:
     vars:
       STAGE: "{{.STAGE}}"
     cmds:
       - echo "Building Docker containers..."
       - docker compose --profile {{.STAGE}} build
 
-  stop_containers:
+  stop-containers:
     vars:
       STAGE: "{{.STAGE}}"
     cmds:
       - echo "Stopping Docker containers..."
       - docker compose --profile {{.STAGE}} down
 
-  populate_db:
+  db:populate:
     cmds:
       - echo "Populating database using fixtures..."
       - cd backend && go run cmd/populate/main.go
 
-  dev:
+  frontend:dev:
     vars:
       MODE: "{{.MODE}}"
       API_URL: "{{.API_URL}}"
