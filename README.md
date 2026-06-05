@@ -1,4 +1,4 @@
-# MusMGR: a repertoire manager and performance event tracker
+# MusMGR: a repertoire manager and event tracker
 
 MusMGR is a webapp built with a SvelteKit frontend, a Go backend (Gin), and PostgreSQL for persistence. SQL queries are handled via sqlc with goose for migrations, and local development is containerized with Docker Compose.
 
@@ -6,18 +6,29 @@ MusMGR focuses on tracking repertoire and performance events. It is not a music 
 
 ## Tech stack
 
-* [SvelteKit](https://kit.svelte.dev/) (frontend)
-* [Go](https://go.dev/) with [Gin](https://github.com/gin-gonic/gin) (backend)
-* [PostgreSQL](https://www.postgresql.org/) (database)
-* [sqlc](https://sqlc.dev/) (type-safe query generation)
-* [goose](https://pressly.github.io/goose)  (database migrations)
-* [Docker Compose](https://docs.docker.com/compose) (local development environment)
+### Frontend
+
+- [SvelteKit](https://kit.svelte.dev/)
+- [Vitest](https://vitest.dev/)
+- [Playwright](https://playwright.dev/)
+
+### Backend
+
+- [Go](https://go.dev/) with [Gin](https://github.com/gin-gonic/gin)
+- [PostgreSQL](https://www.postgresql.org/)
+- [goose](https://pressly.github.io/goose)
+- [sqlc](https://sqlc.dev/)
+- [MinIO](https://www.min.io/)
+
+### Deployment/Testing
+
+- [Docker Compose](https://docs.docker.com/compose)
 
 ## Architecture
 
 ### Backend
 
-The backend is written in Go using Gin. It models the core domain (pieces, events, and files), enforces access control, and is responsible for persistence and file storage.
+The backend is written in Go using Gin, with a data layer using PostgreSQL and MinIO for assets and entities. It models the core domain (pieces, events, and files), enforces access control, and is responsible for persistence and file storage.
 
 #### Routing and request scoping
 
@@ -26,7 +37,7 @@ There are two explicit routers:
 - **Public router**: read-only (GET) endpoints intended for publicly accessible data
 - **Admin router**: mutation and deletion of assets
 
-Both routers pass through a shared policies middleware. The middleware injects a request scope (public or admin), which is later enforced at the domain layer through explicit policy checks. This centralizes access decisions instead of distributing them across handlers.
+Both routers pass through a shared policies middleware. The middleware injects a request scope (public or admin), which is later enforced at the domain layer through explicit policy checks.
 
 This separation makes it possible to introduce explicit authentication later with minimal changes.
 
@@ -48,7 +59,7 @@ erDiagram
     PIECE }o--o{ EVENT : performed_at
 ```
 
-`Composer` is a singleton entity representing the subject of the application. `Piece` are implicitly scoped to this `Composer` at the domain level.
+`Composer` is a singleton entity representing the subject of the application. `Piece` are implicitly scoped to this `Composer` by the domain.
 
 `Piece` and `Event` are the primary entities the application tracks.
 
@@ -95,15 +106,24 @@ MusMGR is under active development. APIs, data models, and deployment details ma
 
 ## Future plans
 
+### UI changes
+
 - Create an admin dedicated dashboard:
     - Allow deletion in the UI
 - Create dedicated file viewers
 - Allow video visualization in the UI
+- Create a different page for acousmatic pieces
+
+### Backend changes
+
+- Make derivative creation more robust
+- Create DTO for responses
+- Separate controllers more explicitly
 
 ---
 
 ## Contributors
 
-- **acmota2** - original author and maintainer
+- [**acmota2**](https://github.com/acmota2) - original author and maintainer
 
 Additional contributions may be listed here in the future.
