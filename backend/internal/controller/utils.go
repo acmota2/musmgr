@@ -1,9 +1,15 @@
 package controller
 
-// TextOrNull returns a pointer to the string if it's not empty, otherwise nil.
-func TextOrNull(s string) *string {
-	if s == "" {
-		return nil
+import "github.com/jackc/pgx/v5/pgtype"
+
+func TextOrNull(s *string) pgtype.Text {
+	if s != nil {
+		return pgtype.Text{
+			Valid:  true,
+			String: *s,
+		}
 	}
-	return &s
+	return pgtype.Text{
+		Valid: false,
+	}
 }

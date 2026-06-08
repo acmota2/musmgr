@@ -3,8 +3,12 @@ package controller
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"github.com/acmota2/musmgr/backend/internal/model"
+	"github.com/acmota2/musmgr/backend/internal/platform/storage"
+	services "github.com/acmota2/musmgr/backend/internal/services/pdf-generation"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -14,7 +18,7 @@ type BaseHandler struct {
 	Logger  *slog.Logger
 }
 
-func New(pool *pgxpool.Pool, queries *model.Queries, logger *slog.Logger) *BaseHandler {
+func NewBaseHandler(pool *pgxpool.Pool, queries *model.Queries, logger *slog.Logger) *BaseHandler {
 	return &BaseHandler{
 		pool:    pool,
 		Queries: queries,
@@ -35,4 +39,25 @@ func (h *BaseHandler) DBTransaction(ctx context.Context, f func(qtx *model.Queri
 	}
 
 	return tx.Commit(ctx)
+}
+
+type FilesHandler struct {
+	Storage      storage.StorageManager
+	PdfGenerator services.PdfGenerator
+}
+
+// this will be a queue effort in the future
+func (h *FilesHandler) BestEffortDelete(logger *slog.Logger, group string, ids ...uuid.UUID) {
+	go func() {
+		logger = logger.WithGroup(group)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+		for _, id := range ids {
+			err := h.Storage.Delete(ctx, id)
+			if err != nil {
+				logger.Warn("Tried to delete file", "id", id, "err", err)
+			}
+		}
+	}()
 }
