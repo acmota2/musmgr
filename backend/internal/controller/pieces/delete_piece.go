@@ -46,7 +46,7 @@ func DeletePiece(fh *controller.FilesHandler, bh *controller.BaseHandler) gin.Ha
 		for _, file := range files {
 			fileIDs = append(fileIDs, file.ID)
 		}
-		fh.BestEffortDelete(group, fileIDs...)
+		fh.BestEffortDelete(logger, group, fileIDs...)
 
 		c.Status(http.StatusNoContent)
 		logger.Info("success")
