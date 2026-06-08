@@ -10,6 +10,7 @@ import (
 	"github.com/acmota2/musmgr/backend/internal/controller/events"
 	filescontroller "github.com/acmota2/musmgr/backend/internal/controller/files"
 	"github.com/acmota2/musmgr/backend/internal/controller/pieces"
+	piecesevent "github.com/acmota2/musmgr/backend/internal/controller/pieces_event"
 	"github.com/acmota2/musmgr/backend/internal/middleware"
 	"github.com/acmota2/musmgr/backend/internal/policies"
 
@@ -64,7 +65,7 @@ func NewPublicRouter(cfg *config.Config, handler *controller.BaseHandler, filesH
 func setAdminOnlyRoutes(router *gin.Engine, handler *controller.BaseHandler, filesHandler *controller.FilesHandler, fileGetter *gin.RouterGroup) {
 	router.POST("/composer", middleware.RequirePerm(policies.PermWrite), composer.CreateComposer(handler))
 	router.POST("/events", middleware.RequirePerm(policies.PermWrite), events.CreateEvent(handler))
-	router.POST("/pieces/:piece_id/events/:event_id", middleware.RequirePerm(policies.PermWrite), handler.CreatePieceEvent)
+	router.POST("/pieces/:piece_id/events/:event_id", middleware.RequirePerm(policies.PermWrite), piecesevent.CreatePieceEvent(handler))
 	router.POST("/pieces", middleware.RequirePerm(policies.PermWrite), pieces.CreatePiece(handler))
 	router.POST("/pieces/:piece_id/files", middleware.RequirePerm(policies.PermWrite), filescontroller.CreateFile(filesHandler, handler))
 
@@ -75,7 +76,7 @@ func setAdminOnlyRoutes(router *gin.Engine, handler *controller.BaseHandler, fil
 
 	router.PUT("/composer/picture", middleware.RequirePerm(policies.PermWrite), composer.UpdateComposerPicture(filesHandler, handler))
 
-	router.DELETE("/composer/picture", middleware.RequirePerm(policies.PermDelete), composer.DeleteComposerPicture(handler))
+	router.DELETE("/composer/picture", middleware.RequirePerm(policies.PermDelete), composer.DeleteComposerPicture(filesHandler, handler))
 	router.DELETE("/pieces/:piece_id", middleware.RequirePerm(policies.PermDelete), pieces.DeletePiece(filesHandler, handler))
 	router.DELETE("/events/:event_id", middleware.RequirePerm(policies.PermDelete), events.DeleteEvent(handler))
 
