@@ -22,12 +22,12 @@
           docker-compose
           git
           go
+          go-task
           goose
           jq
-          just
           lefthook
-          nodejs_24
           nixpkgs-fmt
+          nodejs_24
           pdfcpu
           pnpm
           postgresql_18
