@@ -5,8 +5,11 @@ import (
 
 	"github.com/acmota2/musmgr/backend/internal/config"
 	"github.com/acmota2/musmgr/backend/internal/controller"
+	"github.com/acmota2/musmgr/backend/internal/controller/composer"
 	enumscontroller "github.com/acmota2/musmgr/backend/internal/controller/enums"
+	"github.com/acmota2/musmgr/backend/internal/controller/events"
 	filescontroller "github.com/acmota2/musmgr/backend/internal/controller/files"
+	"github.com/acmota2/musmgr/backend/internal/controller/pieces"
 	"github.com/acmota2/musmgr/backend/internal/middleware"
 	"github.com/acmota2/musmgr/backend/internal/policies"
 
@@ -20,28 +23,28 @@ func baseRouter(cfg *config.Config) *gin.Engine {
 	return router
 }
 
-func setPublicRoutes(router *gin.Engine, baseHandler *controller.BaseHandler, filesHandler *filescontroller.FilesHandler, fileGetter *gin.RouterGroup) {
+func setPublicRoutes(router *gin.Engine, baseHandler *controller.BaseHandler, filesHandler *controller.FilesHandler, fileGetter *gin.RouterGroup) {
 	router.GET("/health", func(c *gin.Context) { c.Status(http.StatusOK) })
 
-	router.GET("/composer", middleware.RequirePerm(policies.PermList), baseHandler.GetComposer)
-	router.GET("/composer/picture", middleware.RequirePerm(policies.PermList), baseHandler.GetComposerPicture)
+	router.GET("/composer", middleware.RequirePerm(policies.PermList), composer.GetComposer(baseHandler))
+	router.GET("/composer/picture", middleware.RequirePerm(policies.PermList), composer.GetComposerPicture(filesHandler, baseHandler))
 
 	router.GET("/event_types", middleware.RequirePerm(policies.PermList), enumscontroller.GetEventTypes(baseHandler))
 	router.GET("/file_types", middleware.RequirePerm(policies.PermList), enumscontroller.GetFileTypes(baseHandler))
 	router.GET("/instrumentation_names", middleware.RequirePerm(policies.PermList), enumscontroller.GetInstrumentationNames(baseHandler))
 
-	router.GET("/events", middleware.RequirePerm(policies.PermList), baseHandler.GetEvents)
-	router.GET("/events/:event_id", middleware.RequirePerm(policies.PermList), baseHandler.GetEvent)
-	router.GET("/events/:event_id/pieces", middleware.RequirePerm(policies.PermList), baseHandler.GetEventPieces)
-	router.GET("/pieces", middleware.RequirePerm(policies.PermList), baseHandler.GetPieces)
-	router.GET("/pieces/:piece_id", middleware.RequirePerm(policies.PermList), baseHandler.GetPiece)
-	router.GET("/pieces/:piece_id/events", middleware.RequirePerm(policies.PermList), baseHandler.GetPieceEvents)
+	router.GET("/events", middleware.RequirePerm(policies.PermList), events.GetEvents(baseHandler))
+	router.GET("/events/:event_id", middleware.RequirePerm(policies.PermList), events.GetEvent(baseHandler))
+	router.GET("/events/:event_id/pieces", middleware.RequirePerm(policies.PermList), events.GetEventPieces(baseHandler))
+	router.GET("/pieces", middleware.RequirePerm(policies.PermList), pieces.GetPieces(baseHandler))
+	router.GET("/pieces/:piece_id", middleware.RequirePerm(policies.PermList), pieces.GetPiece(baseHandler))
+	router.GET("/pieces/:piece_id/events", middleware.RequirePerm(policies.PermList), pieces.GetPieceEvents(baseHandler))
 	router.GET("/pieces/:piece_id/files", middleware.RequirePerm(policies.PermList), filescontroller.GetPieceFiles(baseHandler))
 
 	fileGetter.GET("", middleware.RequirePerm(policies.PermGet), filescontroller.GetFile(filesHandler, baseHandler))
 }
 
-func NewPublicRouter(cfg *config.Config, handler *controller.BaseHandler, filesHandler *filescontroller.FilesHandler) *gin.Engine {
+func NewPublicRouter(cfg *config.Config, handler *controller.BaseHandler, filesHandler *controller.FilesHandler) *gin.Engine {
 	router := baseRouter(cfg)
 
 	router.Use(cors.New(cors.Config{
@@ -79,7 +82,7 @@ func setAdminOnlyRoutes(router *gin.Engine, handler *controller.BaseHandler, fil
 	fileGetter.DELETE("", middleware.RequirePerm(policies.PermDelete), filescontroller.DeleteFile(filesHandler, handler))
 }
 
-func NewAdminRouter(cfg *config.Config, handler *controller.BaseHandler, filesHandler *filescontroller.FilesHandler) *gin.Engine {
+func NewAdminRouter(cfg *config.Config, handler *controller.BaseHandler, filesHandler *controller.FilesHandler) *gin.Engine {
 	router := baseRouter(cfg)
 	router.MaxMultipartMemory = 64 << 20 // 64MiB
 
