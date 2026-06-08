@@ -61,23 +61,23 @@ func NewPublicRouter(cfg *config.Config, handler *controller.BaseHandler, filesH
 	return router
 }
 
-func setAdminOnlyRoutes(router *gin.Engine, handler *controller.BaseHandler, filesHandler *filescontroller.FilesHandler, fileGetter *gin.RouterGroup) {
-	router.POST("/composer", middleware.RequirePerm(policies.PermWrite), handler.CreateComposer)
-	router.POST("/events", middleware.RequirePerm(policies.PermWrite), handler.CreateEvent)
+func setAdminOnlyRoutes(router *gin.Engine, handler *controller.BaseHandler, filesHandler *controller.FilesHandler, fileGetter *gin.RouterGroup) {
+	router.POST("/composer", middleware.RequirePerm(policies.PermWrite), composer.CreateComposer(handler))
+	router.POST("/events", middleware.RequirePerm(policies.PermWrite), events.CreateEvent(handler))
 	router.POST("/pieces/:piece_id/events/:event_id", middleware.RequirePerm(policies.PermWrite), handler.CreatePieceEvent)
-	router.POST("/pieces", middleware.RequirePerm(policies.PermWrite), handler.CreatePiece)
+	router.POST("/pieces", middleware.RequirePerm(policies.PermWrite), pieces.CreatePiece(handler))
 	router.POST("/pieces/:piece_id/files", middleware.RequirePerm(policies.PermWrite), filescontroller.CreateFile(filesHandler, handler))
 
-	router.PATCH("/composer", middleware.RequirePerm(policies.PermWrite), handler.UpdateComposer)
-	router.PATCH("/events/:event_id", middleware.RequirePerm(policies.PermWrite), handler.UpdateEvent)
-	router.PATCH("/pieces/:piece_id", middleware.RequirePerm(policies.PermWrite), handler.UpdatePiece)
+	router.PATCH("/composer", middleware.RequirePerm(policies.PermWrite), composer.UpdateComposer(handler))
+	router.PATCH("/events/:event_id", middleware.RequirePerm(policies.PermWrite), events.UpdateEvent(handler))
+	router.PATCH("/pieces/:piece_id", middleware.RequirePerm(policies.PermWrite), pieces.UpdatePiece(handler))
 	router.PATCH("/pieces/:piece_id/files/:file_id", middleware.RequirePerm(policies.PermWrite), filescontroller.UpdateFileMetadata(handler))
 
-	router.PUT("/composer/picture", middleware.RequirePerm(policies.PermWrite), handler.UpdateComposerPicture)
+	router.PUT("/composer/picture", middleware.RequirePerm(policies.PermWrite), composer.UpdateComposerPicture(filesHandler, handler))
 
-	router.DELETE("/composer/picture", middleware.RequirePerm(policies.PermDelete), handler.DeleteComposerPicture)
-	router.DELETE("/pieces/:piece_id", middleware.RequirePerm(policies.PermDelete), handler.DeletePiece)
-	router.DELETE("/events/:event_id", middleware.RequirePerm(policies.PermDelete), handler.DeleteEvent)
+	router.DELETE("/composer/picture", middleware.RequirePerm(policies.PermDelete), composer.DeleteComposerPicture(handler))
+	router.DELETE("/pieces/:piece_id", middleware.RequirePerm(policies.PermDelete), pieces.DeletePiece(filesHandler, handler))
+	router.DELETE("/events/:event_id", middleware.RequirePerm(policies.PermDelete), events.DeleteEvent(handler))
 
 	fileGetter.DELETE("", middleware.RequirePerm(policies.PermDelete), filescontroller.DeleteFile(filesHandler, handler))
 }
