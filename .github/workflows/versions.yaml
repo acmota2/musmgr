@@ -46,4 +46,4 @@ jobs:
 
       - name: Push bump commit and tag
         if: steps.bump.outputs.status == '0'
-        run: git push origin --tags
+        run: git push origin main --tags
