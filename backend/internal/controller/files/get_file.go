@@ -10,8 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GetFile returns a Gin handler that streams a file's content.
-func GetFile(fh *FilesHandler, bh *controller.BaseHandler) gin.HandlerFunc {
+func GetFile(fh *controller.FilesHandler, bh *controller.BaseHandler) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		logger := bh.Logger.WithGroup("GetFile")
 

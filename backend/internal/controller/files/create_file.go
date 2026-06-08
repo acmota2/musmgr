@@ -21,7 +21,7 @@ type createFileRequest struct {
 	Name           string `form:"name" binding:"required"`
 }
 
-func createPreviewScore(ctx context.Context, fh *FilesHandler, bh *controller.BaseHandler, id uuid.UUID, fileName string, pieceID uuid.UUID) (*uuid.UUID, error) {
+func createPreviewScore(ctx context.Context, fh *controller.FilesHandler, bh *controller.BaseHandler, id uuid.UUID, fileName string, pieceID uuid.UUID) (*uuid.UUID, error) {
 	rd, err := fh.Storage.Read(ctx, id)
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func createPreviewScore(ctx context.Context, fh *FilesHandler, bh *controller.Ba
 	return &newID, nil
 }
 
-func CreateFile(fh *FilesHandler, bh *controller.BaseHandler) gin.HandlerFunc {
+func CreateFile(fh *controller.FilesHandler, bh *controller.BaseHandler) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		logger := bh.Logger.WithGroup("CreateFile")
 

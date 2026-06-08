@@ -11,7 +11,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func DeleteFile(fh *FilesHandler, bh *controller.BaseHandler) gin.HandlerFunc {
+func DeleteFile(fh *controller.FilesHandler, bh *controller.BaseHandler) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		logger := bh.Logger.WithGroup("DeleteFile")
 

@@ -13,7 +13,6 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-// GetPieceFiles returns a Gin handler that lists files for a specific piece.
 func GetPieceFiles(bh *controller.BaseHandler) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		logger := bh.Logger.WithGroup("GetPieceFiles")
