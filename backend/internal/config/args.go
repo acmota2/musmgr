@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 
-	platform "github.com/acmota2/musmgr/backend/internal/platform/file-access"
+	"github.com/acmota2/musmgr/backend/internal/platform/storage"
 )
 
 type ArgsError struct {
@@ -13,19 +13,19 @@ type ArgsError struct {
 
 type configFromArgs struct {
 	EnvFilePath string
-	StorageType platform.StorageType
+	StorageType storage.StorageType
 	AdminPort   string
 	PublicPort  string
 }
 
-func ParseStorageType(s string) (platform.StorageType, error) {
+func ParseStorageType(s string) (storage.StorageType, error) {
 	if s == "" {
-		s = platform.MINIO
+		s = storage.MINIO
 	}
 
 	switch s {
-	case platform.LOCAL, platform.MINIO:
-		return platform.StorageType(s), nil
+	case storage.LOCAL, storage.MINIO:
+		return storage.StorageType(s), nil
 	default:
 		return "", fmt.Errorf("Invalid storage type: %s", s)
 	}

@@ -1,6 +1,6 @@
 package config
 
-import platform "github.com/acmota2/musmgr/backend/internal/platform/file-access"
+import "github.com/acmota2/musmgr/backend/internal/platform/storage"
 
 type Config struct {
 	DatabaseUrl    string
@@ -8,7 +8,7 @@ type Config struct {
 	PublicPort     string
 	AdminRoutes    []string
 	PublicRoutes   []string
-	StorageConfig  platform.StorageConfig
+	StorageConfig  storage.StorageConfig
 	TrustedProxies []string
 }
 
@@ -30,7 +30,7 @@ func New() (Config, error) {
 		AdminRoutes:    environmentVariables.AdminRoutes,
 		PublicRoutes:   environmentVariables.PublicRoutes,
 		TrustedProxies: environmentVariables.TrustedProxies,
-		StorageConfig: platform.StorageConfig{
+		StorageConfig: storage.StorageConfig{
 			Kind:                 parsedArgs.StorageType,
 			LocalPath:            environmentVariables.LocalPath,
 			MinioEndpoint:        environmentVariables.MinioEndpoint,

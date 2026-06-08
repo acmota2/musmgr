@@ -24,7 +24,7 @@ type createEventRequest struct {
 	HappenedAt  string                `json:"happened_at"`
 }
 
-func (h *Handler) CreateEvent(c *gin.Context) {
+func (h *BaseHandler) CreateEvent(c *gin.Context) {
 	logger := h.Logger.WithGroup("CreateEvent")
 
 	var req createEventRequest
@@ -46,7 +46,7 @@ func (h *Handler) CreateEvent(c *gin.Context) {
 	queryArgs := model.CreateEventParams{
 		ID:          newEventID,
 		Name:        req.Name,
-		Description: textOrNull(req.Description),
+		Description: TextOrNull(req.Description),
 		HappenedAt:  req.HappenedAt,
 		EventType:   req.EventType,
 	}
@@ -69,7 +69,7 @@ type updateEventRequest struct {
 	HappenedAt  *string                `json:"happened_at"`
 }
 
-func (h *Handler) UpdateEvent(c *gin.Context) {
+func (h *BaseHandler) UpdateEvent(c *gin.Context) {
 	logger := h.Logger.WithGroup("UpdateEvent")
 
 	eventID, err := uuid.Parse(c.Param("event_id"))
@@ -95,9 +95,9 @@ func (h *Handler) UpdateEvent(c *gin.Context) {
 
 	queryArgs := model.UpdateEventParams{
 		ID:          eventID,
-		Name:        textOrNull(req.Name),
-		Description: textOrNull(req.Description),
-		HappenedAt:  textOrNull(req.HappenedAt),
+		Name:        TextOrNull(req.Name),
+		Description: TextOrNull(req.Description),
+		HappenedAt:  TextOrNull(req.HappenedAt),
 	}
 	if req.EventType != nil {
 		queryArgs.EventType = model.NullMusmgrEventType{
@@ -119,7 +119,7 @@ func (h *Handler) UpdateEvent(c *gin.Context) {
 	logger.Info("Success")
 }
 
-func (h *Handler) DeleteEvent(c *gin.Context) {
+func (h *BaseHandler) DeleteEvent(c *gin.Context) {
 	logger := h.Logger.WithGroup("DeleteEvent")
 
 	eventId, err := uuid.Parse(c.Param("event_id"))
@@ -141,7 +141,7 @@ func (h *Handler) DeleteEvent(c *gin.Context) {
 	logger.Info("Success")
 }
 
-func (h *Handler) GetEvent(c *gin.Context) {
+func (h *BaseHandler) GetEvent(c *gin.Context) {
 	logger := h.Logger.WithGroup("GetEvent")
 
 	eventID, err := uuid.Parse(c.Param("event_id"))
@@ -168,7 +168,7 @@ func (h *Handler) GetEvent(c *gin.Context) {
 	logger.Info("Success")
 }
 
-func (h *Handler) GetEvents(c *gin.Context) {
+func (h *BaseHandler) GetEvents(c *gin.Context) {
 	logger := h.Logger.WithGroup("GetEvents")
 
 	ctx := c.Request.Context()
@@ -183,7 +183,7 @@ func (h *Handler) GetEvents(c *gin.Context) {
 	logger.Info("Success")
 }
 
-func (h *Handler) GetEventPieces(c *gin.Context) {
+func (h *BaseHandler) GetEventPieces(c *gin.Context) {
 	logger := h.Logger.WithGroup("GetEventPieces")
 
 	eventId, err := uuid.Parse(c.Param("event_id"))

@@ -8,7 +8,7 @@ import (
 	fixture "github.com/acmota2/musmgr/backend/cmd/populate/fixtures"
 	"github.com/acmota2/musmgr/backend/internal/config"
 	"github.com/acmota2/musmgr/backend/internal/model"
-	platform "github.com/acmota2/musmgr/backend/internal/platform/file-access"
+	"github.com/acmota2/musmgr/backend/internal/platform/storage"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -28,7 +28,7 @@ func main() {
 	}
 	defer pool.Close()
 
-	storageCfg := platform.StorageConfig{
+	storageCfg := storage.StorageConfig{
 		Kind:                 storageType,
 		LocalPath:            envConfig.LocalPath,
 		MinioEndpoint:        envConfig.MinioEndpoint,
@@ -38,7 +38,7 @@ func main() {
 		MinioBucketRegion:    envConfig.MinioBucketRegion,
 		MinioSSL:             envConfig.MinioSSL,
 	}
-	storage, err := platform.NewStorage(&storageCfg)
+	strg, err := storage.NewStorage(&storageCfg)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -47,7 +47,7 @@ func main() {
 
 	if err = queries.CreateComposer(ctx, model.CreateComposerParams{
 		FullName:  "John Doe",
-		Biography: "",
+		Biography: "My name is John Doe and I studied composition. The End.",
 	}); err != nil {
 		log.Panic(err)
 	}
@@ -89,7 +89,7 @@ func main() {
 			log.Panic(err)
 		}
 
-		if err = storage.Create(ctx, fm.ID, rd, platform.UnknownSize, fm.ContentType); err != nil {
+		if err = strg.Create(ctx, fm.ID, rd, storage.UnknownSize, fm.ContentType); err != nil {
 			log.Panic(err)
 		}
 	}

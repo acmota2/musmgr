@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	platform "github.com/acmota2/musmgr/backend/internal/platform/file-access"
+	"github.com/acmota2/musmgr/backend/internal/platform/storage"
 )
 
 const (
@@ -71,9 +71,9 @@ func parseAllowedOrigins(list string) ([]string, error) {
 	return origins, nil
 }
 
-func validateStorageConfig(storageType platform.StorageType) (map[string]string, error) {
+func validateStorageConfig(storageType storage.StorageType) (map[string]string, error) {
 	switch storageType {
-	case platform.LOCAL:
+	case storage.LOCAL:
 		if path := os.Getenv("LOCAL_PATH"); path != "" {
 			return map[string]string{
 				"LOCAL_PATH": path,
@@ -81,7 +81,7 @@ func validateStorageConfig(storageType platform.StorageType) (map[string]string,
 		} else {
 			return nil, fmt.Errorf("LOCAL_PATH must be defined for storage type LOCAL")
 		}
-	case platform.MINIO:
+	case storage.MINIO:
 		minioSettings, err := requireEnvs(
 			"MinIO",
 			"MINIO_ENDPOINT",
@@ -117,7 +117,7 @@ func parseTrustedProxies() []string {
 	return proxies
 }
 
-func LoadFromEnv(storageType platform.StorageType) (*EnvConfig, error) {
+func LoadFromEnv(storageType storage.StorageType) (*EnvConfig, error) {
 	postgresEnv, err := requireEnvs(
 		"Database",
 		"POSTGRES_USER",

@@ -11,8 +11,9 @@ import (
 
 	"github.com/acmota2/musmgr/backend/internal/config"
 	"github.com/acmota2/musmgr/backend/internal/controller"
+	files_controller "github.com/acmota2/musmgr/backend/internal/controller/files"
 	"github.com/acmota2/musmgr/backend/internal/model"
-	platform "github.com/acmota2/musmgr/backend/internal/platform/file-access"
+	"github.com/acmota2/musmgr/backend/internal/platform/storage"
 	"github.com/acmota2/musmgr/backend/internal/server"
 	services "github.com/acmota2/musmgr/backend/internal/services/pdf-generation"
 
@@ -41,21 +42,24 @@ func main() {
 
 	log.Println("Successfully connected to the database")
 
-	storageConfig, err := platform.NewStorage(&initConfig.StorageConfig)
+	storageConfig, err := storage.NewStorage(&initConfig.StorageConfig)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	handler := &controller.Handler{
-		Logger:       slog.New(slog.NewJSONHandler(os.Stdout, nil)),
-		PdfGenerator: services.NewPdfGenerator(services.PDFCPU),
-		Pool:         pool,
-		Queries:      model.New(pool),
+	baseHandler := controller.New(
+		pool,
+		model.New(pool),
+		slog.New(slog.NewJSONHandler(os.Stdout, nil)),
+	)
+
+	filesHandler := &files_controller.FilesHandler{
 		Storage:      storageConfig,
+		PdfGenerator: services.NewPdfGenerator(services.PDFCPU),
 	}
 
-	adminRouter := server.NewAdminRouter(&initConfig, handler)
-	publicRouter := server.NewPublicRouter(&initConfig, handler)
+	adminRouter := server.NewAdminRouter(&initConfig, baseHandler, filesHandler)
+	publicRouter := server.NewPublicRouter(&initConfig, baseHandler, filesHandler)
 
 	go adminRouter.Run(fmt.Sprintf(":%s", initConfig.AdminPort))
 	go publicRouter.Run(fmt.Sprintf(":%s", initConfig.PublicPort))

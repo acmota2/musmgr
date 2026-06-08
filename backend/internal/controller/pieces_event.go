@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *Handler) CreatePieceEvent(c *gin.Context) {
+func (h *BaseHandler) CreatePieceEvent(c *gin.Context) {
 	logger := h.Logger.WithGroup("CreatePieceEvent")
 
 	pieceID, err := uuid.Parse(c.Param("piece_id"))

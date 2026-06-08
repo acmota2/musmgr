@@ -25,7 +25,7 @@ type createPieceRequest struct {
 	Title           string                          `json:"title"`
 }
 
-func (h *Handler) CreatePiece(c *gin.Context) {
+func (h *BaseHandler) CreatePiece(c *gin.Context) {
 	logger := h.Logger.WithGroup("CreatePiece")
 
 	var req createPieceRequest
@@ -69,7 +69,7 @@ type updatePieceRequest struct {
 	Title           *string                          `json:"title"`
 }
 
-func (h *Handler) UpdatePiece(c *gin.Context) {
+func (h *BaseHandler) UpdatePiece(c *gin.Context) {
 	logger := h.Logger.WithGroup("UpdatePiece")
 
 	pieceID, err := uuid.Parse(c.Param("piece_id"))
@@ -93,9 +93,9 @@ func (h *Handler) UpdatePiece(c *gin.Context) {
 
 	queryArgs := model.UpdatePieceParams{
 		ID:          pieceID,
-		Description: textOrNull(req.Description),
-		Title:       textOrNull(req.Title),
-		ComposedAt:  textOrNull(req.ComposedAt),
+		Description: TextOrNull(req.Description),
+		Title:       TextOrNull(req.Title),
+		ComposedAt:  TextOrNull(req.ComposedAt),
 	}
 
 	if req.Instrumentation != nil {
@@ -116,7 +116,7 @@ func (h *Handler) UpdatePiece(c *gin.Context) {
 	logger.Info("success")
 }
 
-func (h *Handler) DeletePiece(c *gin.Context) {
+func (h *BaseHandler) DeletePiece(c *gin.Context) {
 	group := "DeletePiece"
 	logger := h.Logger.WithGroup(group)
 
@@ -157,7 +157,7 @@ func (h *Handler) DeletePiece(c *gin.Context) {
 	logger.Info("success")
 }
 
-func (h *Handler) GetPieces(c *gin.Context) {
+func (h *BaseHandler) GetPieces(c *gin.Context) {
 	logger := h.Logger.WithGroup("GetPieces")
 
 	ctx := c.Request.Context()
@@ -173,7 +173,7 @@ func (h *Handler) GetPieces(c *gin.Context) {
 	logger.Info("success")
 }
 
-func (h *Handler) GetPiece(c *gin.Context) {
+func (h *BaseHandler) GetPiece(c *gin.Context) {
 	logger := h.Logger.WithGroup("GetPiece")
 
 	pieceID, err := uuid.Parse(c.Param("piece_id"))
@@ -199,7 +199,7 @@ func (h *Handler) GetPiece(c *gin.Context) {
 	logger.Info("success")
 }
 
-func (h *Handler) GetPieceEvents(c *gin.Context) {
+func (h *BaseHandler) GetPieceEvents(c *gin.Context) {
 	logger := h.Logger.WithGroup("GetPieceEvents")
 
 	id, err := uuid.Parse(c.Param("piece_id"))
