@@ -11,7 +11,6 @@ import (
 
 	"github.com/acmota2/musmgr/backend/internal/config"
 	"github.com/acmota2/musmgr/backend/internal/controller"
-	files_controller "github.com/acmota2/musmgr/backend/internal/controller/files"
 	"github.com/acmota2/musmgr/backend/internal/model"
 	"github.com/acmota2/musmgr/backend/internal/platform/storage"
 	"github.com/acmota2/musmgr/backend/internal/server"
@@ -47,13 +46,13 @@ func main() {
 		log.Panic(err)
 	}
 
-	baseHandler := controller.New(
+	baseHandler := controller.NewBaseHandler(
 		pool,
 		model.New(pool),
 		slog.New(slog.NewJSONHandler(os.Stdout, nil)),
 	)
 
-	filesHandler := &files_controller.FilesHandler{
+	filesHandler := &controller.FilesHandler{
 		Storage:      storageConfig,
 		PdfGenerator: services.NewPdfGenerator(services.PDFCPU),
 	}
