@@ -77,12 +77,13 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    flex: 1 0 auto;
   }
 
   main.frame {
     min-height: 0;
     width: 100%;
-    flex: 1 1 auto;
+    flex: 1 0 auto;
   }
 
   .nav-link {
