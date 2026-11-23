@@ -1,10 +1,12 @@
 [tool.commitizen]
 name = "cz_conventional_commits"
 tag_format = "frontend-$version"
+legacy_tag_formats = ["$version"]
 update_changelog_on_bump = false
 version = "0.7.1"
 version_provider = "commitizen"
 version_scheme = "semver2"
+major_version_zero = true
 version_files = [
   "frontend/package.json:version",
 ]
