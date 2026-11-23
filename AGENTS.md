@@ -44,9 +44,9 @@ flake.nix            # Nix devShell (go, pnpm, goose, sqlc, biome, lefthook, sql
 
 ## Tech Stack
 
-- Go 1.25, Gin, pgx/v5, sqlc, goose, MinIO SDK, pdfcpu
+- Go 1.25, Gin, pgx/v5, sqlc, goose, AWS S3 SDK v2, pdfcpu
 - SvelteKit (Svelte 5, Vite, TypeScript), pnpm 11, Biome, Vitest, Playwright, adapter-node
-- PostgreSQL 18, MinIO
+- PostgreSQL 18, Garage (S3-compatible)
 - Docker Compose, Nix (flake + direnv), go-task, lefthook, commitizen
 
 ## Development Setup
@@ -87,7 +87,7 @@ Rules:
 
 ## Backend Architecture
 
-- `main.go` builds a `pgxpool`, a storage backend (`MINIO` default, `LOCAL`), a `BaseHandler` (pool + sqlc `Queries` + logger) and a `FilesHandler` (Storage + PdfGenerator), then starts both routers.
+- `main.go` builds a `pgxpool`, a storage backend (`S3` default, `LOCAL`), a `BaseHandler` (pool + sqlc `Queries` + logger) and a `FilesHandler` (Storage + PdfGenerator), then starts both routers.
 - **Public router** (port 4701): GET-only; CORS restricted to `ALLOWED_PUBLIC_DOMAINS`.
 - **Admin router** (port 4700): all public routes plus POST/PATCH/PUT/DELETE; CORS restricted to `ALLOWED_ADMIN_DOMAINS`; 64 MiB multipart limit.
 - Middleware sets a `Scope` (public/admin) and `FileClassification` (public/protected) per request; `FileClassificationBlocking` blocks access to protected files on the public router. `middleware.RequirePerm(policies.PermX)` enforces the permission lattice &mdash; admin scope is always allowed.
@@ -119,7 +119,7 @@ cd frontend && pnpm test:e2e          # playwright (e2e/ dir may not exist yet)
 
 ## Conventions
 
-- **Commits**: Conventional Commits (commitizen, `cz_conventional_commits`). Never bump versions manually &mdash; CI (`.github/workflows/versions.yaml`) auto-bumps on push to `main` and updates `.cz.toml` + `frontend/package.json`.
+- **Commits**: Conventional Commits (commitizen, `cz_conventional_commits`). Never bump versions manually &mdash; CI (`.github/workflows/versions.yaml`) auto-bumps on push to `main` and updates `.cz.toml` + `frontend/package.json`. Use `.cz-backend.toml` and `.cz-frontend.toml` for per-track versioning.
 - **Images**: semver tags trigger `.github/workflows/images.yaml`, which builds/pushes 4 GHCR images: `backend`, `goose-job`, `frontend-public`, `frontend-admin`.
 - **Git hooks** (lefthook): pre-commit runs `gofmt` + `go vet` on staged Go files and `biome check --write` on staged frontend files; pre-push docker-builds any changed service (`go-gin`, `frontend-admin`, `frontend-public`, `database`).
 - **Generated files**: `backend/internal/model/*` (sqlc), `frontend/.svelte-kit/` &mdash; never hand-edit.
