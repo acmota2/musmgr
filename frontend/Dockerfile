@@ -5,12 +5,12 @@ WORKDIR /app
 ARG VITE_FRONTEND_BUILD_MODE=public
 
 COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN corepack enable
+RUN npm install -g pnpm
 RUN pnpm install
 
 COPY . .
 
-RUN pnpm run build
+RUN VITE_FRONTEND_BUILD_MODE=${VITE_FRONTEND_BUILD_MODE} pnpm run build
 
 FROM node:lts-alpine AS runner
 
