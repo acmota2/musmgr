@@ -31,14 +31,14 @@ func New() (Config, error) {
 		PublicRoutes:   environmentVariables.PublicRoutes,
 		TrustedProxies: environmentVariables.TrustedProxies,
 		StorageConfig: storage.StorageConfig{
-			Kind:                 parsedArgs.StorageType,
-			LocalPath:            environmentVariables.LocalPath,
-			MinioEndpoint:        environmentVariables.MinioEndpoint,
-			MinioAccessKeyId:     environmentVariables.MinioAccessKeyId,
-			MinioSecretAccessKey: environmentVariables.MinioSecretAccessKey,
-			MinioBucketName:      environmentVariables.MinioBucketName,
-			MinioBucketRegion:    environmentVariables.MinioBucketRegion,
-			MinioSSL:             environmentVariables.MinioSSL,
+			Kind:              parsedArgs.StorageType,
+			LocalPath:         environmentVariables.LocalPath,
+			S3Endpoint:        environmentVariables.S3Endpoint,
+			S3AccessKeyId:     environmentVariables.S3AccessKeyId,
+			S3SecretAccessKey: environmentVariables.S3SecretAccessKey,
+			S3BucketName:      environmentVariables.S3BucketName,
+			S3BucketRegion:    environmentVariables.S3BucketRegion,
+			S3SSL:             environmentVariables.S3SSL,
 		},
 	}, nil
 }

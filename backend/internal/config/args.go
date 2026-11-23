@@ -20,21 +20,21 @@ type configFromArgs struct {
 
 func ParseStorageType(s string) (storage.StorageType, error) {
 	if s == "" {
-		s = storage.MINIO
+		s = storage.S3
 	}
 
 	switch s {
-	case storage.LOCAL, storage.MINIO:
+	case storage.LOCAL, storage.S3:
 		return storage.StorageType(s), nil
 	default:
-		return "", fmt.Errorf("Invalid storage type: %s", s)
+		return "", fmt.Errorf("invalid storage type: %s", s)
 	}
 }
 
 func loadFromArgs() (configFromArgs, error) {
 	var argsConfig configFromArgs
 	var storageType string
-	flag.StringVar(&storageType, "storage-type", "MINIO", "Type of storage to use: MINIO | LOCAL")
+	flag.StringVar(&storageType, "storage-type", "S3", "Type of storage to use: S3 | LOCAL")
 	flag.StringVar(&argsConfig.AdminPort, "admin-port", "4700", "The port where the admin backend should run")
 	flag.StringVar(&argsConfig.PublicPort, "public-port", "4701", "The port where the public backend should run")
 	flag.Parse()

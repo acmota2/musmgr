@@ -18,18 +18,18 @@ const (
 type DeploymentType string
 
 type EnvConfig struct {
-	AdminRoutes          []string
-	DatabaseUrl          string
-	DeploymentMode       string
-	PublicRoutes         []string
-	LocalPath            string
-	MinioEndpoint        string
-	MinioBucketName      string
-	MinioBucketRegion    string
-	MinioAccessKeyId     string
-	MinioSecretAccessKey string
-	MinioSSL             bool
-	TrustedProxies       []string
+	AdminRoutes       []string
+	DatabaseUrl       string
+	DeploymentMode    string
+	PublicRoutes      []string
+	LocalPath         string
+	S3Endpoint        string
+	S3BucketName      string
+	S3BucketRegion    string
+	S3AccessKeyId     string
+	S3SecretAccessKey string
+	S3SSL             bool
+	TrustedProxies    []string
 }
 
 type EnvironmentError struct {
@@ -81,23 +81,23 @@ func validateStorageConfig(storageType storage.StorageType) (map[string]string, 
 		} else {
 			return nil, fmt.Errorf("LOCAL_PATH must be defined for storage type LOCAL")
 		}
-	case storage.MINIO:
-		minioSettings, err := requireEnvs(
-			"MinIO",
-			"MINIO_ENDPOINT",
-			"MINIO_ACCESS_KEY_ID",
-			"MINIO_SECRET_ACCESS_KEY",
-			"MINIO_BUCKET_NAME",
-			"MINIO_BUCKET_REGION",
-			"MINIO_SSL",
+	case storage.S3:
+		s3Settings, err := requireEnvs(
+			"S3",
+			"S3_ENDPOINT",
+			"S3_ACCESS_KEY_ID",
+			"S3_SECRET_ACCESS_KEY",
+			"S3_BUCKET_NAME",
+			"S3_BUCKET_REGION",
+			"S3_SSL",
 		)
 		if err != nil {
 			return nil, err
 		}
 
-		return minioSettings, nil
+		return s3Settings, nil
 	default:
-		return nil, fmt.Errorf("Invalid storage type")
+		return nil, fmt.Errorf("invalid storage type")
 	}
 }
 
@@ -153,15 +153,15 @@ func LoadFromEnv(storageType storage.StorageType) (*EnvConfig, error) {
 			postgresEnv["POSTGRES_HOST"],
 			postgresEnv["POSTGRES_DB"],
 		),
-		DeploymentMode:       mode,
-		PublicRoutes:         allowedPublicRoutes,
-		LocalPath:            storageEnvs["LOCAL_PATH"],
-		MinioEndpoint:        storageEnvs["MINIO_ENDPOINT"],
-		MinioBucketName:      storageEnvs["MINIO_BUCKET_NAME"],
-		MinioBucketRegion:    storageEnvs["MINIO_BUCKET_REGION"],
-		MinioAccessKeyId:     storageEnvs["MINIO_ACCESS_KEY_ID"],
-		MinioSecretAccessKey: storageEnvs["MINIO_SECRET_ACCESS_KEY"],
-		MinioSSL:             storageEnvs["MINIO_SSL"] == "true",
-		TrustedProxies:       parseTrustedProxies(),
+		DeploymentMode:    mode,
+		PublicRoutes:      allowedPublicRoutes,
+		LocalPath:         storageEnvs["LOCAL_PATH"],
+		S3Endpoint:        storageEnvs["S3_ENDPOINT"],
+		S3BucketName:      storageEnvs["S3_BUCKET_NAME"],
+		S3BucketRegion:    storageEnvs["S3_BUCKET_REGION"],
+		S3AccessKeyId:     storageEnvs["S3_ACCESS_KEY_ID"],
+		S3SecretAccessKey: storageEnvs["S3_SECRET_ACCESS_KEY"],
+		S3SSL:             storageEnvs["S3_SSL"] == "true",
+		TrustedProxies:    parseTrustedProxies(),
 	}, nil
 }

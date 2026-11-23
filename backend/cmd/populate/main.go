@@ -29,14 +29,14 @@ func main() {
 	defer pool.Close()
 
 	storageCfg := storage.StorageConfig{
-		Kind:                 storageType,
-		LocalPath:            envConfig.LocalPath,
-		MinioEndpoint:        envConfig.MinioEndpoint,
-		MinioAccessKeyId:     envConfig.MinioAccessKeyId,
-		MinioSecretAccessKey: envConfig.MinioSecretAccessKey,
-		MinioBucketName:      envConfig.MinioBucketName,
-		MinioBucketRegion:    envConfig.MinioBucketRegion,
-		MinioSSL:             envConfig.MinioSSL,
+		Kind:              storageType,
+		LocalPath:         envConfig.LocalPath,
+		S3Endpoint:        envConfig.S3Endpoint,
+		S3AccessKeyId:     envConfig.S3AccessKeyId,
+		S3SecretAccessKey: envConfig.S3SecretAccessKey,
+		S3BucketName:      envConfig.S3BucketName,
+		S3BucketRegion:    envConfig.S3BucketRegion,
+		S3SSL:             envConfig.S3SSL,
 	}
 	strg, err := storage.NewStorage(&storageCfg)
 	if err != nil {

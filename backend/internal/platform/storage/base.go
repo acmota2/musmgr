@@ -12,19 +12,19 @@ import (
 type StorageType string
 
 const (
-	MINIO = "MINIO"
+	S3    = "S3"
 	LOCAL = "LOCAL"
 )
 
 type StorageConfig struct {
-	Kind                 StorageType
-	LocalPath            string
-	MinioEndpoint        string
-	MinioAccessKeyId     string
-	MinioSecretAccessKey string
-	MinioBucketName      string
-	MinioBucketRegion    string
-	MinioSSL             bool
+	Kind              StorageType
+	LocalPath         string
+	S3Endpoint        string
+	S3AccessKeyId     string
+	S3SecretAccessKey string
+	S3BucketName      string
+	S3BucketRegion    string
+	S3SSL             bool
 }
 
 const UnknownSize int64 = -1
@@ -40,10 +40,10 @@ func NewStorage(cfg *StorageConfig) (StorageManager, error) {
 	case LOCAL:
 		log.Println("Using local storage")
 		return newLocalStorage(cfg.LocalPath)
-	case MINIO:
-		log.Printf("Using MinIO listening on: %s", cfg.MinioEndpoint)
-		return newMinioStorage(cfg)
+	case S3:
+		log.Printf("Using S3-compatible storage at: %s", cfg.S3Endpoint)
+		return newS3Storage(cfg)
 	default:
 	}
-	return nil, fmt.Errorf("Wrong storage type: %s", cfg.Kind)
+	return nil, fmt.Errorf("wrong storage type: %s", cfg.Kind)
 }
