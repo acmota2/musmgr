@@ -20,12 +20,12 @@ type configFromArgs struct {
 
 func ParseStorageType(s string) (storage.StorageType, error) {
 	if s == "" {
-		s = storage.S3
+		s = string(storage.S3)
 	}
 
 	switch s {
-	case storage.LOCAL, storage.S3:
-		return storage.StorageType(s), nil
+	case string(storage.S3):
+		return storage.S3, nil
 	default:
 		return "", fmt.Errorf("invalid storage type: %s", s)
 	}

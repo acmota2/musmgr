@@ -22,7 +22,6 @@ type EnvConfig struct {
 	DatabaseUrl       string
 	DeploymentMode    string
 	PublicRoutes      []string
-	LocalPath         string
 	S3Endpoint        string
 	S3BucketName      string
 	S3BucketRegion    string
@@ -73,14 +72,6 @@ func parseAllowedOrigins(list string) ([]string, error) {
 
 func validateStorageConfig(storageType storage.StorageType) (map[string]string, error) {
 	switch storageType {
-	case storage.LOCAL:
-		if path := os.Getenv("LOCAL_PATH"); path != "" {
-			return map[string]string{
-				"LOCAL_PATH": path,
-			}, nil
-		} else {
-			return nil, fmt.Errorf("LOCAL_PATH must be defined for storage type LOCAL")
-		}
 	case storage.S3:
 		s3Settings, err := requireEnvs(
 			"S3",
@@ -155,7 +146,6 @@ func LoadFromEnv(storageType storage.StorageType) (*EnvConfig, error) {
 		),
 		DeploymentMode:    mode,
 		PublicRoutes:      allowedPublicRoutes,
-		LocalPath:         storageEnvs["LOCAL_PATH"],
 		S3Endpoint:        storageEnvs["S3_ENDPOINT"],
 		S3BucketName:      storageEnvs["S3_BUCKET_NAME"],
 		S3BucketRegion:    storageEnvs["S3_BUCKET_REGION"],

@@ -1,12 +1,12 @@
 package filescontroller
 
 import (
-	"io"
 	"net/http"
 
 	"github.com/acmota2/musmgr/backend/internal/controller"
 	"github.com/acmota2/musmgr/backend/internal/middleware"
 	"github.com/acmota2/musmgr/backend/internal/model"
+	"github.com/acmota2/musmgr/backend/internal/platform/storage"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,21 +22,13 @@ func GetFile(fh *controller.FilesHandler, bh *controller.BaseHandler) gin.Handle
 
 		ctx := c.Request.Context()
 
-		rd, err := fh.Storage.Read(ctx, file.ID)
+		url, err := fh.Storage.GetURL(ctx, file.ID, storage.DefaultPresignExpiration)
 		if err != nil {
 			logger.Error(err.Error())
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		defer rd.Close()
 
-		c.Header("Content-Type", file.ContentType)
-		c.Status(http.StatusOK)
-
-		_, err = io.Copy(c.Writer, rd)
-		if err != nil {
-			logger.Info("Client disconnected")
-			return
-		}
+		c.Redirect(http.StatusFound, url)
 	}
 }

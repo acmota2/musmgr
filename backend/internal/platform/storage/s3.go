@@ -88,3 +88,19 @@ func (s *s3Storage) Delete(ctx context.Context, id uuid.UUID) error {
 	})
 	return err
 }
+
+func (s *s3Storage) GetURL(ctx context.Context, id uuid.UUID, expires time.Duration) (string, error) {
+	presignClient := s3.NewPresignClient(s.client, func(o *s3.PresignOptions) {
+		o.Expires = expires
+	})
+
+	result, err := presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(s.bucketName),
+		Key:    aws.String(id.String()),
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return result.URL, nil
+}

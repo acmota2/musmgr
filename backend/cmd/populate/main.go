@@ -30,7 +30,6 @@ func main() {
 
 	storageCfg := storage.StorageConfig{
 		Kind:              storageType,
-		LocalPath:         envConfig.LocalPath,
 		S3Endpoint:        envConfig.S3Endpoint,
 		S3AccessKeyId:     envConfig.S3AccessKeyId,
 		S3SecretAccessKey: envConfig.S3SecretAccessKey,

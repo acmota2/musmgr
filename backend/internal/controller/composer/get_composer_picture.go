@@ -1,10 +1,10 @@
 package composer
 
 import (
-	"io"
 	"net/http"
 
 	"github.com/acmota2/musmgr/backend/internal/controller"
+	"github.com/acmota2/musmgr/backend/internal/platform/storage"
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,20 +25,14 @@ func GetComposerPicture(fh *controller.FilesHandler, bh *controller.BaseHandler)
 			return
 		}
 
-		rd, err := fh.Storage.Read(ctx, composer.Picture.Bytes)
+		url, err := fh.Storage.GetURL(ctx, composer.Picture.Bytes, storage.DefaultPresignExpiration)
 		if err != nil {
 			logger.Error(err.Error())
-			c.AbortWithError(http.StatusInternalServerError, err)
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 
-		c.Header("Content-Type", "application/octet-stream")
-		_, err = io.Copy(c.Writer, rd)
-		if err != nil {
-			logger.Info("Client disconnected, ignoring")
-		}
-
-		c.Status(http.StatusOK)
+		c.Redirect(http.StatusFound, url)
 		logger.Info("success")
 	}
 }

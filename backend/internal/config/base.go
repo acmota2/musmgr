@@ -32,7 +32,6 @@ func New() (Config, error) {
 		TrustedProxies: environmentVariables.TrustedProxies,
 		StorageConfig: storage.StorageConfig{
 			Kind:              parsedArgs.StorageType,
-			LocalPath:         environmentVariables.LocalPath,
 			S3Endpoint:        environmentVariables.S3Endpoint,
 			S3AccessKeyId:     environmentVariables.S3AccessKeyId,
 			S3SecretAccessKey: environmentVariables.S3SecretAccessKey,

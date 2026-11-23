@@ -5,20 +5,17 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"time"
 
 	"github.com/google/uuid"
 )
 
 type StorageType string
 
-const (
-	S3    = "S3"
-	LOCAL = "LOCAL"
-)
+const S3 StorageType = "S3"
 
 type StorageConfig struct {
 	Kind              StorageType
-	LocalPath         string
 	S3Endpoint        string
 	S3AccessKeyId     string
 	S3SecretAccessKey string
@@ -29,17 +26,17 @@ type StorageConfig struct {
 
 const UnknownSize int64 = -1
 
+const DefaultPresignExpiration = 1 * time.Hour
+
 type StorageManager interface {
 	Create(ctx context.Context, id uuid.UUID, r io.Reader, size int64, contentType string) error // unknown size is -1
 	Read(ctx context.Context, id uuid.UUID) (io.ReadCloser, error)
 	Delete(ctx context.Context, id uuid.UUID) error
+	GetURL(ctx context.Context, id uuid.UUID, expires time.Duration) (string, error)
 }
 
 func NewStorage(cfg *StorageConfig) (StorageManager, error) {
 	switch cfg.Kind {
-	case LOCAL:
-		log.Println("Using local storage")
-		return newLocalStorage(cfg.LocalPath)
 	case S3:
 		log.Printf("Using S3-compatible storage at: %s", cfg.S3Endpoint)
 		return newS3Storage(cfg)
