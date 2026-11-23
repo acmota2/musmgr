@@ -7,7 +7,5 @@ version = "0.7.1"
 version_provider = "commitizen"
 version_scheme = "semver2"
 
-version_files = [
-  ".cz.toml:version",
-  "frontend/package.json:version",
-]
+# NOTE: version_files removed. Use .cz-backend.toml for backend bumps,
+# .cz-frontend.toml for frontend bumps. This config is kept for `cz commit`.
