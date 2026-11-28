@@ -30,4 +30,4 @@ EXPOSE 4700
 EXPOSE 4701
 
 ENTRYPOINT ["/app/main"]
-CMD ["--storage-type", "MINIO"]
+CMD ["--storage-type", "S3"]
