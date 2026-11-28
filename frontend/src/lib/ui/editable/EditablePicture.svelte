@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { ChangeEventHandler, HTMLImgAttributes } from "svelte/elements";
+  import { page } from "$app/state";
   import { IS_ADMIN } from "$lib/app";
 
   type EditablePictureProps = {
@@ -18,15 +19,16 @@
   };
 
   const onFileReset: ChangeEventHandler<HTMLInputElement> = () => {
-    previewUrl = "/api/composer/picture";
+    previewUrl = `${page.data.apiUrl}/composer/picture`;
   };
 
   let { name = "", pictureId, ...imgProps }: EditablePictureProps = $props();
 
-  let previewUrl: string = $state("/api/composer/picture");
+  let previewUrl: string = $state(`${page.data.apiUrl}/composer/picture`);
 </script>
 
 {#if !IS_ADMIN && pictureId !== null}
+  <!-- biome-ignore lint/a11y/useAltText: alt is passed through imgProps spread -->
   <img class="picture" {...imgProps}>
 {:else if IS_ADMIN}
   <input

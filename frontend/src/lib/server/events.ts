@@ -1,5 +1,6 @@
 import { error } from "@sveltejs/kit";
-import { generalServerError } from "./utils";
+import { getApiUrl } from "./api";
+import { handleFetchError } from "./utils";
 
 interface GetEventResponse {
   id: string;
@@ -55,10 +56,11 @@ export function timetableToEventList(events: MusmgrEventTimetable): MusmgrEvent[
 }
 
 export async function getEventTypes(fetch: typeof globalThis.fetch): Promise<string[]> {
-  const res = await fetch("/api/event_types");
+  const url = `${getApiUrl()}/event_types`;
+  const res = await fetch(url);
 
   if (!res.ok) {
-    throw error(500);
+    await handleFetchError(res, url);
   }
 
   return await res.json();
@@ -68,28 +70,34 @@ export async function createEvent(
   fetch: typeof globalThis.fetch,
   data: CreateEventPayload,
 ): Promise<string> {
-  const res = await fetch("/api/events", {
+  const url = `${getApiUrl()}/events`;
+  const res = await fetch(url, {
     method: "POST",
     body: JSON.stringify(data),
   });
 
   if (!res.ok) {
-    throw error(500, generalServerError);
+    await handleFetchError(res, url);
   }
 
   const location = res.headers.get("Location");
   if (location === null) {
-    throw error(500, generalServerError);
+    throw error(500, {
+      code: "INVALID_LOCATION_HEADER",
+      message: "It's not you, it's us",
+      status: 500,
+    });
   }
 
   return location;
 }
 
 export async function getEvent(fetch: typeof globalThis.fetch, id: string): Promise<MusmgrEvent> {
-  const res = await fetch(`/api/events/${id}`);
+  const url = `${getApiUrl()}/events/${id}`;
+  const res = await fetch(url);
 
   if (!res.ok) {
-    throw error(res.status === 404 ? 404 : 500);
+    await handleFetchError(res, url);
   }
 
   const event: GetEventResponse = await res.json();
@@ -112,7 +120,7 @@ async function getEventsWithUrl(
   const eventsData: GetEventResponse[] = (await res.json()) || [];
 
   if (!res.ok) {
-    throw error(500, generalServerError);
+    await handleFetchError(res, url);
   }
 
   return eventsData.map((event) => ({
@@ -125,7 +133,7 @@ async function getEventsWithUrl(
 }
 
 export async function getEvents(fetch: typeof globalThis.fetch): Promise<MusmgrEvent[]> {
-  return await getEventsWithUrl(fetch, "/api/events");
+  return await getEventsWithUrl(fetch, `${getApiUrl()}/events`);
 }
 
 export async function createEventPiece(
@@ -133,12 +141,13 @@ export async function createEventPiece(
   eventId: string,
   pieceId: string,
 ): Promise<void> {
-  const res = await fetch(`/api/pieces/${pieceId}/events/${eventId}`, {
+  const url = `${getApiUrl()}/pieces/${pieceId}/events/${eventId}`;
+  const res = await fetch(url, {
     method: "POST",
   });
 
   if (!res.ok) {
-    throw error(500);
+    await handleFetchError(res, url);
   }
 }
 
@@ -146,5 +155,5 @@ export async function getPieceEvents(
   fetch: typeof globalThis.fetch,
   pieceId: string,
 ): Promise<MusmgrEvent[]> {
-  return await getEventsWithUrl(fetch, `/api/pieces/${pieceId}/events`);
+  return await getEventsWithUrl(fetch, `${getApiUrl()}/pieces/${pieceId}/events`);
 }

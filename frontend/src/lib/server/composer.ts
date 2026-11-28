@@ -1,5 +1,6 @@
 import { error } from "@sveltejs/kit";
-import { generalServerError } from "./utils";
+import { getApiUrl } from "./api";
+import { handleFetchError } from "./utils";
 
 export interface CreateComposerPayload {
   full_name: string;
@@ -31,13 +32,14 @@ export async function createComposer(
   fetch: typeof globalThis.fetch,
   data: CreateComposerPayload,
 ): Promise<string> {
-  const res = await fetch("/api/composer", {
+  const url = `${getApiUrl()}/composer`;
+  const res = await fetch(url, {
     method: "POST",
     body: JSON.stringify(data),
   });
 
   if (!res.ok) {
-    throw error(500, generalServerError);
+    await handleFetchError(res, url);
   }
 
   const location = res.headers.get("Location");
@@ -49,18 +51,19 @@ export async function createComposer(
     });
   }
 
-  return `/api${location}`;
+  return location;
 }
 
 export async function getComposer(fetch: typeof globalThis.fetch): Promise<Composer | null> {
-  const res = await fetch("/api/composer");
+  const url = `${getApiUrl()}/composer`;
+  const res = await fetch(url);
 
   if (res.status === 404) {
     return null;
   }
 
   if (!res.ok) {
-    throw error(500, generalServerError);
+    await handleFetchError(res, url);
   }
 
   const composerData: GetComposerResponse = await res.json();
@@ -77,7 +80,8 @@ export async function updateComposer(
   fetch: typeof globalThis.fetch,
   data: UpdateComposerPayload,
 ): Promise<void> {
-  const res = await fetch("/api/composer", {
+  const url = `${getApiUrl()}/composer`;
+  const res = await fetch(url, {
     method: "PATCH",
     body: JSON.stringify(data),
     headers: {
@@ -86,7 +90,7 @@ export async function updateComposer(
   });
 
   if (!res.ok) {
-    throw error(500, generalServerError);
+    await handleFetchError(res, url);
   }
 }
 
@@ -97,12 +101,13 @@ export async function updateComposerPicture(
   const formData = new FormData();
   formData.append("file", blob);
 
-  const res = await fetch("/api/composer/picture", {
+  const url = `${getApiUrl()}/composer/picture`;
+  const res = await fetch(url, {
     method: "PUT",
     body: formData,
   });
 
   if (!res.ok) {
-    throw error(500, generalServerError);
+    await handleFetchError(res, url);
   }
 }

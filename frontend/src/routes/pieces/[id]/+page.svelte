@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { IS_ADMIN } from "$lib/app/index.js";
+  import { IS_ADMIN } from "$lib/app";
   import type { MusmgrEventTimetable } from "$lib/server/events.js";
   import type { Piece, PieceFile } from "$lib/server/pieces";
   import ButtonAnchor from "$lib/ui/components/ButtonAnchor.svelte";
@@ -24,13 +24,17 @@
   <div class="top">
     <h1>{data.piece.title}</h1>
     {#if data.audios[currentAudioIndex]}
+      <!-- biome-ignore lint/a11y/useMediaCaption: captions not available for composer's audio files -->
       <audio
         class="audio-player"
-        src="/api/pieces/{piece.id}/files/{audios[currentAudioIndex].id}"
+        src={`${data.apiUrl}/pieces/${piece.id}/files/${audios[currentAudioIndex].id}`}
         controls
       >
         {#each audios as audio}
-          <source src="/api/pieces/{piece.id}/files/{audio.id}" type="{audio.contentType}">
+          <source
+            src={`${data.apiUrl}/pieces/${piece.id}/files/${audio.id}`}
+            type="{audio.contentType}"
+          >
         {/each}
       </audio>
     {/if}
@@ -45,7 +49,6 @@
           title={currentScore.name}
           class="right-container"
           src={`${data.apiUrl}/pieces/${piece.id}/files/${currentScore.id}`}
-          type="application/pdf"
           width="100%"
           height="100%"
           style="border: none;"
@@ -59,7 +62,7 @@
       <Container class="piece-images-view">
         {#if images.length > 0}
           {#each images as image}
-            <img src="/api/pieces/{piece.id}/files/{image.id}" alt="{image.name}">
+            <img src={`${data.apiUrl}/pieces/${piece.id}/files/${image.id}`} alt="{image.name}">
           {/each}
         {:else}
           <div class="no-images">

@@ -1,10 +1,12 @@
-import { error } from "@sveltejs/kit";
+import { getApiUrl } from "./api";
+import { handleFetchError } from "./utils";
 
 export async function getFileTypes(fetch: typeof globalThis.fetch): Promise<string[]> {
-  const res = await fetch("/api/file_types");
+  const url = `${getApiUrl()}/file_types`;
+  const res = await fetch(url);
 
   if (!res.ok) {
-    throw error(500);
+    await handleFetchError(res, url);
   }
 
   return await res.json();
@@ -16,12 +18,13 @@ export async function createFile(
   pieceId: string,
   data: FormData,
 ): Promise<void> {
-  const res = await fetch(`/api/pieces/${pieceId}/files`, {
+  const url = `${getApiUrl()}/pieces/${pieceId}/files`;
+  const res = await fetch(url, {
     method: "POST",
     body: data,
   });
 
   if (!res.ok) {
-    throw error(500);
+    await handleFetchError(res, url);
   }
 }

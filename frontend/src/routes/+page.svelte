@@ -22,7 +22,7 @@
         alt="Portrait of {composer.fullName}"
         name="picture"
         pictureId={composer.pictureId}
-        src="/api/composer/picture"
+        src={`${data.apiUrl}/composer/picture`}
       />
     </div>
   {/if}

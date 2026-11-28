@@ -1,5 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 import { IS_ADMIN } from "$lib/app";
+import { getApiUrl } from "$lib/server/api";
 import { getComposer } from "$lib/server/composer";
 import type { LayoutServerLoad } from "./$types";
 
@@ -10,5 +11,5 @@ export const load: LayoutServerLoad = async ({ fetch, url }) => {
     throw redirect(302, "/setup");
   }
 
-  return { composer };
+  return { composer, apiUrl: getApiUrl() };
 };

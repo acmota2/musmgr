@@ -1,5 +1,6 @@
 import { error } from "@sveltejs/kit";
-import { generalServerError } from "./utils";
+import { getApiUrl } from "./api";
+import { handleFetchError } from "./utils";
 
 export interface CreatePiecePayload {
   composed_at: string;
@@ -55,28 +56,34 @@ export async function createPiece(
   fetch: typeof globalThis.fetch,
   data: CreatePiecePayload,
 ): Promise<string> {
-  const res = await fetch("/api/pieces", {
+  const url = `${getApiUrl()}/pieces`;
+  const res = await fetch(url, {
     method: "POST",
     body: JSON.stringify(data),
   });
 
   if (!res.ok) {
-    throw error(500);
+    await handleFetchError(res, url);
   }
 
   const location = res.headers.get("Location");
   if (location === null) {
-    throw error(500);
+    throw error(500, {
+      code: "INVALID_LOCATION_HEADER",
+      message: "It's not you, it's us",
+      status: 500,
+    });
   }
 
   return location;
 }
 
 export async function getEventPieces(fetch: typeof globalThis.fetch, id: string): Promise<Piece[]> {
-  const res = await fetch(`/api/events/${id}/pieces`);
+  const url = `${getApiUrl()}/events/${id}/pieces`;
+  const res = await fetch(url);
 
   if (res.status !== 200) {
-    throw error(res.status, generalServerError);
+    await handleFetchError(res, url);
   }
 
   const pieces: PieceResponse[] | null = await res.json();
@@ -91,12 +98,13 @@ export async function getEventPieces(fetch: typeof globalThis.fetch, id: string)
 }
 
 export async function getPieces(fetch: typeof globalThis.fetch): Promise<Piece[]> {
-  const res = await fetch("/api/pieces");
+  const url = `${getApiUrl()}/pieces`;
+  const res = await fetch(url);
 
   const piecesData: PieceResponse[] = (await res.json()) || [];
 
   if (!res.ok) {
-    throw error(res.status);
+    await handleFetchError(res, url);
   }
 
   return piecesData.map((piece) => ({
@@ -106,10 +114,11 @@ export async function getPieces(fetch: typeof globalThis.fetch): Promise<Piece[]
 }
 
 export async function getPiece(fetch: typeof globalThis.fetch, id: string): Promise<Piece> {
-  const res = await fetch(`/api/piece/${id}`);
+  const url = `${getApiUrl()}/pieces/${id}`;
+  const res = await fetch(url);
 
   if (!res.ok) {
-    throw error(res.status === 404 ? 404 : 500);
+    await handleFetchError(res, url);
   }
 
   const piece: PieceResponse = await res.json();
@@ -121,10 +130,11 @@ export async function getPiece(fetch: typeof globalThis.fetch, id: string): Prom
 }
 
 export async function getInstrumentationNames(fetch: typeof globalThis.fetch): Promise<string[]> {
-  const res = await fetch("/api/instrumentation_names");
+  const url = `${getApiUrl()}/instrumentation_names`;
+  const res = await fetch(url);
 
   if (!res.ok) {
-    throw error(500);
+    await handleFetchError(res, url);
   }
 
   return await res.json();
@@ -134,11 +144,12 @@ export async function getPieceFiles(
   fetch: typeof globalThis.fetch,
   id: string,
 ): Promise<PieceFile[]> {
-  const res = await fetch(`/api/pieces/${id}/files`);
+  const url = `${getApiUrl()}/pieces/${id}/files`;
+  const res = await fetch(url);
 
   const pieceFiles = (await res.json()) || [];
   if (!res.ok) {
-    throw error(500);
+    await handleFetchError(res, url);
   }
 
   return pieceFiles.map((file: PieceFileResponse) => ({
