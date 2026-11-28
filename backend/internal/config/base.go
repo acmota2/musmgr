@@ -33,11 +33,13 @@ func New() (Config, error) {
 		StorageConfig: storage.StorageConfig{
 			Kind:              parsedArgs.StorageType,
 			S3Endpoint:        environmentVariables.S3Endpoint,
+			S3PublicEndpoint:  environmentVariables.S3PublicEndpoint,
 			S3AccessKeyId:     environmentVariables.S3AccessKeyId,
 			S3SecretAccessKey: environmentVariables.S3SecretAccessKey,
 			S3BucketName:      environmentVariables.S3BucketName,
 			S3BucketRegion:    environmentVariables.S3BucketRegion,
 			S3SSL:             environmentVariables.S3SSL,
+			S3UsePathStyle:    environmentVariables.S3UsePathStyle,
 		},
 	}, nil
 }

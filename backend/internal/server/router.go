@@ -43,6 +43,7 @@ func setPublicRoutes(router *gin.Engine, baseHandler *controller.BaseHandler, fi
 	router.GET("/pieces/:piece_id/files", middleware.RequirePerm(policies.PermList), filescontroller.GetPieceFiles(baseHandler))
 
 	fileGetter.GET("", middleware.RequirePerm(policies.PermGet), filescontroller.GetFile(filesHandler, baseHandler))
+	fileGetter.HEAD("", middleware.RequirePerm(policies.PermGet), filescontroller.GetFile(filesHandler, baseHandler))
 }
 
 func NewPublicRouter(cfg *config.Config, handler *controller.BaseHandler, filesHandler *controller.FilesHandler) *gin.Engine {
@@ -50,7 +51,7 @@ func NewPublicRouter(cfg *config.Config, handler *controller.BaseHandler, filesH
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: cfg.PublicRoutes,
-		AllowMethods: []string{"GET"},
+		AllowMethods: []string{"GET", "HEAD"},
 		AllowHeaders: []string{"Content-Type"},
 	}))
 
@@ -89,7 +90,7 @@ func NewAdminRouter(cfg *config.Config, handler *controller.BaseHandler, filesHa
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: cfg.AdminRoutes,
-		AllowMethods: []string{"DELETE", "GET", "PATCH", "POST", "PUT"},
+		AllowMethods: []string{"DELETE", "GET", "HEAD", "PATCH", "POST", "PUT"},
 		AllowHeaders: []string{"Content-Type"},
 	}))
 

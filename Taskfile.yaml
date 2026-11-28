@@ -83,9 +83,11 @@ tasks:
       - cd backend && go run cmd/populate/main.go
 
   frontend:admin-dev:
+    vars:
+      API_URL: "{{.API_URL}}"
     cmds:
       - echo "Starting frontend server..."
-      - cd frontend && pnpm dev:admin
+      - cd frontend && API_URL={{.API_URL}} pnpm dev:admin
 
   frontend:dev:
     vars:

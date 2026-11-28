@@ -13,8 +13,9 @@ import (
 )
 
 type s3Storage struct {
-	client     *s3.Client
-	bucketName string
+	client        *s3.Client
+	presignClient *s3.PresignClient
+	bucketName    string
 }
 
 func newS3Storage(sc *StorageConfig) (*s3Storage, error) {
@@ -37,6 +38,7 @@ func newS3Storage(sc *StorageConfig) (*s3Storage, error) {
 
 	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
 		o.BaseEndpoint = aws.String(endpoint)
+		o.UsePathStyle = sc.S3UsePathStyle
 	})
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -54,8 +56,25 @@ func newS3Storage(sc *StorageConfig) (*s3Storage, error) {
 		}
 	}
 
+	// Presign client uses the public-facing endpoint so generated URLs
+	// are reachable by browsers (not Docker-internal hostnames).
+	publicEndpoint := endpoint
+	if sc.S3PublicEndpoint != "" {
+		publicEndpoint = "http://" + sc.S3PublicEndpoint
+		if sc.S3SSL {
+			publicEndpoint = "https://" + sc.S3PublicEndpoint
+		}
+	}
+	presignClient := s3.NewFromConfig(cfg, func(o *s3.Options) {
+		o.BaseEndpoint = aws.String(publicEndpoint)
+		o.UsePathStyle = sc.S3UsePathStyle
+	})
+
 	return &s3Storage{
-		client:     client,
+		client: client,
+		presignClient: s3.NewPresignClient(presignClient, func(o *s3.PresignOptions) {
+			o.Expires = DefaultPresignExpiration
+		}),
 		bucketName: sc.S3BucketName,
 	}, nil
 }
@@ -90,17 +109,14 @@ func (s *s3Storage) Delete(ctx context.Context, id uuid.UUID) error {
 }
 
 func (s *s3Storage) GetURL(ctx context.Context, id uuid.UUID, expires time.Duration) (string, error) {
-	presignClient := s3.NewPresignClient(s.client, func(o *s3.PresignOptions) {
-		o.Expires = expires
-	})
-
-	result, err := presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
+	presigned, err := s.presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(s.bucketName),
 		Key:    aws.String(id.String()),
+	}, func(o *s3.PresignOptions) {
+		o.Expires = expires
 	})
 	if err != nil {
 		return "", err
 	}
-
-	return result.URL, nil
+	return presigned.URL, nil
 }

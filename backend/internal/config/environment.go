@@ -23,11 +23,13 @@ type EnvConfig struct {
 	DeploymentMode    string
 	PublicRoutes      []string
 	S3Endpoint        string
+	S3PublicEndpoint  string
 	S3BucketName      string
 	S3BucketRegion    string
 	S3AccessKeyId     string
 	S3SecretAccessKey string
 	S3SSL             bool
+	S3UsePathStyle    bool
 	TrustedProxies    []string
 }
 
@@ -84,6 +86,11 @@ func validateStorageConfig(storageType storage.StorageType) (map[string]string, 
 		)
 		if err != nil {
 			return nil, err
+		}
+
+		// Handle optional S3_USE_PATH_STYLE
+		if val := os.Getenv("S3_USE_PATH_STYLE"); val != "" {
+			s3Settings["S3_USE_PATH_STYLE"] = val
 		}
 
 		return s3Settings, nil
@@ -147,11 +154,13 @@ func LoadFromEnv(storageType storage.StorageType) (*EnvConfig, error) {
 		DeploymentMode:    mode,
 		PublicRoutes:      allowedPublicRoutes,
 		S3Endpoint:        storageEnvs["S3_ENDPOINT"],
+		S3PublicEndpoint:  os.Getenv("S3_PUBLIC_ENDPOINT"),
 		S3BucketName:      storageEnvs["S3_BUCKET_NAME"],
 		S3BucketRegion:    storageEnvs["S3_BUCKET_REGION"],
 		S3AccessKeyId:     storageEnvs["S3_ACCESS_KEY_ID"],
 		S3SecretAccessKey: storageEnvs["S3_SECRET_ACCESS_KEY"],
 		S3SSL:             storageEnvs["S3_SSL"] == "true",
+		S3UsePathStyle:    storageEnvs["S3_USE_PATH_STYLE"] == "true",
 		TrustedProxies:    parseTrustedProxies(),
 	}, nil
 }
