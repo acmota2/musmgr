@@ -21,6 +21,7 @@
           curl
           docker-compose
           git
+          gh
           go
           go-task
           goose
