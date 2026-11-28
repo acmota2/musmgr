@@ -13,7 +13,14 @@
   let events: MusmgrEventTimetable = $derived(data.events);
 </script>
 
-{#snippet filesContent(piece: Piece, audios: PieceFile[], images: PieceFile[], events: MusmgrEventTimetable, currentAudioIndex: number, currentScore: PieceFile)}
+{#snippet filesContent(
+  piece: Piece,
+  audios: PieceFile[],
+  images: PieceFile[],
+  events: MusmgrEventTimetable,
+  currentAudioIndex: number,
+  currentScore: PieceFile,
+)}
   <div class="top">
     <h1>{data.piece.title}</h1>
     {#if data.audios[currentAudioIndex]}
@@ -34,13 +41,15 @@
   <div class="bottom">
     <div class="left scores-view">
       {#if currentScore}
-        <embed
+        <iframe
+          title={currentScore.name}
           class="right-container"
-          src="/api/pieces/{piece.id}/files/{currentScore.id}"
+          src={`${data.apiUrl}/pieces/${piece.id}/files/${currentScore.id}`}
           type="application/pdf"
           width="100%"
           height="100%"
-        >
+          style="border: none;"
+        ></iframe>
       {/if}
     </div>
     <div class="right">
@@ -67,7 +76,14 @@
 
 <div class="container very-wide">
   <div class="piece-content">
-    {@render filesContent(data.piece, data.audios, data.images, events, currentAudioIndex, currentScore)}
+    {@render filesContent(
+      data.piece,
+      data.audios,
+      data.images,
+      events,
+      currentAudioIndex,
+      currentScore,
+    )}
   </div>
 </div>
 
@@ -191,9 +207,10 @@
     height: 100%;
   }
 
-  .scores-view > embed {
+  .scores-view > iframe {
     display: block;
     position: absolute;
+    border: none;
   }
 
   @media (max-width: 1700px) {
