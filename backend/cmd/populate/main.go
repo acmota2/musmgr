@@ -36,6 +36,7 @@ func main() {
 		S3BucketName:      envConfig.S3BucketName,
 		S3BucketRegion:    envConfig.S3BucketRegion,
 		S3SSL:             envConfig.S3SSL,
+		S3UsePathStyle:    envConfig.S3UsePathStyle,
 	}
 	strg, err := storage.NewStorage(&storageCfg)
 	if err != nil {

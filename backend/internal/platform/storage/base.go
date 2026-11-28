@@ -15,13 +15,15 @@ type StorageType string
 const S3 StorageType = "S3"
 
 type StorageConfig struct {
-	Kind              StorageType
-	S3Endpoint        string
-	S3AccessKeyId     string
-	S3SecretAccessKey string
-	S3BucketName      string
-	S3BucketRegion    string
-	S3SSL             bool
+	Kind               StorageType
+	S3Endpoint         string
+	S3PublicEndpoint   string
+	S3AccessKeyId      string
+	S3SecretAccessKey  string
+	S3BucketName       string
+	S3BucketRegion     string
+	S3SSL              bool
+	S3UsePathStyle     bool
 }
 
 const UnknownSize int64 = -1
