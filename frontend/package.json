@@ -3,7 +3,7 @@
   "packageManager": "pnpm@12.9.0",
   "private": true,
   "type": "module",
-  "version": "0.7.1",
+  "version": "0.8.1",
   "scripts": {
     "build": "vite build",
     "build:admin": "VITE_FRONTEND_BUILD_MODE=admin vite build",
