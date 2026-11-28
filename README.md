@@ -18,7 +18,7 @@ MusMGR focuses on tracking repertoire and performance events. It is not a music 
 - [PostgreSQL](https://www.postgresql.org/)
 - [goose](https://pressly.github.io/goose)
 - [sqlc](https://sqlc.dev/)
-- [MinIO](https://www.min.io/)
+- [RustFS](https://rustfs.com/)
 
 ### Deployment/Testing
 
@@ -28,7 +28,7 @@ MusMGR focuses on tracking repertoire and performance events. It is not a music 
 
 ### Backend
 
-The backend is written in Go using Gin, with a data layer using PostgreSQL and MinIO for assets and entities. It models the core domain (pieces, events, and files), enforces access control, and is responsible for persistence and file storage.
+The backend is written in Go using Gin, with a data layer using PostgreSQL and S3-compatible object storage for assets and entities. It models the core domain (pieces, events, and files), enforces access control, and is responsible for persistence and file storage.
 
 #### Routing and request scoping
 
@@ -74,7 +74,7 @@ The backend owns all file access. Clients never interact directly with object st
 Storage is abstracted behind a generic interface with two implementations:
 
 - Local filesystem (development)
-- S3-compatible object storage via MinIO (recommended for production)
+- S3-compatible object storage (RustFS for local dev, Garage or similar for production K8s)
 
 The backend remains authoritative over every file operation, including uploads, streaming, classification based access control, and lifecycle management.
 
