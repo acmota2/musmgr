@@ -22,7 +22,7 @@ export const load: LayoutServerLoad = async ({ fetch, parent, params }) => {
     scores: pieceFiles.filter(({ fileType }) => fileType.startsWith("score")),
     audios: pieceFiles.filter(({ fileType }) => fileType.startsWith("audio")),
     images: pieceFiles.filter(
-      ({ fileType }) => fileType.startsWith("audio") && fileType.startsWith("score"),
+      ({ fileType }) => !fileType.startsWith("audio") && !fileType.startsWith("score"),
     ),
     piece: currentPiece,
     events: eventListToTimetable(pieceEvents),
